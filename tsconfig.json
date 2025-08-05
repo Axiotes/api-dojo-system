@@ -18,10 +18,10 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@ds-api/*": ["src/*"],
-      "@ds-common/*": ["src/common/*"],
       "@ds-types/*": ["src/common/types/*"],
-      "@ds-services/*": ["src/common/services/*"]
+      "@ds-services/*": ["src/common/services/*"],
+      "@ds-common/*": ["src/common/*"],
+      "@ds-api/*": ["src/*"]
     }
   }
 }

@@ -24,6 +24,15 @@ module.exports = {
       typescript: {
         project: './tsconfig.json',
       },
+      alias: {
+        map: [
+          ['@ds-api', './src'],
+          ['@ds-common', './src/common'],
+          ['@ds-types', './src/common/types'],
+          ['@ds-services', './src/common/services'],
+        ],
+        extensions: ['.ts', '.js', '.json'],
+      },
     },
   },
   rules: {
