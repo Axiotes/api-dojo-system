@@ -3,8 +3,16 @@ import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
 
+import { LoggerService } from '@ds-services/logger/logger.service';
+import { ErrorLogsInterceptor } from '@ds-common/interceptors/error-logs/error-logs.interceptor';
+import { CombinedLogsInterceptor } from '@ds-common/interceptors/combined-logs/combined-logs.interceptor';
+
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
+
+  const logger = app.get(LoggerService);
+  app.useGlobalInterceptors(new ErrorLogsInterceptor(logger));
+  app.useGlobalInterceptors(new CombinedLogsInterceptor(logger));
 
   const config = new DocumentBuilder()
     .setTitle('Dojo System API')
