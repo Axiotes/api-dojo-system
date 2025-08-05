@@ -3,7 +3,7 @@ import { promises as fs } from 'fs';
 import { Injectable } from '@nestjs/common';
 import * as winston from 'winston';
 
-import { Logs } from 'src/common/types/logs.type';
+import { Logs } from '@ds-types/logs.type';
 
 @Injectable()
 export class LoggerService {

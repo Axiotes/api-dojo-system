@@ -24,15 +24,6 @@ module.exports = {
       typescript: {
         project: './tsconfig.json',
       },
-      alias: {
-        map: [
-          ['@lib-api', './src'],
-          ['@lib-modules', './src/modules'],
-          ['@lib-common', './src/common'],
-          ['@lib-db', './src/db'],
-        ],
-        extensions: ['.ts', '.js', '.json'],
-      },
     },
   },
   rules: {
