@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "paths": {
+      "@ds-api": ["src/*"],
+      "@ds-common": ["src/common/*"]
+    },
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
