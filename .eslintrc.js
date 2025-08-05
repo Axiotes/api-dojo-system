@@ -26,10 +26,10 @@ module.exports = {
       },
       alias: {
         map: [
-          ['@lib-api', './src'],
-          ['@lib-modules', './src/modules'],
-          ['@lib-common', './src/common'],
-          ['@lib-db', './src/db'],
+          ['@ds-api', './src'],
+          ['@ds-common', './src/common'],
+          ['@ds-types', './src/common/types'],
+          ['@ds-services', './src/common/services'],
         ],
         extensions: ['.ts', '.js', '.json'],
       },

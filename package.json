@@ -26,7 +26,8 @@
     "@nestjs/platform-express": "^11.1.5",
     "@nestjs/swagger": "^11.2.0",
     "reflect-metadata": "^0.2.0",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.10",
@@ -40,6 +41,7 @@
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^9.0.0",
+    "eslint-import-resolver-alias": "^1.1.2",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.0.0",
@@ -70,6 +72,12 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@ds-services/(.*)$": "<rootDir>/common/services/$1",
+      "^@ds-types/(.*)$": "<rootDir>/common/types/$1",
+      "^@ds-common/(.*)$": "<rootDir>/common/$1",
+      "^@ds-api/(.*)$": "<rootDir>/$1"
+    }
   }
 }
