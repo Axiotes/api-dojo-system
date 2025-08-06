@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-@Schema()
+@Schema({ timestamps: true })
 export class AcademyUser {
   @Prop({ required: [true, 'A academy user must have a name'], type: String })
   name: string;
@@ -18,12 +18,6 @@ export class AcademyUser {
     type: String,
   })
   password: string;
-
-  @Prop({ required: true, type: Date, default: Date.now })
-  createdAt: Date;
-
-  @Prop({ required: false, type: Date })
-  updatedAt: Date;
 
   @Prop({
     required: [true, 'A academy user must have a status'],
