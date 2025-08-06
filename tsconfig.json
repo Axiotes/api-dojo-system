@@ -21,6 +21,7 @@
       "@ds-types/*": ["src/common/types/*"],
       "@ds-services/*": ["src/common/services/*"],
       "@ds-common/*": ["src/common/*"],
+      "@ds-modules/*": ["src/modules/*"],
       "@ds-api/*": ["src/*"]
     }
   }

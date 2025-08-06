@@ -80,6 +80,7 @@
       "^@ds-services/(.*)$": "<rootDir>/common/services/$1",
       "^@ds-types/(.*)$": "<rootDir>/common/types/$1",
       "^@ds-common/(.*)$": "<rootDir>/common/$1",
+      "^@ds-modules/(.*)$": "<rootDir>/modules/$1",
       "^@ds-api/(.*)$": "<rootDir>/$1"
     }
   }
