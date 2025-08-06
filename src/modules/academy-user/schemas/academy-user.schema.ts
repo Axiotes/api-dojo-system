@@ -19,14 +19,14 @@ export class AcademyUser {
   })
   password: string;
 
-  @Prop({ required: true, type: Date })
+  @Prop({ required: true, type: Date, default: Date.now })
   createdAt: Date;
 
   @Prop({ required: false, type: Date })
   updatedAt: Date;
 
   @Prop({
-    required: [true, 'A academy user must have a password'],
+    required: [true, 'A academy user must have a status'],
     type: Boolean,
     default: true,
   })
