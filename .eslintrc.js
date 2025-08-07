@@ -31,6 +31,7 @@ module.exports = {
           ['@ds-modules', './src/modules'],
           ['@ds-types', './src/common/types'],
           ['@ds-services', './src/common/services'],
+          ['@ds-enums', './src/common/enums'],
         ],
         extensions: ['.ts', '.js', '.json'],
       },

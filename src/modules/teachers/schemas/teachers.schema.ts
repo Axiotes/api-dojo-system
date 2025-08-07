@@ -39,7 +39,7 @@ export class Teachers {
   modalities: Types.ObjectId[];
 
   @Prop({
-    required: [true, 'A plan must have a status'],
+    required: [true, 'A teacher must have a status'],
     type: Boolean,
     default: true,
   })

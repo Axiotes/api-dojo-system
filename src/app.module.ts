@@ -9,6 +9,7 @@ import { AcademyUserModule } from './modules/academy-user/academy-user.module';
 import { ModalitiesModule } from './modules/modalities/modalities.module';
 import { PlansModule } from './modules/plans/plans.module';
 import { TeachersModule } from './modules/teachers/teachers.module';
+import { AthletesModule } from './modules/athletes/athletes.module';
 
 @Module({
   imports: [
@@ -33,6 +34,8 @@ import { TeachersModule } from './modules/teachers/teachers.module';
     PlansModule,
 
     TeachersModule,
+
+    AthletesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
