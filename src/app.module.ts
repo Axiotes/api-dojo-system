@@ -8,6 +8,7 @@ import { ServicesModule } from './common/services/services.module';
 import { AcademyUserModule } from './modules/academy-user/academy-user.module';
 import { ModalitiesModule } from './modules/modalities/modalities.module';
 import { PlansModule } from './modules/plans/plans.module';
+import { TeachersModule } from './modules/teachers/teachers.module';
 
 @Module({
   imports: [
@@ -30,6 +31,8 @@ import { PlansModule } from './modules/plans/plans.module';
     ModalitiesModule,
 
     PlansModule,
+
+    TeachersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
