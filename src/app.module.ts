@@ -10,6 +10,7 @@ import { ModalitiesModule } from './modules/modalities/modalities.module';
 import { PlansModule } from './modules/plans/plans.module';
 import { TeachersModule } from './modules/teachers/teachers.module';
 import { AthletesModule } from './modules/athletes/athletes.module';
+import { ClassesModule } from './modules/classes/classes.module';
 
 @Module({
   imports: [
@@ -36,6 +37,8 @@ import { AthletesModule } from './modules/athletes/athletes.module';
     TeachersModule,
 
     AthletesModule,
+
+    ClassesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

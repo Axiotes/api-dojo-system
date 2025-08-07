@@ -5,7 +5,7 @@ import { TeachersSchema } from './schemas/teachers.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Plans', schema: TeachersSchema }]),
+    MongooseModule.forFeature([{ name: 'Teachers', schema: TeachersSchema }]),
   ],
 })
 export class TeachersModule {}
