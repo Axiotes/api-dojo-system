@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
+import { PaymentMethod } from '../../payment/schemas/payment-method.schema';
+
 import { Responsible } from './responsible.schema';
-import { PaymentMethod } from './payment-method.schema';
 
 @Schema({ timestamps: true })
 export class Athletes {
