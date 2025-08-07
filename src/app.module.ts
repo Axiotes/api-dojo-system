@@ -5,6 +5,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ServicesModule } from './common/services/services.module';
+import { AcademyUserModule } from './modules/academy-user/academy-user.module';
+import { ModalitiesModule } from './modules/modalities/modalities.module';
+import { PlansModule } from './modules/plans/plans.module';
+import { TeachersModule } from './modules/teachers/teachers.module';
+import { AthletesModule } from './modules/athletes/athletes.module';
+import { ClassesModule } from './modules/classes/classes.module';
+import { VisitsModule } from './modules/visits/visits.module';
+import { PaymentModule } from './modules/payment/payment.module';
 
 @Module({
   imports: [
@@ -21,6 +29,22 @@ import { ServicesModule } from './common/services/services.module';
     }),
 
     ServicesModule,
+
+    AcademyUserModule,
+
+    ModalitiesModule,
+
+    PlansModule,
+
+    TeachersModule,
+
+    AthletesModule,
+
+    ClassesModule,
+
+    VisitsModule,
+
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

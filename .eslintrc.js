@@ -28,8 +28,10 @@ module.exports = {
         map: [
           ['@ds-api', './src'],
           ['@ds-common', './src/common'],
+          ['@ds-modules', './src/modules'],
           ['@ds-types', './src/common/types'],
           ['@ds-services', './src/common/services'],
+          ['@ds-enums', './src/common/enums'],
         ],
         extensions: ['.ts', '.js', '.json'],
       },
