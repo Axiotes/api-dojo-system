@@ -11,6 +11,7 @@ import { PlansModule } from './modules/plans/plans.module';
 import { TeachersModule } from './modules/teachers/teachers.module';
 import { AthletesModule } from './modules/athletes/athletes.module';
 import { ClassesModule } from './modules/classes/classes.module';
+import { VisitsModule } from './modules/visits/visits.module';
 
 @Module({
   imports: [
@@ -39,6 +40,8 @@ import { ClassesModule } from './modules/classes/classes.module';
     AthletesModule,
 
     ClassesModule,
+
+    VisitsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
