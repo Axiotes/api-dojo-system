@@ -1,7 +1,16 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { Types } from 'mongoose';
 
 import { AdminDto } from './dtos/admin.dto';
 import { AdminService } from './admin.service';
@@ -34,6 +43,35 @@ export class AdminController {
     @Body() body: AdminDto,
   ): Promise<ApiResponse<AdminDocument>> {
     const admin = await this.adminService.createAdmin(body);
+
+    return {
+      data: admin,
+    };
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Busca administrador da academia por ID',
+    description:
+      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+  })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
+  @Get(':id')
+  public async findById(
+    @Param('id') id: string,
+  ): Promise<ApiResponse<AdminDocument>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    const admin = await this.adminService.findById(id);
 
     return {
       data: admin,
