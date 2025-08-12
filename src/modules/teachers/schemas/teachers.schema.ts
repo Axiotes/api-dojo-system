@@ -27,8 +27,8 @@ export class Teachers {
   @Prop({ required: [true, 'A teacher must have a photo'], type: String })
   photo: string;
 
-  @Prop({ required: [true, 'A teacher must have a hour price'], type: String })
-  hourPrice: string;
+  @Prop({ required: [true, 'A teacher must have a hour price'], type: Number })
+  hourPrice: number;
 
   @Prop({
     type: [{ type: Types.ObjectId, ref: Modalities.name }],
