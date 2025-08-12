@@ -10,11 +10,11 @@ export class AdminDto {
   @IsString()
   @MinLength(8)
   @Matches(/(?=.*[A-Z])/, {
-    message: 'The password should contain at least 1 uppercase character',
+    message: 'password should contain at least 1 uppercase character',
   })
   @Matches(/(?=.*[a-z])/, {
-    message: 'Password must contain at least one lowercase letter',
+    message: 'password must contain at least one lowercase letter',
   })
-  @Matches(/(?=.*\d)/, { message: 'Password must contain at least one number' })
+  @Matches(/(?=.*\d)/, { message: 'password must contain at least one number' })
   password: string;
 }

@@ -1,15 +1,20 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { AdminDto } from './dtos/admin.dto';
 import { AdminService } from './admin.service';
 
 import { ApiResponse } from '@ds-types/api-response.type';
 import { AdminDocument } from '@ds-types/documents/admin';
+import { RoleGuard } from '@ds-common/guards/role/role.guard';
+import { Roles } from '@ds-common/decorators/roles.decorator';
 
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
   @Post()
   public async createAdmin(
     @Body() body: AdminDto,
