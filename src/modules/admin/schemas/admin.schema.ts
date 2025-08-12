@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema({ timestamps: true })
-export class AcademyUser {
-  @Prop({ required: [true, 'A academy user must have a name'], type: String })
+export class Admin {
+  @Prop({ required: [true, 'An admin must have a name'], type: String })
   name: string;
 
   @Prop({
-    required: [true, 'A academy user must have a email'],
+    required: [true, 'An admin must have a email'],
     type: String,
     unique: true,
     match: [/.+\@.+\..+/, 'Please enter a valid email address'],
@@ -14,17 +14,17 @@ export class AcademyUser {
   email: string;
 
   @Prop({
-    required: [true, 'A academy user must have a password'],
+    required: [true, 'An admin must have a password'],
     type: String,
   })
   password: string;
 
   @Prop({
-    required: [true, 'A academy user must have a status'],
+    required: [true, 'An admin must have a status'],
     type: Boolean,
     default: true,
   })
   status: boolean;
 }
 
-export const AcademyUserSchema = SchemaFactory.createForClass(AcademyUser);
+export const AdminSchema = SchemaFactory.createForClass(Admin);
