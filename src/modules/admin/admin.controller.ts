@@ -1,6 +1,7 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
 import { AdminDto } from './dtos/admin.dto';
 import { AdminService } from './admin.service';
@@ -14,6 +15,12 @@ import { Roles } from '@ds-common/decorators/roles.decorator';
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Cadastra um novo administrador da academia',
+    description:
+      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+  })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles('admin')
   @Throttle({
