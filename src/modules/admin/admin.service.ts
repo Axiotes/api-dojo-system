@@ -5,11 +5,13 @@ import { Model } from 'mongoose';
 import { AdminDto } from './dtos/admin.dto';
 import { Admin } from './schemas/admin.schema';
 
+import { AdminDocument } from '@ds-types/documents/admin';
+
 @Injectable()
 export class AdminService {
   constructor(@InjectModel(Admin.name) private adminModel: Model<Admin>) {}
 
-  public async createAdmin(adminDto: AdminDto): Promise<AdminDto> {
+  public async createAdmin(adminDto: AdminDto): Promise<AdminDocument> {
     const admin = await this.adminModel
       .findOne({ email: adminDto.email })
       .exec();
