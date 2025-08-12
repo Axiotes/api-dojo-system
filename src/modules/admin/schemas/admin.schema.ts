@@ -1,7 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
+import * as bcrypt from 'bcrypt';
 
 @Schema({ timestamps: true })
-export class Admin {
+export class Admin extends Document {
   @Prop({ required: [true, 'An admin must have a name'], type: String })
   name: string;
 
@@ -28,3 +30,12 @@ export class Admin {
 }
 
 export const AdminSchema = SchemaFactory.createForClass(Admin);
+
+AdminSchema.pre<Admin>('save', async function (next) {
+  if (!this.isModified('password')) return next();
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+
+  next();
+});
