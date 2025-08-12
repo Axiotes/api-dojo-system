@@ -19,7 +19,7 @@ export class Admin extends Document {
     required: [true, 'An admin must have a password'],
     type: String,
     select: false,
-    minlength: [6, 'Password must be at least 6 characters long'],
+    minlength: [8, 'Password must be at least 8 characters long'],
   })
   password: string;
 

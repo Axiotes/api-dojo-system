@@ -1,4 +1,4 @@
-import { IsEmail, IsString } from 'class-validator';
+import { IsEmail, IsString, Matches, MinLength } from 'class-validator';
 
 export class AdminDto {
   @IsString()
@@ -8,5 +8,13 @@ export class AdminDto {
   email: string;
 
   @IsString()
+  @MinLength(8)
+  @Matches(/(?=.*[A-Z])/, {
+    message: 'The password should contain at least 1 uppercase character',
+  })
+  @Matches(/(?=.*[a-z])/, {
+    message: 'Password must contain at least one lowercase letter',
+  })
+  @Matches(/(?=.*\d)/, { message: 'Password must contain at least one number' })
   password: string;
 }
