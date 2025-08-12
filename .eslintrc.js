@@ -54,5 +54,6 @@ module.exports = {
     ],
     'unused-imports/no-unused-imports': 'warn',
     'unused-imports/no-unused-vars': 'off',
+    'prettier/prettier': 'off',
   },
 };

@@ -12,6 +12,7 @@ import { AthletesModule } from './modules/athletes/athletes.module';
 import { ClassesModule } from './modules/classes/classes.module';
 import { VisitsModule } from './modules/visits/visits.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 import { AdminModule } from '@ds-modules/admin/admin.module';
 
@@ -46,6 +47,8 @@ import { AdminModule } from '@ds-modules/admin/admin.module';
     VisitsModule,
 
     PaymentModule,
+
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

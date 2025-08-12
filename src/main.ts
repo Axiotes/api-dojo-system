@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 import { AppModule } from './app.module';
 
@@ -13,6 +14,9 @@ async function bootstrap(): Promise<void> {
   const logger = app.get(LoggerService);
   app.useGlobalInterceptors(new ErrorLogsInterceptor(logger));
   app.useGlobalInterceptors(new CombinedLogsInterceptor(logger));
+  app.useGlobalPipes(new ValidationPipe());
+
+  app.setGlobalPrefix('api/v1');
 
   const config = new DocumentBuilder()
     .setTitle('Dojo System API')
