@@ -1,5 +1,6 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { Throttle } from '@nestjs/throttler';
 
 import { AdminDto } from './dtos/admin.dto';
 import { AdminService } from './admin.service';
@@ -15,6 +16,12 @@ export class AdminController {
 
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
   @Post()
   public async createAdmin(
     @Body() body: AdminDto,
