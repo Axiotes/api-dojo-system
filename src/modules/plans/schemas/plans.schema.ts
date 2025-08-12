@@ -2,11 +2,15 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 
 import { Modalities } from '@ds-modules/modalities/schemas/modalities.schema';
+import { Period } from '@ds-enums/period.enum';
 
 @Schema({ timestamps: true })
 export class Plans {
-  @Prop({ required: [true, 'A plan must have a period'], type: String })
-  period: string;
+  @Prop({ required: [true, 'A plan must have a period'], enum: Period })
+  period: Period;
+
+  @Prop({ required: [true, 'A plan must have a period'], type: Number })
+  periodQuantity: number;
 
   @Prop({ required: [true, 'A plan must have a value'], type: Number })
   value: number;

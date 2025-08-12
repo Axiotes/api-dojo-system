@@ -1,8 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Types } from 'mongoose';
 
 import { PaymentMethod } from '../../payment/schemas/payment-method.schema';
 
 import { Responsible } from './responsible.schema';
+
+import { Plans } from '@ds-modules/plans/schemas/plans.schema';
 
 @Schema({ timestamps: true })
 export class Athletes {
@@ -33,6 +36,13 @@ export class Athletes {
 
   @Prop({ type: [Responsible], required: false })
   responsibles?: Responsible[];
+
+  @Prop({
+    type: Types.ObjectId,
+    ref: Plans.name,
+    required: [true, 'A athlete must have a plan'],
+  })
+  plan: Types.ObjectId;
 
   @Prop({ type: [PaymentMethod], required: false })
   paymentMethod?: PaymentMethod[];
