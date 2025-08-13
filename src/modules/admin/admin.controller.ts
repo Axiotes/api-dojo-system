@@ -16,6 +16,7 @@ import { Types } from 'mongoose';
 import { AdminDto } from './dtos/admin.dto';
 import { AdminService } from './admin.service';
 import { Pagination } from './dtos/pagination.dto';
+import { AdminLoginDto } from './dtos/admin-login.dto';
 
 import { ApiResponse } from '@ds-types/api-response.type';
 import { AdminDocument } from '@ds-types/documents/admin';
@@ -48,6 +49,17 @@ export class AdminController {
 
     return {
       data: admin,
+    };
+  }
+
+  @Post('login')
+  public async login(
+    @Body() loginDto: AdminLoginDto,
+  ): Promise<ApiResponse<string>> {
+    const token = await this.adminService.login(loginDto);
+
+    return {
+      data: token,
     };
   }
 
