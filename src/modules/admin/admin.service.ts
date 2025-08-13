@@ -64,8 +64,6 @@ export class AdminService {
 
     const passwordMatch = bcrypt.compareSync(loginDto.password, admin.password);
 
-    console.log(passwordMatch);
-
     if (!passwordMatch) {
       throw new NotFoundException('Invalid email or password');
     }

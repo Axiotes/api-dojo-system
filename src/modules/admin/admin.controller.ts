@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
-import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiCookieAuth, ApiOperation } from '@nestjs/swagger';
 import { Types } from 'mongoose';
 import { Response } from 'express';
 
@@ -29,7 +29,7 @@ import { Roles } from '@ds-common/decorators/roles.decorator';
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  @ApiBearerAuth()
+  @ApiCookieAuth()
   @ApiOperation({
     summary: 'Cadastra um novo administrador da academia',
     description:
@@ -54,6 +54,17 @@ export class AdminController {
     };
   }
 
+  @ApiOperation({
+    summary: 'Login do administrador da academia',
+    description:
+      'Em caso de sucesso, retorna um token JWT nos cookies que deve ser utilizado para acessar outros endpoints protegidos.',
+  })
+  @Throttle({
+    default: {
+      limit: 5,
+      ttl: 60000,
+    },
+  })
   @Post('login')
   public async login(
     @Body() loginDto: AdminLoginDto,
@@ -61,7 +72,7 @@ export class AdminController {
   ): Promise<ApiResponse<string>> {
     const token = await this.adminService.login(loginDto);
 
-    res.cookie('jwt', token, {
+    res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -73,7 +84,7 @@ export class AdminController {
     };
   }
 
-  @ApiBearerAuth()
+  @ApiCookieAuth()
   @ApiOperation({
     summary: 'Busca administrador da academia por ID',
     description:
@@ -102,7 +113,7 @@ export class AdminController {
     };
   }
 
-  @ApiBearerAuth()
+  @ApiCookieAuth()
   @ApiOperation({
     summary: 'Busca administradores da academia',
     description:

@@ -28,7 +28,6 @@ async function bootstrap(): Promise<void> {
       Além disso, oferece uma plataforma para alunos e visitantes interagirem com as academias.`,
     )
     .setVersion('1.0')
-    .addBearerAuth()
     .build();
 
   const documentFactory = (): OpenAPIObject =>
