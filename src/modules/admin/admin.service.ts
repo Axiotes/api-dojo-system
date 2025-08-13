@@ -5,16 +5,22 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 import { AdminDto } from './dtos/admin.dto';
 import { Admin } from './schemas/admin.schema';
 import { Pagination } from './dtos/pagination.dto';
+import { AdminLoginDto } from './dtos/admin-login.dto';
 
 import { AdminDocument } from '@ds-types/documents/admin';
 
 @Injectable()
 export class AdminService {
-  constructor(@InjectModel(Admin.name) private adminModel: Model<Admin>) {}
+  constructor(
+    @InjectModel(Admin.name) private adminModel: Model<Admin>,
+    private jwtService: JwtService,
+  ) {}
 
   public async createAdmin(adminDto: AdminDto): Promise<AdminDocument> {
     const admin = await this.adminModel
@@ -44,5 +50,26 @@ export class AdminService {
       .skip(pagination.skip)
       .limit(pagination.limit)
       .exec();
+  }
+
+  public async login(loginDto: AdminLoginDto): Promise<string> {
+    const admin = await this.adminModel
+      .findOne({ email: loginDto.email, status: true })
+      .select('+password')
+      .exec();
+
+    if (!admin) {
+      throw new NotFoundException('Invalid email or password');
+    }
+
+    const passwordMatch = bcrypt.compareSync(loginDto.password, admin.password);
+
+    if (!passwordMatch) {
+      throw new NotFoundException('Invalid email or password');
+    }
+
+    const token = this.jwtService.sign({ id: admin._id, role: 'admin' });
+
+    return token;
   }
 }

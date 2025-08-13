@@ -1,15 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException } from '@nestjs/common';
+import { Response } from 'express';
 
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { AdminDto } from './dtos/admin.dto';
+import { AdminLoginDto } from './dtos/admin-login.dto';
 
 import { AdminDocument } from '@ds-types/documents/admin';
 
 describe('AdminController', () => {
   let controller: AdminController;
   let adminService: AdminService;
+
+  const mockResponse = {
+    cookie: jest.fn(),
+  } as unknown as Response;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -21,6 +27,7 @@ describe('AdminController', () => {
             createAdmin: jest.fn(),
             findById: jest.fn(),
             findAll: jest.fn(),
+            login: jest.fn(),
           },
         },
       ],
@@ -110,5 +117,18 @@ describe('AdminController', () => {
     expect(result).toEqual({ data: admins, pagination, total: admins.length });
     expect(result.data.length).toBe(admins.length);
     expect(adminService.findAll).toHaveBeenCalledWith(pagination);
+  });
+
+  it('should login successfully', async () => {
+    const loginDto: AdminLoginDto = {
+      email: 'tests@gmail.com',
+      password: 'test123',
+    };
+    const token = 'jwt-token';
+
+    adminService.login = jest.fn().mockResolvedValue(token);
+
+    const result = await controller.login(loginDto, mockResponse);
+    expect(result).toEqual({ data: 'Login successful' });
   });
 });

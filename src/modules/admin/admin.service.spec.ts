@@ -2,12 +2,16 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
 import { ConflictException, NotFoundException } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { Admin } from './schemas/admin.schema';
 import { AdminDto } from './dtos/admin.dto';
 import { AdminService } from './admin.service';
+import { AdminLoginDto } from './dtos/admin-login.dto';
 
 import { AdminDocument } from '@ds-types/documents/admin';
+import { AuthModule } from '@ds-modules/auth/auth.module';
 
 describe('AdminService', () => {
   let service: AdminService;
@@ -19,12 +23,20 @@ describe('AdminService', () => {
     find: jest.fn().mockReturnThis(),
     skip: jest.fn().mockReturnThis(),
     limit: jest.fn().mockReturnThis(),
+    select: jest.fn().mockReturnThis(),
     exec: jest.fn(),
     create: jest.fn(),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({
+          isGlobal: true,
+          load: [],
+        }),
+        AuthModule,
+      ],
       providers: [
         AdminService,
         {
@@ -32,10 +44,20 @@ describe('AdminService', () => {
           useValue: mockAdminModel,
         },
       ],
-    }).compile();
+    })
+      .overrideProvider(ConfigService)
+      .useValue({
+        get: jest.fn((key: string) => {
+          if (key === 'JWT_SECRET') return 'test-secret';
+          if (key === 'JWT_EXPIRATION_TIME') return '1h';
+          return null;
+        }),
+      })
+      .compile();
 
     service = module.get<AdminService>(AdminService);
     model = module.get<Model<AdminDocument>>(getModelToken(Admin.name));
+
     jest.clearAllMocks();
   });
 
@@ -130,5 +152,76 @@ describe('AdminService', () => {
     expect(model.find).toHaveBeenCalled();
     expect(mockAdminModel.skip).toHaveBeenCalledWith(pagination.skip);
     expect(mockAdminModel.limit).toHaveBeenCalledWith(pagination.limit);
+  });
+
+  it('should login admin successfully', async () => {
+    const loginDto: AdminLoginDto = {
+      email: 'test@gmail.com',
+      password: 'Password123',
+    };
+    const admin: Partial<AdminDocument> = {
+      _id: '60c72b2f9b1d8c001c8e4e1a',
+      email: loginDto.email,
+      password: bcrypt.hashSync(loginDto.password, 10),
+      status: true,
+    };
+
+    mockAdminModel.findOne.mockReturnThis();
+    mockAdminModel.select.mockReturnThis();
+    mockAdminModel.exec.mockResolvedValue(admin);
+
+    const token = await service.login(loginDto);
+
+    expect(token).toBeDefined();
+    expect(model.findOne).toHaveBeenCalledWith({
+      email: loginDto.email,
+      status: true,
+    });
+    expect(bcrypt.compareSync(loginDto.password, admin.password)).toBe(true);
+  });
+
+  it('should throw NotFoundException for invalid email', async () => {
+    const loginDto: AdminLoginDto = {
+      email: 'test@gmail.com',
+      password: 'Password123',
+    };
+
+    mockAdminModel.findOne.mockReturnThis();
+    mockAdminModel.select.mockReturnThis();
+    mockAdminModel.exec.mockResolvedValue(null);
+
+    await expect(service.login(loginDto)).rejects.toThrow(
+      new NotFoundException('Invalid email or password'),
+    );
+    expect(model.findOne).toHaveBeenCalledWith({
+      email: loginDto.email,
+      status: true,
+    });
+  });
+
+  it('should throw NotFoundException for invalid password', async () => {
+    const loginDto: AdminLoginDto = {
+      email: 'test@gmail.com',
+      password: 'Password123',
+    };
+    const admin: Partial<AdminDocument> = {
+      _id: '60c72b2f9b1d8c001c8e4e1a',
+      email: loginDto.email,
+      password: bcrypt.hashSync('test123', 10),
+      status: true,
+    };
+
+    mockAdminModel.findOne.mockReturnThis();
+    mockAdminModel.select.mockReturnThis();
+    mockAdminModel.exec.mockResolvedValue(admin);
+
+    await expect(service.login(loginDto)).rejects.toThrow(
+      new NotFoundException('Invalid email or password'),
+    );
+    expect(model.findOne).toHaveBeenCalledWith({
+      email: loginDto.email,
+      status: true,
+    });
+    expect(bcrypt.compareSync(loginDto.password, admin.password)).toBe(false);
   });
 });

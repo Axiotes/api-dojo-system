@@ -6,16 +6,19 @@ import {
   Param,
   Post,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
-import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiCookieAuth, ApiOperation } from '@nestjs/swagger';
 import { Types } from 'mongoose';
+import { Response } from 'express';
 
 import { AdminDto } from './dtos/admin.dto';
 import { AdminService } from './admin.service';
 import { Pagination } from './dtos/pagination.dto';
+import { AdminLoginDto } from './dtos/admin-login.dto';
 
 import { ApiResponse } from '@ds-types/api-response.type';
 import { AdminDocument } from '@ds-types/documents/admin';
@@ -26,7 +29,7 @@ import { Roles } from '@ds-common/decorators/roles.decorator';
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  @ApiBearerAuth()
+  @ApiCookieAuth()
   @ApiOperation({
     summary: 'Cadastra um novo administrador da academia',
     description:
@@ -51,7 +54,37 @@ export class AdminController {
     };
   }
 
-  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Login do administrador da academia',
+    description:
+      'Em caso de sucesso, retorna um token JWT nos cookies que deve ser utilizado para acessar outros endpoints protegidos.',
+  })
+  @Throttle({
+    default: {
+      limit: 5,
+      ttl: 60000,
+    },
+  })
+  @Post('login')
+  public async login(
+    @Body() loginDto: AdminLoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<ApiResponse<string>> {
+    const token = await this.adminService.login(loginDto);
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 604800000,
+    });
+
+    return {
+      data: 'Login successful',
+    };
+  }
+
+  @ApiCookieAuth()
   @ApiOperation({
     summary: 'Busca administrador da academia por ID',
     description:
@@ -80,7 +113,7 @@ export class AdminController {
     };
   }
 
-  @ApiBearerAuth()
+  @ApiCookieAuth()
   @ApiOperation({
     summary: 'Busca administradores da academia',
     description:
