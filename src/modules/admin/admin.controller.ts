@@ -6,12 +6,14 @@ import {
   Param,
   Post,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { Types } from 'mongoose';
+import { Response } from 'express';
 
 import { AdminDto } from './dtos/admin.dto';
 import { AdminService } from './admin.service';
@@ -55,11 +57,19 @@ export class AdminController {
   @Post('login')
   public async login(
     @Body() loginDto: AdminLoginDto,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<ApiResponse<string>> {
     const token = await this.adminService.login(loginDto);
 
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 604800000,
+    });
+
     return {
-      data: token,
+      data: 'Login successful',
     };
   }
 

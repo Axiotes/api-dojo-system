@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import * as cookieParser from 'cookie-parser';
 
 import { AppModule } from './app.module';
 
@@ -11,10 +12,12 @@ import { CombinedLogsInterceptor } from '@ds-common/interceptors/combined-logs/c
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
+  app.useGlobalPipes(new ValidationPipe());
+  app.use(cookieParser());
+
   const logger = app.get(LoggerService);
   app.useGlobalInterceptors(new ErrorLogsInterceptor(logger));
   app.useGlobalInterceptors(new CombinedLogsInterceptor(logger));
-  app.useGlobalPipes(new ValidationPipe());
 
   app.setGlobalPrefix('api/v1');
 
