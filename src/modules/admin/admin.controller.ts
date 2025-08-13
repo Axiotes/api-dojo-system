@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -14,6 +15,7 @@ import { Types } from 'mongoose';
 
 import { AdminDto } from './dtos/admin.dto';
 import { AdminService } from './admin.service';
+import { Pagination } from './dtos/pagination.dto';
 
 import { ApiResponse } from '@ds-types/api-response.type';
 import { AdminDocument } from '@ds-types/documents/admin';
@@ -75,6 +77,33 @@ export class AdminController {
 
     return {
       data: admin,
+    };
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Busca administradores da academia',
+    description:
+      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+  })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
+  @Get()
+  public async findAll(
+    @Query() pagination: Pagination,
+  ): Promise<ApiResponse<AdminDocument[]>> {
+    const admins = await this.adminService.findAll(pagination);
+
+    return {
+      data: admins,
+      pagination,
+      total: admins.length,
     };
   }
 }

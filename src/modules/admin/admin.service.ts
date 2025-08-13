@@ -8,6 +8,7 @@ import { Model } from 'mongoose';
 
 import { AdminDto } from './dtos/admin.dto';
 import { Admin } from './schemas/admin.schema';
+import { Pagination } from './dtos/pagination.dto';
 
 import { AdminDocument } from '@ds-types/documents/admin';
 
@@ -35,5 +36,13 @@ export class AdminService {
     }
 
     return admin;
+  }
+
+  public async findAll(pagination: Pagination): Promise<AdminDocument[]> {
+    return await this.adminModel
+      .find()
+      .skip(pagination.skip)
+      .limit(pagination.limit)
+      .exec();
   }
 }
