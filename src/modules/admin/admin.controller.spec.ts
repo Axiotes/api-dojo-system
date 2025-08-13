@@ -1,8 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { BadRequestException } from '@nestjs/common';
 
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { AdminDto } from './dtos/admin.dto';
+
+import { AdminDocument } from '@ds-types/documents/admin';
 
 describe('AdminController', () => {
   let controller: AdminController;
@@ -16,6 +19,8 @@ describe('AdminController', () => {
           provide: AdminService,
           useValue: {
             createAdmin: jest.fn(),
+            findById: jest.fn(),
+            findAll: jest.fn(),
           },
         },
       ],
@@ -41,5 +46,69 @@ describe('AdminController', () => {
     const result = await controller.createAdmin(adminDto);
     expect(result).toEqual({ data: adminDto });
     expect(adminService.createAdmin).toHaveBeenCalledWith(adminDto);
+  });
+
+  it('should find an admin by ID successfully', async () => {
+    const adminId = '60c72b2f9b1d8c001c8e4e1a';
+    const admin: Partial<AdminDocument> = {
+      _id: adminId,
+      name: 'Unit Test',
+      email: 'testadmin@gmail.com',
+    };
+
+    adminService.findById = jest.fn().mockResolvedValue(admin);
+
+    const result = await controller.findById(adminId);
+
+    expect(result).toEqual({ data: admin });
+    expect(adminService.findById).toHaveBeenCalledWith(adminId);
+  });
+
+  it('should throw BadRequestException for invalid ID format', async () => {
+    const invalidId = '1234';
+
+    await expect(controller.findById(invalidId)).rejects.toThrow(
+      new BadRequestException('Invalid id format'),
+    );
+    expect(adminService.findById).toHaveBeenCalledTimes(0);
+  });
+
+  it('should find all admins successfully', async () => {
+    const pagination = { skip: 0, limit: 5 };
+    const admins: Partial<AdminDocument>[] = [
+      {
+        _id: '60c72b2f9b1d8c001c8e4e1a',
+        name: 'Admin 1',
+        email: 'admin1@gmail.com',
+      },
+      {
+        _id: '60c72b2f9b1d8c001c8e4e2a',
+        name: 'Admin 2',
+        email: 'admin2@gmail.com',
+      },
+      {
+        _id: '60c72b2f9b1d8c001c8e4e3a',
+        name: 'Admin 3',
+        email: 'admin3@gmail.com',
+      },
+      {
+        _id: '60c72b2f9b1d8c001c8e4e4a',
+        name: 'Admin 4',
+        email: 'admin4@gmail.com',
+      },
+      {
+        _id: '60c72b2f9b1d8c001c8e4e5a',
+        name: 'Admin 5',
+        email: 'admin5@gmail.com',
+      },
+    ];
+
+    adminService.findAll = jest.fn().mockResolvedValue(admins);
+
+    const result = await controller.findAll(pagination);
+
+    expect(result).toEqual({ data: admins, pagination, total: admins.length });
+    expect(result.data.length).toBe(admins.length);
+    expect(adminService.findAll).toHaveBeenCalledWith(pagination);
   });
 });
