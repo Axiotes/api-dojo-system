@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Res,
@@ -19,6 +20,7 @@ import { AdminDto } from './dtos/admin.dto';
 import { AdminService } from './admin.service';
 import { FindAdminDto } from './dtos/find-admin.dto';
 import { AdminLoginDto } from './dtos/admin-login.dto';
+import { UpdateAdminDto } from './dtos/update-admin.dto';
 
 import { ApiResponse } from '@ds-types/api-response.type';
 import { AdminDocument } from '@ds-types/documents/admin';
@@ -196,6 +198,17 @@ export class AdminController {
 
     return {
       data: 'Admin successfully deactivated',
+    };
+  }
+
+  @Patch()
+  public async updateAdmin(
+    @Body() updateDto: UpdateAdminDto,
+  ): Promise<ApiResponse<AdminDocument>> {
+    const updatedAdmin = await this.adminService.updateAdmin(updateDto);
+
+    return {
+      data: updatedAdmin,
     };
   }
 }

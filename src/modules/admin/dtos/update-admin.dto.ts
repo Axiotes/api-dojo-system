@@ -1,10 +1,10 @@
 import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class UpdateAdminDto {
-  @IsString()
+  @IsEmail()
   email: string;
 
-  @IsEmail()
+  @IsString()
   password: string;
 
   @IsOptional()
