@@ -7,6 +7,7 @@ import { AdminService } from './admin.service';
 import { AdminDto } from './dtos/admin.dto';
 import { AdminLoginDto } from './dtos/admin-login.dto';
 import { FindAdminDto } from './dtos/find-admin.dto';
+import { UpdateAdminDto } from './dtos/update-admin.dto';
 
 import { AdminDocument } from '@ds-types/documents/admin';
 
@@ -30,6 +31,7 @@ describe('AdminController', () => {
             findAll: jest.fn(),
             login: jest.fn(),
             setStatus: jest.fn(),
+            updateAdmin: jest.fn(),
           },
         },
       ],
@@ -178,5 +180,26 @@ describe('AdminController', () => {
 
     expect(result).toEqual({ data: 'Admin successfully deactivated' });
     expect(adminService.setStatus).toHaveBeenCalledWith(adminId, status);
+  });
+
+  it('should update an admin successfully', async () => {
+    const updateDto: UpdateAdminDto = {
+      email: 'test@gmail.com',
+      password: 'Password123',
+      newName: 'Updated Name',
+      newEmail: 'newtest@gmail.com',
+      newPassword: 'NewPassword123',
+    };
+    const updatedAdmin: Partial<AdminDocument> = {
+      _id: '60c72b2f9b1d8c001c8e4e1a',
+      name: updateDto.newName,
+      email: updateDto.newEmail,
+    };
+
+    adminService.updateAdmin = jest.fn().mockResolvedValue(updatedAdmin);
+
+    const result = await controller.updateAdmin(updateDto);
+    expect(result).toEqual({ data: updatedAdmin });
+    expect(adminService.updateAdmin).toHaveBeenCalledWith(updateDto);
   });
 });

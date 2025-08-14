@@ -9,6 +9,7 @@ import { Admin } from './schemas/admin.schema';
 import { AdminDto } from './dtos/admin.dto';
 import { AdminService } from './admin.service';
 import { AdminLoginDto } from './dtos/admin-login.dto';
+import { UpdateAdminDto } from './dtos/update-admin.dto';
 
 import { AdminDocument } from '@ds-types/documents/admin';
 import { AuthModule } from '@ds-modules/auth/auth.module';
@@ -21,6 +22,7 @@ describe('AdminService', () => {
     findOne: jest.fn().mockReturnThis(),
     findById: jest.fn().mockReturnThis(),
     find: jest.fn().mockReturnThis(),
+    findByIdAndUpdate: jest.fn().mockReturnThis(),
     where: jest.fn().mockReturnThis(),
     equals: jest.fn().mockReturnThis(),
     skip: jest.fn().mockReturnThis(),
@@ -277,5 +279,93 @@ describe('AdminService', () => {
       new NotFoundException('Admin not found'),
     );
     expect(model.findById).toHaveBeenCalledWith(adminId);
+  });
+
+  it('should update admin successfully', async () => {
+    const updateDto: UpdateAdminDto = {
+      email: 'test@gmail.com',
+      password: 'Password123',
+      newName: 'Updated Name',
+      newEmail: 'newtest@gmail.com',
+      newPassword: 'NewPassword123',
+    };
+    const admin: Partial<AdminDocument> = {
+      _id: '60c72b2f9b1d8c001c8e4e1a',
+      name: 'Test Admin',
+      email: updateDto.email,
+      password: bcrypt.hashSync(updateDto.password, 10),
+      status: true,
+    };
+    const updatedAdmin: Partial<AdminDocument> = {
+      ...admin,
+      name: updateDto.newName,
+      email: updateDto.newEmail,
+      password: bcrypt.hashSync(updateDto.newPassword, 10),
+    };
+
+    mockAdminModel.findOne.mockReturnThis();
+    mockAdminModel.exec.mockResolvedValueOnce(admin);
+    mockAdminModel.exec.mockResolvedValueOnce(null);
+    mockAdminModel.findByIdAndUpdate.mockReturnThis();
+    mockAdminModel.exec.mockResolvedValue(updatedAdmin);
+
+    const result = await service.updateAdmin(updateDto);
+
+    expect(result).toEqual(updatedAdmin);
+    expect(model.findOne).toHaveBeenCalledWith({
+      email: updateDto.email,
+      status: true,
+    });
+    expect(model.findOne).toHaveBeenCalledWith({
+      email: updateDto.newEmail,
+    });
+
+    expect(model.findByIdAndUpdate).toHaveBeenCalledWith(
+      admin._id,
+      {
+        name: updateDto.newName,
+        email: updateDto.newEmail,
+        password: expect.any(String),
+      },
+      { new: true },
+    );
+  });
+
+  it('should throw ConflictException if new email already exists', async () => {
+    const updateDto: UpdateAdminDto = {
+      email: 'test@gmail.com',
+      password: 'Password123',
+      newName: 'Updated Name',
+      newEmail: 'newtest@gmail.com',
+      newPassword: 'StrongNewPassword123',
+    };
+    const admin: Partial<AdminDocument> = {
+      _id: '60c72b2f9b1d8c001c8e4e1a',
+      name: 'Test Admin',
+      email: updateDto.email,
+      password: bcrypt.hashSync(updateDto.password, 10),
+      status: true,
+    };
+    const existingAdmin: Partial<AdminDocument> = {
+      _id: '60c72b2f9b1d8c001c8e4e2a',
+      email: updateDto.newEmail,
+    };
+
+    mockAdminModel.findOne.mockReturnThis();
+    mockAdminModel.exec.mockResolvedValueOnce(admin);
+    mockAdminModel.exec.mockResolvedValueOnce(existingAdmin);
+
+    await expect(service.updateAdmin(updateDto)).rejects.toThrow(
+      new ConflictException('An admin with this email already exists'),
+    );
+    expect(model.findOne).toHaveBeenCalledWith({
+      email: updateDto.email,
+      status: true,
+    });
+    expect(model.findOne).toHaveBeenCalledWith({
+      email: updateDto.newEmail,
+    });
+
+    expect(model.findByIdAndUpdate).toHaveBeenCalledTimes(0);
   });
 });

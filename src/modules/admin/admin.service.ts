@@ -82,6 +82,16 @@ export class AdminService {
       password: updateDto.password,
     });
 
+    if (updateDto.newEmail && updateDto.newEmail !== admin.email) {
+      const emailExists = await this.adminModel
+        .findOne({ email: updateDto.newEmail })
+        .exec();
+
+      if (emailExists) {
+        throw new ConflictException('An admin with this email already exists');
+      }
+    }
+
     const adminUpdates = {
       name: updateDto.newName || admin.name,
       email: updateDto.newEmail || admin.email,
