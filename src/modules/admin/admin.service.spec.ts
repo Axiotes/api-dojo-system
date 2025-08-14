@@ -21,6 +21,8 @@ describe('AdminService', () => {
     findOne: jest.fn().mockReturnThis(),
     findById: jest.fn().mockReturnThis(),
     find: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    equals: jest.fn().mockReturnThis(),
     skip: jest.fn().mockReturnThis(),
     limit: jest.fn().mockReturnThis(),
     select: jest.fn().mockReturnThis(),
@@ -131,7 +133,7 @@ describe('AdminService', () => {
   });
 
   it('should find all admins with pagination', async () => {
-    const pagination = { skip: 0, limit: 5 };
+    const queryParams = { skip: 0, limit: 5, status: true };
     const admins: Partial<AdminDocument>[] = [
       { _id: '1', name: 'Admin 1', email: 'admin1@gmail.com' },
       { _id: '2', name: 'Admin 2', email: 'admin2@gmail.com' },
@@ -145,13 +147,13 @@ describe('AdminService', () => {
     mockAdminModel.limit.mockReturnThis();
     mockAdminModel.exec.mockResolvedValue(admins);
 
-    const result = await service.findAll(pagination);
+    const result = await service.findAll(queryParams);
 
     expect(result).toEqual(admins);
     expect(result.length).toBe(admins.length);
     expect(model.find).toHaveBeenCalled();
-    expect(mockAdminModel.skip).toHaveBeenCalledWith(pagination.skip);
-    expect(mockAdminModel.limit).toHaveBeenCalledWith(pagination.limit);
+    expect(mockAdminModel.skip).toHaveBeenCalledWith(queryParams.skip);
+    expect(mockAdminModel.limit).toHaveBeenCalledWith(queryParams.limit);
   });
 
   it('should login admin successfully', async () => {
@@ -223,5 +225,57 @@ describe('AdminService', () => {
       status: true,
     });
     expect(bcrypt.compareSync(loginDto.password, admin.password)).toBe(false);
+  });
+
+  it('should set admin status false successfully', async () => {
+    const adminId = '60c72b2f9b1d8c001c8e4e1a';
+
+    const admin: Partial<AdminDocument> = {
+      _id: adminId,
+      name: 'Test Admin',
+      email: 'test@gmail.com',
+      status: true,
+      save: jest.fn(),
+    };
+
+    mockAdminModel.findById.mockReturnThis();
+    mockAdminModel.exec.mockResolvedValue(admin);
+
+    await service.setStatus(adminId, false);
+
+    expect(model.findById).toHaveBeenCalledWith(adminId);
+    expect(admin.status).toBe(false);
+  });
+
+  it('should set admin status true successfully', async () => {
+    const adminId = '60c72b2f9b1d8c001c8e4e1a';
+
+    const admin: Partial<AdminDocument> = {
+      _id: adminId,
+      name: 'Test Admin',
+      email: 'test@gmail.com',
+      status: false,
+      save: jest.fn(),
+    };
+
+    mockAdminModel.findById.mockReturnThis();
+    mockAdminModel.exec.mockResolvedValue(admin);
+
+    await service.setStatus(adminId, true);
+
+    expect(model.findById).toHaveBeenCalledWith(adminId);
+    expect(admin.status).toBe(true);
+  });
+
+  it('should throw NotFoundException if the administrator does not exist', async () => {
+    const adminId = '60c72b2f9b1d8c001c8e4e1a';
+
+    mockAdminModel.findById.mockReturnThis();
+    mockAdminModel.exec.mockResolvedValue(null);
+
+    await expect(service.setStatus(adminId, false)).rejects.toThrow(
+      new NotFoundException('Admin not found'),
+    );
+    expect(model.findById).toHaveBeenCalledWith(adminId);
   });
 });

@@ -6,6 +6,7 @@ import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { AdminDto } from './dtos/admin.dto';
 import { AdminLoginDto } from './dtos/admin-login.dto';
+import { FindAdminDto } from './dtos/find-admin.dto';
 
 import { AdminDocument } from '@ds-types/documents/admin';
 
@@ -81,7 +82,7 @@ describe('AdminController', () => {
   });
 
   it('should find all admins successfully', async () => {
-    const pagination = { skip: 0, limit: 5 };
+    const queryParams: FindAdminDto = { skip: 0, limit: 5, status: true };
     const admins: Partial<AdminDocument>[] = [
       {
         _id: '60c72b2f9b1d8c001c8e4e1a',
@@ -112,11 +113,15 @@ describe('AdminController', () => {
 
     adminService.findAll = jest.fn().mockResolvedValue(admins);
 
-    const result = await controller.findAll(pagination);
+    const result = await controller.findAll(queryParams);
 
-    expect(result).toEqual({ data: admins, pagination, total: admins.length });
+    expect(result).toEqual({
+      data: admins,
+      pagination: { skip: queryParams.skip, limit: queryParams.limit },
+      total: admins.length,
+    });
     expect(result.data.length).toBe(admins.length);
-    expect(adminService.findAll).toHaveBeenCalledWith(pagination);
+    expect(adminService.findAll).toHaveBeenCalledWith(queryParams);
   });
 
   it('should login successfully', async () => {
