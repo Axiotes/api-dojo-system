@@ -201,6 +201,20 @@ export class AdminController {
     };
   }
 
+  @ApiCookieAuth()
+  @ApiOperation({
+    summary: 'Atualizar administrador da academia',
+    description: `Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint. 
+      É realizado a confirmação do email e senha antes de qualquer alteração.`,
+  })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 5,
+      ttl: 60000,
+    },
+  })
   @Patch()
   public async updateAdmin(
     @Body() updateDto: UpdateAdminDto,
