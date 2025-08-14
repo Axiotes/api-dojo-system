@@ -72,4 +72,15 @@ export class AdminService {
 
     return token;
   }
+
+  public async inactive(id: string): Promise<void> {
+    const admin = await this.adminModel.findById(id).exec();
+
+    if (!admin) {
+      throw new NotFoundException('Admin not found');
+    }
+
+    admin.status = false;
+    await admin.save();
+  }
 }

@@ -139,4 +139,17 @@ export class AdminController {
       total: admins.length,
     };
   }
+
+  @Get('inactive/:id')
+  public async inactive(@Param('id') id: string): Promise<ApiResponse<string>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    await this.adminService.inactive(id);
+
+    return {
+      data: 'Admin successfully deactivated',
+    };
+  }
 }
