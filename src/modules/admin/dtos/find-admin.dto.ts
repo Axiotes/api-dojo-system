@@ -1,8 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsNumber, Min } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, Min } from 'class-validator';
 
-export class Pagination {
+export class FindAdminDto {
   @ApiProperty({ description: 'Número de documentos que serão pulados' })
   @Transform(({ value }) => parseInt(value))
   @IsNumber()
@@ -14,4 +14,10 @@ export class Pagination {
   @IsNumber()
   @Min(1)
   limit: number;
+
+  @ApiPropertyOptional({ description: 'Status do administrador' })
+  @IsOptional()
+  @Transform(({ value }) => value === 'true')
+  @IsBoolean()
+  status: boolean;
 }
