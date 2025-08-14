@@ -6,6 +6,7 @@ import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { AdminDto } from './dtos/admin.dto';
 import { AdminLoginDto } from './dtos/admin-login.dto';
+import { FindAdminDto } from './dtos/find-admin.dto';
 
 import { AdminDocument } from '@ds-types/documents/admin';
 
@@ -28,6 +29,7 @@ describe('AdminController', () => {
             findById: jest.fn(),
             findAll: jest.fn(),
             login: jest.fn(),
+            setStatus: jest.fn(),
           },
         },
       ],
@@ -81,7 +83,7 @@ describe('AdminController', () => {
   });
 
   it('should find all admins successfully', async () => {
-    const pagination = { skip: 0, limit: 5 };
+    const queryParams: FindAdminDto = { skip: 0, limit: 5, status: true };
     const admins: Partial<AdminDocument>[] = [
       {
         _id: '60c72b2f9b1d8c001c8e4e1a',
@@ -112,11 +114,15 @@ describe('AdminController', () => {
 
     adminService.findAll = jest.fn().mockResolvedValue(admins);
 
-    const result = await controller.findAll(pagination);
+    const result = await controller.findAll(queryParams);
 
-    expect(result).toEqual({ data: admins, pagination, total: admins.length });
+    expect(result).toEqual({
+      data: admins,
+      pagination: { skip: queryParams.skip, limit: queryParams.limit },
+      total: admins.length,
+    });
     expect(result.data.length).toBe(admins.length);
-    expect(adminService.findAll).toHaveBeenCalledWith(pagination);
+    expect(adminService.findAll).toHaveBeenCalledWith(queryParams);
   });
 
   it('should login successfully', async () => {
@@ -130,5 +136,47 @@ describe('AdminController', () => {
 
     const result = await controller.login(loginDto, mockResponse);
     expect(result).toEqual({ data: 'Login successful' });
+  });
+
+  it('should inative an admin successfully', async () => {
+    const adminId = '60c72b2f9b1d8c001c8e4e1a';
+    const status = false;
+
+    adminService.setStatus = jest.fn().mockResolvedValue(undefined);
+
+    const result = await controller.inactive(adminId);
+
+    expect(result).toEqual({ data: 'Admin successfully deactivated' });
+    expect(adminService.setStatus).toHaveBeenCalledWith(adminId, status);
+  });
+
+  it('should throw BadRequestException for invalid ID format on inactivation', async () => {
+    const invalidId = '1234';
+
+    await expect(controller.inactive(invalidId)).rejects.toThrow(
+      new BadRequestException('Invalid id format'),
+    );
+    expect(adminService.setStatus).toHaveBeenCalledTimes(0);
+  });
+
+  it('should throw BadRequestException for invalid ID format on reactivation', async () => {
+    const invalidId = '1234';
+
+    await expect(controller.reactivate(invalidId)).rejects.toThrow(
+      new BadRequestException('Invalid id format'),
+    );
+    expect(adminService.setStatus).toHaveBeenCalledTimes(0);
+  });
+
+  it('should reactivate an admin successfully', async () => {
+    const adminId = '60c72b2f9b1d8c001c8e4e1a';
+    const status = true;
+
+    adminService.setStatus = jest.fn().mockResolvedValue(undefined);
+
+    const result = await controller.reactivate(adminId);
+
+    expect(result).toEqual({ data: 'Admin successfully deactivated' });
+    expect(adminService.setStatus).toHaveBeenCalledWith(adminId, status);
   });
 });

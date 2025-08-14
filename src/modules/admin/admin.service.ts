@@ -10,8 +10,8 @@ import { JwtService } from '@nestjs/jwt';
 
 import { AdminDto } from './dtos/admin.dto';
 import { Admin } from './schemas/admin.schema';
-import { Pagination } from './dtos/pagination.dto';
 import { AdminLoginDto } from './dtos/admin-login.dto';
+import { FindAdminDto } from './dtos/find-admin.dto';
 
 import { AdminDocument } from '@ds-types/documents/admin';
 
@@ -44,12 +44,17 @@ export class AdminService {
     return admin;
   }
 
-  public async findAll(pagination: Pagination): Promise<AdminDocument[]> {
-    return await this.adminModel
+  public async findAll(queryParams: FindAdminDto): Promise<AdminDocument[]> {
+    const query = this.adminModel
       .find()
-      .skip(pagination.skip)
-      .limit(pagination.limit)
-      .exec();
+      .skip(queryParams.skip)
+      .limit(queryParams.limit);
+
+    if (queryParams.status) {
+      query.where('status').equals(queryParams.status);
+    }
+
+    return await query.exec();
   }
 
   public async login(loginDto: AdminLoginDto): Promise<string> {
@@ -71,5 +76,16 @@ export class AdminService {
     const token = this.jwtService.sign({ id: admin._id, role: 'admin' });
 
     return token;
+  }
+
+  public async setStatus(id: string, status: boolean): Promise<void> {
+    const admin = await this.adminModel.findById(id).exec();
+
+    if (!admin) {
+      throw new NotFoundException('Admin not found');
+    }
+
+    admin.status = status;
+    await admin.save();
   }
 }

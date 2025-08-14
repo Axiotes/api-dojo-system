@@ -17,7 +17,7 @@ import { Response } from 'express';
 
 import { AdminDto } from './dtos/admin.dto';
 import { AdminService } from './admin.service';
-import { Pagination } from './dtos/pagination.dto';
+import { FindAdminDto } from './dtos/find-admin.dto';
 import { AdminLoginDto } from './dtos/admin-login.dto';
 
 import { ApiResponse } from '@ds-types/api-response.type';
@@ -129,14 +129,73 @@ export class AdminController {
   })
   @Get()
   public async findAll(
-    @Query() pagination: Pagination,
+    @Query() query: FindAdminDto,
   ): Promise<ApiResponse<AdminDocument[]>> {
-    const admins = await this.adminService.findAll(pagination);
+    const admins = await this.adminService.findAll(query);
 
     return {
       data: admins,
-      pagination,
+      pagination: {
+        skip: query.skip,
+        limit: query.limit,
+      },
       total: admins.length,
+    };
+  }
+
+  @ApiCookieAuth()
+  @ApiOperation({
+    summary: 'Inativar administrador da academia com base no ID',
+    description:
+      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+  })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
+  @Get('inactive/:id')
+  public async inactive(@Param('id') id: string): Promise<ApiResponse<string>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    await this.adminService.setStatus(id, false);
+
+    return {
+      data: 'Admin successfully deactivated',
+    };
+  }
+
+  @ApiCookieAuth()
+  @ApiOperation({
+    summary: 'Reativar administrador da academia com base no ID',
+    description:
+      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+  })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
+  @Get('reactivate/:id')
+  public async reactivate(
+    @Param('id') id: string,
+  ): Promise<ApiResponse<string>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    await this.adminService.setStatus(id, true);
+
+    return {
+      data: 'Admin successfully deactivated',
     };
   }
 }
