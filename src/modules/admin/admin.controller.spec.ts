@@ -29,6 +29,7 @@ describe('AdminController', () => {
             findById: jest.fn(),
             findAll: jest.fn(),
             login: jest.fn(),
+            setStatus: jest.fn(),
           },
         },
       ],
@@ -135,5 +136,47 @@ describe('AdminController', () => {
 
     const result = await controller.login(loginDto, mockResponse);
     expect(result).toEqual({ data: 'Login successful' });
+  });
+
+  it('should inative an admin successfully', async () => {
+    const adminId = '60c72b2f9b1d8c001c8e4e1a';
+    const status = false;
+
+    adminService.setStatus = jest.fn().mockResolvedValue(undefined);
+
+    const result = await controller.inactive(adminId);
+
+    expect(result).toEqual({ data: 'Admin successfully deactivated' });
+    expect(adminService.setStatus).toHaveBeenCalledWith(adminId, status);
+  });
+
+  it('should throw BadRequestException for invalid ID format on inactivation', async () => {
+    const invalidId = '1234';
+
+    await expect(controller.inactive(invalidId)).rejects.toThrow(
+      new BadRequestException('Invalid id format'),
+    );
+    expect(adminService.setStatus).toHaveBeenCalledTimes(0);
+  });
+
+  it('should throw BadRequestException for invalid ID format on reactivation', async () => {
+    const invalidId = '1234';
+
+    await expect(controller.reactivate(invalidId)).rejects.toThrow(
+      new BadRequestException('Invalid id format'),
+    );
+    expect(adminService.setStatus).toHaveBeenCalledTimes(0);
+  });
+
+  it('should reactivate an admin successfully', async () => {
+    const adminId = '60c72b2f9b1d8c001c8e4e1a';
+    const status = true;
+
+    adminService.setStatus = jest.fn().mockResolvedValue(undefined);
+
+    const result = await controller.reactivate(adminId);
+
+    expect(result).toEqual({ data: 'Admin successfully deactivated' });
+    expect(adminService.setStatus).toHaveBeenCalledWith(adminId, status);
   });
 });
