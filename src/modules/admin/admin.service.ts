@@ -12,6 +12,7 @@ import { AdminDto } from './dtos/admin.dto';
 import { Admin } from './schemas/admin.schema';
 import { AdminLoginDto } from './dtos/admin-login.dto';
 import { FindAdminDto } from './dtos/find-admin.dto';
+import { UpdateAdminDto } from './dtos/update-admin.dto';
 
 import { AdminDocument } from '@ds-types/documents/admin';
 
@@ -58,6 +59,45 @@ export class AdminService {
   }
 
   public async login(loginDto: AdminLoginDto): Promise<string> {
+    const admin = await this.verifyAdmin(loginDto);
+    const token = this.jwtService.sign({ id: admin._id, role: 'admin' });
+
+    return token;
+  }
+
+  public async setStatus(id: string, status: boolean): Promise<void> {
+    const admin = await this.adminModel.findById(id).exec();
+
+    if (!admin) {
+      throw new NotFoundException('Admin not found');
+    }
+
+    admin.status = status;
+    await admin.save();
+  }
+
+  public async updateAdmin(updateDto: UpdateAdminDto): Promise<AdminDocument> {
+    const admin = await this.verifyAdmin({
+      email: updateDto.email,
+      password: updateDto.password,
+    });
+
+    const adminUpdates = {
+      name: updateDto.newName || admin.name,
+      email: updateDto.newEmail || admin.email,
+      password: updateDto.newPassword
+        ? bcrypt.hashSync(updateDto.newPassword, 10)
+        : admin.password,
+    };
+
+    const updatedAdmin = await this.adminModel
+      .findByIdAndUpdate(admin._id, adminUpdates, { new: true })
+      .exec();
+
+    return updatedAdmin;
+  }
+
+  private async verifyAdmin(loginDto: AdminLoginDto): Promise<AdminDocument> {
     const admin = await this.adminModel
       .findOne({ email: loginDto.email, status: true })
       .select('+password')
@@ -73,19 +113,6 @@ export class AdminService {
       throw new NotFoundException('Invalid email or password');
     }
 
-    const token = this.jwtService.sign({ id: admin._id, role: 'admin' });
-
-    return token;
-  }
-
-  public async setStatus(id: string, status: boolean): Promise<void> {
-    const admin = await this.adminModel.findById(id).exec();
-
-    if (!admin) {
-      throw new NotFoundException('Admin not found');
-    }
-
-    admin.status = status;
-    await admin.save();
+    return admin;
   }
 }
