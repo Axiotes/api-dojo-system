@@ -146,7 +146,22 @@ export class AdminController {
       throw new BadRequestException('Invalid id format');
     }
 
-    await this.adminService.inactive(id);
+    await this.adminService.setStatus(id, false);
+
+    return {
+      data: 'Admin successfully deactivated',
+    };
+  }
+
+  @Get('reactivate/:id')
+  public async reactivate(
+    @Param('id') id: string,
+  ): Promise<ApiResponse<string>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    await this.adminService.setStatus(id, true);
 
     return {
       data: 'Admin successfully deactivated',
