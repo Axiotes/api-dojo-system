@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Post,
@@ -24,7 +25,22 @@ export class ModalitiesController {
   ) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(
+    FileInterceptor('image', {
+      fileFilter: (req, file, cb) => {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
+          return cb(
+            new BadRequestException(
+              'Only images (jpg, jpeg, png, gif) are allowed',
+            ),
+            false,
+          );
+        }
+
+        cb(null, true);
+      },
+    }),
+  )
   public async createModality(
     @Body() modalityDto: ModalityDto,
     @UploadedFile() file: Express.Multer.File,
