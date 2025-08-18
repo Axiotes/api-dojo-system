@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { Modalities } from './schemas/modalities.schema';
-import { ModalityDto } from './dtos/modality.dto';
 
 import { ModalitiesDocument } from '@ds-types/documents/modalitie-document.type';
 
@@ -14,20 +13,20 @@ export class ModalitiesService {
   ) {}
 
   public async createModality(
-    modalityDto: ModalityDto,
+    newModality: ModalitiesDocument,
   ): Promise<ModalitiesDocument> {
     const modality = await this.modalitiesModel
       .findOne({
-        name: modalityDto.name,
+        name: newModality.name,
       })
       .exec();
 
     if (modality) {
       throw new ConflictException(
-        `Modality with name ${modalityDto.name} already exists.`,
+        `Modality with name ${newModality.name} already exists.`,
       );
     }
 
-    return await this.modalitiesModel.create(modalityDto);
+    return await this.modalitiesModel.create(newModality);
   }
 }

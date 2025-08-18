@@ -6,7 +6,4 @@ export class ModalityDto {
 
   @IsString()
   description: string;
-
-  @IsString()
-  image: string;
 }
