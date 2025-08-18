@@ -7,6 +7,12 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiCookieAuth,
+  ApiOperation,
+} from '@nestjs/swagger';
 
 import { ModalitiesService } from './modalities.service';
 import { ModalityDto } from './dtos/modality.dto';
@@ -24,7 +30,36 @@ export class ModalitiesController {
     private readonly reduceImagePipe: ReduceImagePipe,
   ) {}
 
-  @Post()
+  @ApiCookieAuth()
+  @ApiOperation({
+    summary: 'Cadastra uma nova modalidade',
+    description:
+      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          description: 'Nome da modalidade',
+          example: 'Judô',
+        },
+        description: {
+          type: 'string',
+          description: 'Descrição da modalidade',
+          example: `O Judô é uma arte marcial de origem japonesa, criada em 1882 pelo mestre Jigoro Kano.`,
+        },
+        image: {
+          type: 'string',
+          format: 'binary',
+          description: 'Imagem da modalidade (jpg, jpeg, png, gif)',
+        },
+      },
+      required: ['name', 'description', 'image'],
+    },
+  })
+  @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileInterceptor('image', {
       fileFilter: (req, file, cb) => {
@@ -41,6 +76,7 @@ export class ModalitiesController {
       },
     }),
   )
+  @Post()
   public async createModality(
     @Body() modalityDto: ModalityDto,
     @UploadedFile() file: Express.Multer.File,
