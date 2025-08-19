@@ -1,7 +1,11 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  Get,
+  Param,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -14,9 +18,11 @@ import {
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
+import { Types } from 'mongoose';
 
 import { ModalitiesService } from './modalities.service';
 import { ModalityDto } from './dtos/modality.dto';
+import { FindModalitiesDto } from './dtos/find-modalities.dto';
 
 import { ApiResponse } from '@ds-types/api-response.type';
 import { ModalitiesDocument } from '@ds-types/documents/modalitie-document.type';
@@ -88,7 +94,56 @@ export class ModalitiesController {
     const modality = await this.modalitiesService.createModality(newModality);
 
     return {
-      data: modality.toObject(),
+      data: modality,
+    };
+  }
+
+  @ApiOperation({
+    summary: 'Busca modalidade por ID',
+  })
+  @Throttle({
+    default: {
+      limit: 30,
+      ttl: 60000,
+    },
+  })
+  @Get(':id')
+  public async findById(
+    @Param('id') id: string,
+  ): Promise<ApiResponse<ModalitiesDocument>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    const modality = await this.modalitiesService.findById(id);
+
+    return {
+      data: modality,
+    };
+  }
+
+  @ApiOperation({
+    summary: 'Busca modalidades',
+  })
+  @Throttle({
+    default: {
+      limit: 30,
+      ttl: 60000,
+    },
+  })
+  @Get()
+  public async findAll(
+    @Query() queryParams: FindModalitiesDto,
+  ): Promise<ApiResponse<ModalitiesDocument[]>> {
+    const modalities = await this.modalitiesService.findAll(queryParams);
+
+    return {
+      data: modalities,
+      pagination: {
+        skip: queryParams.skip,
+        limit: queryParams.limit,
+      },
+      total: modalities.length,
     };
   }
 }
