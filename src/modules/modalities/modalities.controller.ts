@@ -96,6 +96,12 @@ export class ModalitiesController {
     };
   }
 
+  @Throttle({
+    default: {
+      limit: 30,
+      ttl: 60000,
+    },
+  })
   @Get(':id')
   public async findById(
     @Param('id') id: string,
@@ -107,6 +113,12 @@ export class ModalitiesController {
     };
   }
 
+  @Throttle({
+    default: {
+      limit: 30,
+      ttl: 60000,
+    },
+  })
   @Get()
   public async findAllModalities(
     @Query() queryParams: FindModalitiesDto,
