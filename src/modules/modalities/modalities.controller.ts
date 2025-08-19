@@ -1,12 +1,10 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Post,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBody,
   ApiConsumes,
@@ -21,6 +19,7 @@ import { ApiResponse } from '@ds-types/api-response.type';
 import { ModalitiesDocument } from '@ds-types/documents/modalitie-document.type';
 import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe';
 import { ImageBase64Interceptor } from '@ds-common/interceptors/image-base64/image-base64.interceptor';
+import { UploadImage } from '@ds-common/decorators/upload-image.decorator';
 
 @Controller('modalities')
 @UseInterceptors(ImageBase64Interceptor)
@@ -60,22 +59,7 @@ export class ModalitiesController {
     },
   })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(
-    FileInterceptor('image', {
-      fileFilter: (req, file, cb) => {
-        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
-          return cb(
-            new BadRequestException(
-              'Only images (jpg, jpeg, png, gif) are allowed',
-            ),
-            false,
-          );
-        }
-
-        cb(null, true);
-      },
-    }),
-  )
+  @UploadImage()
   @Post()
   public async createModality(
     @Body() modalityDto: ModalityDto,
