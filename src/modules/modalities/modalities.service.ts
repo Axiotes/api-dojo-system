@@ -36,11 +36,7 @@ export class ModalitiesService {
   }
 
   public async findById(id: string): Promise<ModalitiesDocument> {
-    const modality = await this.modalitiesModel
-      .findOne({
-        _id: id,
-      })
-      .exec();
+    const modality = await this.modalitiesModel.findById(id).exec();
 
     if (!modality) {
       throw new NotFoundException('Modality not found');
