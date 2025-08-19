@@ -118,9 +118,9 @@ describe('ModalitiesService', () => {
     expect(model.findById).toHaveBeenCalledWith(id);
   });
 
-  it('should find all admins with pagination', async () => {
+  it('should find all modalities with pagination', async () => {
     const queryParams = { skip: 0, limit: 5, status: true };
-    const admins: Partial<ModalitiesDocument>[] = [
+    const modalities: Partial<ModalitiesDocument>[] = [
       {
         _id: '1',
         name: 'Test 1',
@@ -156,12 +156,12 @@ describe('ModalitiesService', () => {
     mockModalitiesModel.find.mockReturnThis();
     mockModalitiesModel.skip.mockReturnThis();
     mockModalitiesModel.limit.mockReturnThis();
-    mockModalitiesModel.exec.mockResolvedValue(admins);
+    mockModalitiesModel.exec.mockResolvedValue(modalities);
 
     const result = await service.findAll(queryParams);
 
-    expect(result).toEqual(admins);
-    expect(result.length).toBe(admins.length);
+    expect(result).toEqual(modalities);
+    expect(result.length).toBe(modalities.length);
     expect(model.find).toHaveBeenCalled();
     expect(mockModalitiesModel.skip).toHaveBeenCalledWith(queryParams.skip);
     expect(mockModalitiesModel.limit).toHaveBeenCalledWith(queryParams.limit);

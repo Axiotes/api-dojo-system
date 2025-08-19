@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -17,6 +18,7 @@ import {
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
+import { Types } from 'mongoose';
 
 import { ModalitiesService } from './modalities.service';
 import { ModalityDto } from './dtos/modality.dto';
@@ -109,6 +111,10 @@ export class ModalitiesController {
   public async findById(
     @Param('id') id: string,
   ): Promise<ApiResponse<ModalitiesDocument>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
     const modality = await this.modalitiesService.findById(id);
 
     return {
@@ -126,7 +132,7 @@ export class ModalitiesController {
     },
   })
   @Get()
-  public async findAllModalities(
+  public async findAll(
     @Query() queryParams: FindModalitiesDto,
   ): Promise<ApiResponse<ModalitiesDocument[]>> {
     const modalities = await this.modalitiesService.findAll(queryParams);
