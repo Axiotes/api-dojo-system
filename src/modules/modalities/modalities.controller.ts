@@ -3,6 +3,7 @@ import {
   Controller,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import {
@@ -11,6 +12,8 @@ import {
   ApiCookieAuth,
   ApiOperation,
 } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { Throttle } from '@nestjs/throttler';
 
 import { ModalitiesService } from './modalities.service';
 import { ModalityDto } from './dtos/modality.dto';
@@ -20,6 +23,8 @@ import { ModalitiesDocument } from '@ds-types/documents/modalitie-document.type'
 import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe';
 import { ImageBase64Interceptor } from '@ds-common/interceptors/image-base64/image-base64.interceptor';
 import { UploadImage } from '@ds-common/decorators/upload-image.decorator';
+import { RoleGuard } from '@ds-common/guards/role/role.guard';
+import { Roles } from '@ds-common/decorators/roles.decorator';
 
 @Controller('modalities')
 @UseInterceptors(ImageBase64Interceptor)
@@ -59,6 +64,14 @@ export class ModalitiesController {
     },
   })
   @ApiConsumes('multipart/form-data')
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
   @UploadImage()
   @Post()
   public async createModality(
