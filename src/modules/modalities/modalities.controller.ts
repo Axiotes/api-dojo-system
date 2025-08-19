@@ -96,6 +96,9 @@ export class ModalitiesController {
     };
   }
 
+  @ApiOperation({
+    summary: 'Busca modalidade por ID',
+  })
   @Throttle({
     default: {
       limit: 30,
@@ -113,6 +116,9 @@ export class ModalitiesController {
     };
   }
 
+  @ApiOperation({
+    summary: 'Busca modalidades',
+  })
   @Throttle({
     default: {
       limit: 30,
