@@ -7,6 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { Modalities } from './schemas/modalities.schema';
+import { FindModalitiesDto } from './dtos/find-modalities.dto';
 
 import { ModalitiesDocument } from '@ds-types/documents/modalitie-document.type';
 
@@ -34,7 +35,7 @@ export class ModalitiesService {
     return await this.modalitiesModel.create(newModality);
   }
 
-  public async findOneModality(id: string): Promise<ModalitiesDocument> {
+  public async findById(id: string): Promise<ModalitiesDocument> {
     const modality = await this.modalitiesModel
       .findOne({
         _id: id,
@@ -46,5 +47,20 @@ export class ModalitiesService {
     }
 
     return modality;
+  }
+
+  public async findAll(
+    queryParams: FindModalitiesDto,
+  ): Promise<ModalitiesDocument[]> {
+    const query = this.modalitiesModel
+      .find()
+      .skip(queryParams.skip)
+      .limit(queryParams.limit);
+
+    if (queryParams.status) {
+      query.where('status').equals(queryParams.status);
+    }
+
+    return await query.exec();
   }
 }

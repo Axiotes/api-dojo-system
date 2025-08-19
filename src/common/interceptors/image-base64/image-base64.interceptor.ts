@@ -5,6 +5,7 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
+import { Document } from 'mongoose';
 
 import { ApiResponse } from '@ds-types/api-response.type';
 
@@ -18,6 +19,7 @@ export class ImageBase64Interceptor implements NestInterceptor {
       map((data) => {
         if (Array.isArray(data.data)) {
           const modifiedData = data.data.map((item) => {
+            if (item instanceof Document) item = item.toObject();
             item.image = `data:image/jpeg;base64,${item.image.toString('base64')}`;
             return item;
           });
@@ -26,6 +28,7 @@ export class ImageBase64Interceptor implements NestInterceptor {
         }
 
         if (data.data.image) {
+          if (data.data instanceof Document) data.data = data.data.toObject();
           data.data.image = `data:image/jpeg;base64,${data.data.image.toString('base64')}`;
           return data;
         }

@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -19,6 +20,7 @@ import { Throttle } from '@nestjs/throttler';
 
 import { ModalitiesService } from './modalities.service';
 import { ModalityDto } from './dtos/modality.dto';
+import { FindModalitiesDto } from './dtos/find-modalities.dto';
 
 import { ApiResponse } from '@ds-types/api-response.type';
 import { ModalitiesDocument } from '@ds-types/documents/modalitie-document.type';
@@ -90,18 +92,34 @@ export class ModalitiesController {
     const modality = await this.modalitiesService.createModality(newModality);
 
     return {
-      data: modality.toObject(),
+      data: modality,
     };
   }
 
   @Get(':id')
-  public async findOneModality(
+  public async findById(
     @Param('id') id: string,
   ): Promise<ApiResponse<ModalitiesDocument>> {
-    const modality = await this.modalitiesService.findOneModality(id);
+    const modality = await this.modalitiesService.findById(id);
 
     return {
       data: modality,
+    };
+  }
+
+  @Get()
+  public async findAllModalities(
+    @Query() queryParams: FindModalitiesDto,
+  ): Promise<ApiResponse<ModalitiesDocument[]>> {
+    const modalities = await this.modalitiesService.findAll(queryParams);
+
+    return {
+      data: modalities,
+      pagination: {
+        skip: queryParams.skip,
+        limit: queryParams.limit,
+      },
+      total: modalities.length,
     };
   }
 }
