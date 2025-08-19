@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  Get,
+  Param,
   Post,
   UploadedFile,
   UseGuards,
@@ -89,6 +91,17 @@ export class ModalitiesController {
 
     return {
       data: modality.toObject(),
+    };
+  }
+
+  @Get(':id')
+  public async findOneModality(
+    @Param('id') id: string,
+  ): Promise<ApiResponse<ModalitiesDocument>> {
+    const modality = await this.modalitiesService.findOneModality(id);
+
+    return {
+      data: modality,
     };
   }
 }
