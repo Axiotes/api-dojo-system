@@ -5,6 +5,7 @@ import { ModalitiesController } from './modalities.controller';
 import { ModalitiesService } from './modalities.service';
 import { ModalityDto } from './dtos/modality.dto';
 import { FindModalitiesDto } from './dtos/find-modalities.dto';
+import { UpdateModalityDto } from './dtos/update-modality.dto';
 
 import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe';
 import { ModalitiesDocument } from '@ds-types/documents/modalitie-document.type';
@@ -23,6 +24,7 @@ describe('ModalitiesController', () => {
           useValue: {
             createModality: jest.fn(),
             findById: jest.fn(),
+            update: jest.fn(),
           },
         },
         {
@@ -147,5 +149,37 @@ describe('ModalitiesController', () => {
     });
     expect(result.data.length).toBe(modalities.length);
     expect(modalitiesService.findAll).toHaveBeenCalledWith(queryParams);
+  });
+
+  it('should update a modality succesfully', async () => {
+    const id: string = '60c72b2f9b1d8c001c8e4e1a';
+    const mockFile = {
+      buffer: Buffer.from('fake-image'),
+      mimetype: 'image/png',
+    } as Express.Multer.File;
+    const reducedImage = Buffer.from('reduced-image');
+    const updateDto: UpdateModalityDto = {
+      name: 'Modality Name',
+      description: 'Unit tests with jest',
+    };
+    const updatedModality = {
+      _id: id,
+      ...updateDto,
+      image: reducedImage,
+      status: true,
+    } as ModalitiesDocument;
+
+    reduceImagePipe.transform.mockResolvedValue(reducedImage);
+    modalitiesService.update.mockResolvedValue(updatedModality);
+
+    const result = await controller.update(id, mockFile, updateDto);
+
+    expect(result).toEqual({ data: updatedModality });
+    expect(reduceImagePipe.transform).toHaveBeenCalledWith(mockFile);
+    expect(modalitiesService.update).toHaveBeenCalledWith({
+      _id: id,
+      ...updateDto,
+      image: reducedImage,
+    });
   });
 });
