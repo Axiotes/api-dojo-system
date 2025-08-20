@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UploadedFile,
@@ -23,6 +24,7 @@ import { Types } from 'mongoose';
 import { ModalitiesService } from './modalities.service';
 import { ModalityDto } from './dtos/modality.dto';
 import { FindModalitiesDto } from './dtos/find-modalities.dto';
+import { UpdateModalityDto } from './dtos/update-modality.dto';
 
 import { ApiResponse } from '@ds-types/api-response.type';
 import { ModalitiesDocument } from '@ds-types/documents/modalitie-document.type';
@@ -144,6 +146,34 @@ export class ModalitiesController {
         limit: queryParams.limit,
       },
       total: modalities.length,
+    };
+  }
+
+  @UploadImage()
+  @Patch(':id')
+  public async update(
+    @Param('id') id: string,
+    @UploadedFile() file?: Express.Multer.File,
+    @Body() updateDto?: UpdateModalityDto,
+  ): Promise<ApiResponse<ModalitiesDocument>> {
+    let modality: Partial<ModalitiesDocument> = {
+      _id: id,
+      ...updateDto,
+    };
+
+    if (file) {
+      const reducedImageBuffer = await this.reduceImagePipe.transform(file);
+
+      modality = {
+        ...modality,
+        image: reducedImageBuffer,
+      };
+    }
+
+    const updatedModality = await this.modalitiesService.update(modality);
+
+    return {
+      data: updatedModality,
     };
   }
 }
