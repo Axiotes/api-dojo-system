@@ -149,6 +149,36 @@ export class ModalitiesController {
     };
   }
 
+  @ApiCookieAuth()
+  @ApiOperation({
+    summary: 'Atualiza dados da modalidade',
+    description:
+      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          description: 'Novo nome da modalidade',
+          example: 'Judô',
+        },
+        description: {
+          type: 'string',
+          description: 'Nova descrição da modalidade',
+          example: `O Judô é uma arte marcial de origem japonesa, criada em 1882 pelo mestre Jigoro Kano.`,
+        },
+        image: {
+          type: 'string',
+          format: 'binary',
+          description: 'Nova imagem da modalidade (jpg, jpeg, png, gif)',
+        },
+      },
+      required: [],
+    },
+  })
+  @ApiConsumes('multipart/form-data')
   @UploadImage()
   @Patch(':id')
   public async update(
