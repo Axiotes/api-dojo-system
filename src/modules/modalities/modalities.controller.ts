@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UploadedFile,
@@ -23,6 +24,7 @@ import { Types } from 'mongoose';
 import { ModalitiesService } from './modalities.service';
 import { ModalityDto } from './dtos/modality.dto';
 import { FindModalitiesDto } from './dtos/find-modalities.dto';
+import { UpdateModalityDto } from './dtos/update-modality.dto';
 
 import { ApiResponse } from '@ds-types/api-response.type';
 import { ModalitiesDocument } from '@ds-types/documents/modalitie-document.type';
@@ -144,6 +146,76 @@ export class ModalitiesController {
         limit: queryParams.limit,
       },
       total: modalities.length,
+    };
+  }
+
+  @ApiCookieAuth()
+  @ApiOperation({
+    summary: 'Atualiza dados da modalidade',
+    description:
+      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          description: 'Novo nome da modalidade',
+          example: 'Judô',
+        },
+        description: {
+          type: 'string',
+          description: 'Nova descrição da modalidade',
+          example: `O Judô é uma arte marcial de origem japonesa, criada em 1882 pelo mestre Jigoro Kano.`,
+        },
+        image: {
+          type: 'string',
+          format: 'binary',
+          description: 'Nova imagem da modalidade (jpg, jpeg, png, gif)',
+        },
+      },
+      required: [],
+    },
+  })
+  @ApiConsumes('multipart/form-data')
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
+  @UploadImage()
+  @Patch(':id')
+  public async update(
+    @Param('id') id: string,
+    @UploadedFile() file?: Express.Multer.File,
+    @Body() updateDto?: UpdateModalityDto,
+  ): Promise<ApiResponse<ModalitiesDocument>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    let modality: Partial<ModalitiesDocument> = {
+      _id: id,
+      ...updateDto,
+    };
+
+    if (file) {
+      const reducedImageBuffer = await this.reduceImagePipe.transform(file);
+
+      modality = {
+        ...modality,
+        image: reducedImageBuffer,
+      };
+    }
+
+    const updatedModality = await this.modalitiesService.update(modality);
+
+    return {
+      data: updatedModality,
     };
   }
 }

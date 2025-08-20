@@ -59,4 +59,34 @@ export class ModalitiesService {
 
     return await query.exec();
   }
+
+  public async update(
+    updateModality: Partial<ModalitiesDocument>,
+  ): Promise<ModalitiesDocument> {
+    const modality = await this.findById(updateModality._id as string);
+
+    if (updateModality.name && updateModality.name != modality.name) {
+      const nameExist = await this.modalitiesModel
+        .findOne({
+          name: updateModality.name,
+        })
+        .exec();
+
+      if (nameExist) {
+        throw new ConflictException(
+          `Modality with name ${updateModality.name} already exists.`,
+        );
+      }
+    }
+
+    const modalityUpdates = {
+      name: updateModality.name || modality.name,
+      description: updateModality.description || modality.description,
+      image: updateModality.image || modality.image,
+    };
+
+    return await this.modalitiesModel
+      .findByIdAndUpdate(modality.id, modalityUpdates, { new: true })
+      .exec();
+  }
 }

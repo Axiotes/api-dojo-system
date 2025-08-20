@@ -9,9 +9,6 @@ export class ReduceImagePipe implements PipeTransform {
     let buffer = await sharp(file.buffer).jpeg({ quality }).toBuffer();
 
     while (buffer.length > targetSize && quality > 10) {
-      console.log(`Target size: ${targetSize}`);
-      console.log(`Current size: ${buffer.length}, reducing quality...`);
-
       quality -= 10;
       buffer = await sharp(file.buffer).jpeg({ quality }).toBuffer();
     }
