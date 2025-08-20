@@ -194,6 +194,10 @@ export class ModalitiesController {
     @UploadedFile() file?: Express.Multer.File,
     @Body() updateDto?: UpdateModalityDto,
   ): Promise<ApiResponse<ModalitiesDocument>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
     let modality: Partial<ModalitiesDocument> = {
       _id: id,
       ...updateDto,

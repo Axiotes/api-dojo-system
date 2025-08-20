@@ -94,7 +94,7 @@ describe('ModalitiesController', () => {
     expect(modalitiesService.findById).toHaveBeenCalledWith(id);
   });
 
-  it('should throw BadRequestException for invalid ID format', async () => {
+  it('should throw BadRequestException for invalid ID format in findByID', async () => {
     const invalidId = '1234';
 
     await expect(controller.findById(invalidId)).rejects.toThrow(
@@ -181,5 +181,39 @@ describe('ModalitiesController', () => {
       ...updateDto,
       image: reducedImage,
     });
+  });
+
+  it('should update a modality succesfully without image file', async () => {
+    const id: string = '60c72b2f9b1d8c001c8e4e1a';
+    const updateDto: UpdateModalityDto = {
+      name: 'Modality Name',
+      description: 'Unit tests with jest',
+    };
+    const updatedModality = {
+      _id: id,
+      ...updateDto,
+      status: true,
+    } as ModalitiesDocument;
+
+    modalitiesService.update.mockResolvedValue(updatedModality);
+
+    const result = await controller.update(id, undefined, updateDto);
+
+    expect(result).toEqual({ data: updatedModality });
+    expect(reduceImagePipe.transform).toHaveBeenCalledTimes(0);
+    expect(modalitiesService.update).toHaveBeenCalledWith({
+      _id: id,
+      ...updateDto,
+    });
+  });
+
+  it('should throw BadRequestException for invalid ID format in update', async () => {
+    const invalidId = '1234';
+
+    await expect(controller.update(invalidId)).rejects.toThrow(
+      new BadRequestException('Invalid id format'),
+    );
+    expect(reduceImagePipe.transform).toHaveBeenCalledTimes(0);
+    expect(modalitiesService.update).toHaveBeenCalledTimes(0);
   });
 });
