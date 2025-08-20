@@ -63,11 +63,7 @@ export class ModalitiesService {
   public async update(
     updateModality: Partial<ModalitiesDocument>,
   ): Promise<ModalitiesDocument> {
-    const modality = await this.modalitiesModel.findById(updateModality.id);
-
-    if (!modality) {
-      throw new NotFoundException('Modality not found');
-    }
+    const modality = await this.findById(updateModality._id as string);
 
     if (updateModality.name && updateModality.name != modality.name) {
       const nameExist = await this.modalitiesModel
