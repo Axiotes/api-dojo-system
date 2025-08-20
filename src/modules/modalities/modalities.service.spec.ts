@@ -166,4 +166,60 @@ describe('ModalitiesService', () => {
     expect(mockModalitiesModel.skip).toHaveBeenCalledWith(queryParams.skip);
     expect(mockModalitiesModel.limit).toHaveBeenCalledWith(queryParams.limit);
   });
+
+  it('should update a modality sucessfully', async () => {
+    const modality: Partial<ModalitiesDocument> = {
+      _id: '60c72b2f9b1d8c001c8e4e1a',
+      name: 'Old Name Test',
+      description: 'Old description. Unit tests with Jest',
+      image: Buffer.from('old-fake-image'),
+    };
+    const updateModality: Partial<ModalitiesDocument> = {
+      _id: modality._id,
+      name: 'New Name Test',
+      description: 'New description. Unit tests with Jest',
+      image: Buffer.from('new-fake-image'),
+    };
+
+    service.findById = jest.fn().mockResolvedValue(modality);
+    mockModalitiesModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(null),
+    });
+    mockModalitiesModel.findByIdAndUpdate.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(updateModality),
+    });
+
+    const result = await service.update(updateModality);
+
+    expect(result).toEqual(updateModality);
+    expect(model.findOne).toHaveBeenCalledWith({ name: updateModality.name });
+  });
+
+  it('should throw a ConflicException new name already exists', async () => {
+    const modality: Partial<ModalitiesDocument> = {
+      _id: '60c72b2f9b1d8c001c8e4e1a',
+      name: 'Old Name Test',
+      description: 'Old description. Unit tests with Jest',
+      image: Buffer.from('old-fake-image'),
+    };
+    const updateModality: Partial<ModalitiesDocument> = {
+      _id: modality._id,
+      name: 'Name Test',
+      description: 'New description. Unit tests with Jest',
+      image: Buffer.from('new-fake-image'),
+    };
+
+    service.findById = jest.fn().mockResolvedValue(modality);
+    mockModalitiesModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(modality),
+    });
+
+    await expect(service.update(updateModality)).rejects.toThrow(
+      new ConflictException(
+        `Modality with name ${updateModality.name} already exists.`,
+      ),
+    );
+    expect(model.findOne).toHaveBeenCalledWith({ name: updateModality.name });
+    expect(model.findByIdAndUpdate).toHaveBeenCalledTimes(0);
+  });
 });
