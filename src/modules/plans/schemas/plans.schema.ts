@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { Query, Types } from 'mongoose';
 
 import { Modalities } from '@ds-modules/modalities/schemas/modalities.schema';
 import { Period } from '@ds-enums/period.enum';
@@ -31,3 +31,12 @@ export class Plans {
 }
 
 export const PlansSchema = SchemaFactory.createForClass(Plans);
+
+PlansSchema.pre<Query<Plans[], Plans>>(/^find/, function (next) {
+  this.populate({
+    path: 'modality',
+    select: '-createdAt -updatedAt -image',
+  });
+
+  next();
+});
