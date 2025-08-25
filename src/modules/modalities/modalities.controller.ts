@@ -101,7 +101,7 @@ export class ModalitiesController {
   }
 
   @ApiOperation({
-    summary: 'Busca modalidade por ID',
+    summary: 'Buscar modalidade por ID',
   })
   @Throttle({
     default: {
@@ -125,7 +125,7 @@ export class ModalitiesController {
   }
 
   @ApiOperation({
-    summary: 'Busca modalidades',
+    summary: 'Buscar todas as modalidades com paginação e filtro por status',
   })
   @Throttle({
     default: {

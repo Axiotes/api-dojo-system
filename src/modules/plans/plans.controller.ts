@@ -51,6 +51,15 @@ export class PlansController {
     };
   }
 
+  @ApiOperation({
+    summary: 'Buscar planos por ID',
+  })
+  @Throttle({
+    default: {
+      limit: 30,
+      ttl: 60000,
+    },
+  })
   @Get(':id')
   public async findById(
     @Param('id') id: string,
@@ -66,6 +75,15 @@ export class PlansController {
     };
   }
 
+  @ApiOperation({
+    summary: 'Buscar todos os planos com paginação e filtro por status',
+  })
+  @Throttle({
+    default: {
+      limit: 30,
+      ttl: 60000,
+    },
+  })
   @Get()
   public async findAll(
     @Query() queryParams: FindModalitiesDto,
