@@ -8,6 +8,7 @@ import { Model } from 'mongoose';
 
 import { Plans } from './schemas/plans.schema';
 import { PlanDto } from './dtos/plan.dto';
+import { FindModalitiesDto } from './dtos/find-plan.dto';
 
 import { ModalitiesService } from '@ds-modules/modalities/modalities.service';
 import { PlanDocument } from '@ds-types/documents/plan-document';
@@ -44,5 +45,20 @@ export class PlansService {
     }
 
     return plan;
+  }
+
+  public async findAll(
+    queryParams: FindModalitiesDto,
+  ): Promise<PlanDocument[]> {
+    const query = this.plansModel
+      .find()
+      .skip(queryParams.skip)
+      .limit(queryParams.limit);
+
+    if (queryParams.status !== undefined) {
+      query.where('status').equals(queryParams.status);
+    }
+
+    return await query.exec();
   }
 }

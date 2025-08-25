@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiCookieAuth, ApiOperation } from '@nestjs/swagger';
@@ -14,6 +15,7 @@ import { Types } from 'mongoose';
 
 import { PlansService } from './plans.service';
 import { PlanDto } from './dtos/plan.dto';
+import { FindModalitiesDto } from './dtos/find-plan.dto';
 
 import { ApiResponse } from '@ds-types/api-response.type';
 import { PlanDocument } from '@ds-types/documents/plan-document';
@@ -61,6 +63,22 @@ export class PlansController {
 
     return {
       data: plan,
+    };
+  }
+
+  @Get()
+  public async findAll(
+    @Query() queryParams: FindModalitiesDto,
+  ): Promise<ApiResponse<PlanDocument[]>> {
+    const plans = await this.plansService.findAll(queryParams);
+
+    return {
+      data: plans,
+      pagination: {
+        skip: queryParams.skip,
+        limit: queryParams.limit,
+      },
+      total: plans.length,
     };
   }
 }

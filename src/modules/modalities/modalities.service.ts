@@ -53,7 +53,7 @@ export class ModalitiesService {
       .skip(queryParams.skip)
       .limit(queryParams.limit);
 
-    if (queryParams.status) {
+    if (queryParams.status !== undefined) {
       query.where('status').equals(queryParams.status);
     }
 
