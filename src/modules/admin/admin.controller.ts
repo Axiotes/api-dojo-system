@@ -159,7 +159,7 @@ export class AdminController {
       ttl: 60000,
     },
   })
-  @Get('inactive/:id')
+  @Patch('inactive/:id')
   public async inactive(@Param('id') id: string): Promise<ApiResponse<string>> {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Invalid id format');
@@ -186,7 +186,7 @@ export class AdminController {
       ttl: 60000,
     },
   })
-  @Get('reactivate/:id')
+  @Patch('reactivate/:id')
   public async reactivate(
     @Param('id') id: string,
   ): Promise<ApiResponse<string>> {

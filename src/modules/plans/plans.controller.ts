@@ -1,7 +1,16 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiCookieAuth, ApiOperation } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
+import { Types } from 'mongoose';
 
 import { PlansService } from './plans.service';
 import { PlanDto } from './dtos/plan.dto';
@@ -34,6 +43,21 @@ export class PlansController {
     @Body() planDto: PlanDto,
   ): Promise<ApiResponse<PlanDocument>> {
     const plan = await this.plansService.createPlan(planDto);
+
+    return {
+      data: plan,
+    };
+  }
+
+  @Get(':id')
+  public async findById(
+    @Param('id') id: string,
+  ): Promise<ApiResponse<PlanDocument>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    const plan = await this.plansService.findById(id);
 
     return {
       data: plan,

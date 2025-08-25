@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -30,5 +34,15 @@ export class PlansService {
     const newPlan = await this.plansModel.create(planDto);
 
     return await this.plansModel.findById(newPlan._id).exec();
+  }
+
+  public async findById(id: string): Promise<PlanDocument> {
+    const plan = await this.plansModel.findById(id).exec();
+
+    if (!plan) {
+      throw new NotFoundException(`Plan with id ${id} not found`);
+    }
+
+    return plan;
   }
 }
