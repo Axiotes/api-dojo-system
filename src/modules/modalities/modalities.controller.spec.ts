@@ -103,7 +103,7 @@ describe('ModalitiesController', () => {
     expect(modalitiesService.findById).toHaveBeenCalledTimes(0);
   });
 
-  it('should find all admins successfully', async () => {
+  it('should find all modalities successfully', async () => {
     const queryParams: FindModalitiesDto = { skip: 0, limit: 5, status: true };
     const modalities: Partial<ModalitiesDocument>[] = [
       {

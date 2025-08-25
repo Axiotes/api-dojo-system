@@ -15,7 +15,7 @@ import { Types } from 'mongoose';
 
 import { PlansService } from './plans.service';
 import { PlanDto } from './dtos/plan.dto';
-import { FindModalitiesDto } from './dtos/find-plan.dto';
+import { FindPlansDto } from './dtos/find-plans.dto';
 
 import { ApiResponse } from '@ds-types/api-response.type';
 import { PlanDocument } from '@ds-types/documents/plan-document';
@@ -86,7 +86,7 @@ export class PlansController {
   })
   @Get()
   public async findAll(
-    @Query() queryParams: FindModalitiesDto,
+    @Query() queryParams: FindPlansDto,
   ): Promise<ApiResponse<PlanDocument[]>> {
     const plans = await this.plansService.findAll(queryParams);
 
