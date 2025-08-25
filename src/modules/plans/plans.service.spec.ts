@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 import { PlansService } from './plans.service';
 import { Plans } from './schemas/plans.schema';
@@ -16,7 +16,7 @@ describe('PlansService', () => {
   let modalitiesService: ModalitiesService;
   let model: Model<PlanDocument>;
 
-  const mockModalitiesModel = {
+  const mockPlansModel = {
     findOne: jest.fn().mockReturnThis(),
     findById: jest.fn().mockReturnThis(),
     find: jest.fn().mockReturnThis(),
@@ -42,7 +42,7 @@ describe('PlansService', () => {
         },
         {
           provide: getModelToken(Plans.name),
-          useValue: mockModalitiesModel,
+          useValue: mockPlansModel,
         },
       ],
     }).compile();
@@ -80,9 +80,9 @@ describe('PlansService', () => {
     };
 
     modalitiesService.findById = jest.fn().mockResolvedValue(modality);
-    mockModalitiesModel.create.mockResolvedValue(dto);
-    mockModalitiesModel.findById.mockReturnThis();
-    mockModalitiesModel.exec.mockResolvedValue(plan);
+    mockPlansModel.create.mockResolvedValue(dto);
+    mockPlansModel.findById.mockReturnThis();
+    mockPlansModel.exec.mockResolvedValue(plan);
 
     const result = await service.createPlan(dto);
 
@@ -113,5 +113,100 @@ describe('PlansService', () => {
     );
     expect(model.create).toHaveBeenCalledTimes(0);
     expect(model.findById).toHaveBeenCalledTimes(0);
+  });
+
+  it('should find a plan by id sucessfully', async () => {
+    const id = '60c72b2f9b1d8c001c8e4e1a';
+    const plan = {
+      _id: id,
+      period: Period.MONTHLY,
+      periodQuantity: 3,
+      value: 150,
+      modality: {
+        _id: '60c72b2f9b1d8c001c8e4e2b',
+        name: 'Test',
+        description: 'Unit tests with jest',
+        status: true,
+        __v: 0,
+      },
+    };
+
+    mockPlansModel.findById.mockReturnThis();
+    mockPlansModel.exec.mockResolvedValue(plan);
+
+    const result = await service.findById(id);
+
+    expect(result).toEqual(plan);
+    expect(model.findById).toHaveBeenCalledWith(id);
+  });
+
+  it('should throw a NotFoundException if plan is not found', async () => {
+    const id = '60c72b2f9b1d8c001c8e4e1a';
+
+    mockPlansModel.findById.mockReturnThis();
+    mockPlansModel.exec.mockResolvedValue(null);
+
+    await expect(service.findById(id)).rejects.toThrow(
+      new NotFoundException(`Plan with id ${id} not found`),
+    );
+    expect(model.findById).toHaveBeenCalledWith(id);
+  });
+
+  it('should find all plans with pagination', async () => {
+    const queryParams = { skip: 0, limit: 5, status: true };
+    const plans = [
+      {
+        _id: '60c72b2f9b1d8c001c8e4e1a',
+        period: Period.MONTHLY,
+        periodQuantity: 1,
+        value: 50,
+        modality: {
+          _id: '60c72b2f9b1d8c001c8e4e2b',
+          name: 'Test',
+          description: 'Unit tests with jest',
+          status: true,
+          __v: 0,
+        },
+      },
+      {
+        _id: '60c72b2f9b1d8c001c8e4d2c',
+        period: Period.MONTHLY,
+        periodQuantity: 3,
+        value: 100,
+        modality: {
+          _id: '60c72b2f9b1d8c001c8e4e2b',
+          name: 'Test',
+          description: 'Unit tests with jest',
+          status: true,
+          __v: 0,
+        },
+      },
+      {
+        _id: '60c72b2f9b1d8c001c8e4e4f',
+        period: Period.MONTHLY,
+        periodQuantity: 6,
+        value: 150,
+        modality: {
+          _id: '60c72b2f9b1d8c001c8e4e2b',
+          name: 'Test',
+          description: 'Unit tests with jest',
+          status: true,
+          __v: 0,
+        },
+      },
+    ];
+
+    mockPlansModel.find.mockReturnThis();
+    mockPlansModel.skip.mockReturnThis();
+    mockPlansModel.limit.mockReturnThis();
+    mockPlansModel.exec.mockResolvedValue(plans);
+
+    const result = await service.findAll(queryParams);
+
+    expect(result).toEqual(plans);
+    expect(result.length).toBe(plans.length);
+    expect(model.find).toHaveBeenCalled();
+    expect(mockPlansModel.skip).toHaveBeenCalledWith(queryParams.skip);
+    expect(mockPlansModel.limit).toHaveBeenCalledWith(queryParams.limit);
   });
 });
