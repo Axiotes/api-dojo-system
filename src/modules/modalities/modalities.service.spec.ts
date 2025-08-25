@@ -113,7 +113,7 @@ describe('ModalitiesService', () => {
     mockModalitiesModel.exec.mockResolvedValue(null);
 
     await expect(service.findById(id)).rejects.toThrow(
-      new NotFoundException('Modality not found'),
+      new NotFoundException(`Modality with id ${id} not found`),
     );
     expect(model.findById).toHaveBeenCalledWith(id);
   });

@@ -39,7 +39,7 @@ export class ModalitiesService {
     const modality = await this.modalitiesModel.findById(id).exec();
 
     if (!modality) {
-      throw new NotFoundException('Modality not found');
+      throw new NotFoundException(`Modality with id ${id} not found`);
     }
 
     return modality;
