@@ -24,8 +24,8 @@ export class Teachers {
   })
   email: string;
 
-  @Prop({ required: [true, 'A teacher must have a photo'], type: String })
-  photo: string;
+  @Prop({ required: [true, 'A teacher must have a image'], type: Buffer })
+  image: Buffer;
 
   @Prop({ required: [true, 'A teacher must have a hour price'], type: Number })
   hourPrice: number;

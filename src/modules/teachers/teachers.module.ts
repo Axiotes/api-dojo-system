@@ -6,6 +6,7 @@ import { TeachersController } from './teachers.controller';
 import { TeachersService } from './teachers.service';
 
 import { ModalitiesModule } from '@ds-modules/modalities/modalities.module';
+import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe';
 
 @Module({
   imports: [
@@ -13,6 +14,6 @@ import { ModalitiesModule } from '@ds-modules/modalities/modalities.module';
     ModalitiesModule,
   ],
   controllers: [TeachersController],
-  providers: [TeachersService],
+  providers: [TeachersService, ReduceImagePipe],
 })
 export class TeachersModule {}
