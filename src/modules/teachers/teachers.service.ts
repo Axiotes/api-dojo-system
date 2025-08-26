@@ -4,15 +4,21 @@ import { Model } from 'mongoose';
 
 import { Teachers } from './schemas/teachers.schema';
 
-import { ModalitiesService } from '@ds-modules/modalities/modalities.service';
 import { TeacherDocument } from '@ds-types/documents/teacher-document.type';
+import { ValidateFieldsService } from '@ds-services/validate-fields/validate-fields.service';
 
 @Injectable()
 export class TeachersService {
   constructor(
     @InjectModel(Teachers.name) private teachersModel: Model<Teachers>,
-    private readonly modalitiesService: ModalitiesService,
+    private readonly validateFieldsService: ValidateFieldsService,
   ) {}
 
-  public async createTeacher(newTeacher: TeacherDocument) {}
+  public async createTeacher(newTeacher: TeacherDocument) {
+    await this.validateFieldsService.validateCpf('Teachers', newTeacher.cpf);
+    await this.validateFieldsService.validateEmail(
+      'Teachers',
+      newTeacher.email,
+    );
+  }
 }

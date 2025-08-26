@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -10,27 +6,18 @@ import { Plans } from './schemas/plans.schema';
 import { PlanDto } from './dtos/plan.dto';
 import { FindPlansDto } from './dtos/find-plans.dto';
 
-import { ModalitiesService } from '@ds-modules/modalities/modalities.service';
 import { PlanDocument } from '@ds-types/documents/plan-document';
-import { ModalitiesDocument } from '@ds-types/documents/modalitie-document.type';
+import { ValidateFieldsService } from '@ds-services/validate-fields/validate-fields.service';
 
 @Injectable()
 export class PlansService {
   constructor(
     @InjectModel(Plans.name) private plansModel: Model<Plans>,
-    private readonly modalitiesService: ModalitiesService,
+    private readonly validateFieldsService: ValidateFieldsService,
   ) {}
 
   public async createPlan(planDto: PlanDto): Promise<PlanDocument> {
-    const modality: ModalitiesDocument = await this.modalitiesService.findById(
-      planDto.modality,
-    );
-
-    if (!modality.status) {
-      throw new BadRequestException(
-        `Modality with id ${planDto.modality} is disabled`,
-      );
-    }
+    await this.validateFieldsService.isActive('Modalities', planDto.modality);
 
     const newPlan = await this.plansModel.create(planDto);
 
