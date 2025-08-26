@@ -15,4 +15,14 @@ export class ValidateFieldsService {
       throw new ConflictException(`Email ${email} already exists`);
     }
   }
+
+  public async validateCpf(modelName: string, cpf: string): Promise<void> {
+    const model = this.connection.model(modelName);
+
+    const cpfExists = await model.exists({ cpf });
+
+    if (cpfExists) {
+      throw new ConflictException(`CPF ${cpf} already exists`);
+    }
+  }
 }
