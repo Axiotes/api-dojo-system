@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { Query, Types } from 'mongoose';
 
 import { Modalities } from '@ds-modules/modalities/schemas/modalities.schema';
 
@@ -24,6 +24,9 @@ export class Teachers {
   })
   email: string;
 
+  @Prop({ required: [true, 'A teacher must have a description'], type: String })
+  description: string;
+
   @Prop({ required: [true, 'A teacher must have a image'], type: Buffer })
   image: Buffer;
 
@@ -47,3 +50,12 @@ export class Teachers {
 }
 
 export const TeachersSchema = SchemaFactory.createForClass(Teachers);
+
+TeachersSchema.pre<Query<Teachers[], Teachers>>(/^find/, function (next) {
+  this.populate({
+    path: 'modalities',
+    select: '-createdAt -updatedAt -image',
+  });
+
+  next();
+});

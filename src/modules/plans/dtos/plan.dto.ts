@@ -1,6 +1,7 @@
 import { IsEnum, IsMongoId, IsNumber, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
+import { Types } from 'mongoose';
 
 import { Period } from '@ds-enums/period.enum';
 
@@ -35,5 +36,5 @@ export class PlanDto {
     example: '64f1b2a3c4d5e6f7890abc12',
   })
   @IsMongoId()
-  modality: string;
+  modality: Types.ObjectId;
 }

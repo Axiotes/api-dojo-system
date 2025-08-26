@@ -14,11 +14,22 @@ export class TeachersService {
     private readonly validateFieldsService: ValidateFieldsService,
   ) {}
 
-  public async createTeacher(newTeacher: TeacherDocument) {
+  public async createTeacher(
+    newTeacher: TeacherDocument,
+  ): Promise<TeacherDocument> {
     await this.validateFieldsService.validateCpf('Teachers', newTeacher.cpf);
     await this.validateFieldsService.validateEmail(
       'Teachers',
       newTeacher.email,
     );
+
+    const modalitiesPromise = newTeacher.modalities.map(async (modalityId) => {
+      await this.validateFieldsService.isActive('Modalities', modalityId);
+    });
+    await Promise.all(modalitiesPromise);
+
+    const teacher = await this.teachersModel.create(newTeacher);
+
+    return await this.teachersModel.findById(teacher._id).exec();
   }
 }

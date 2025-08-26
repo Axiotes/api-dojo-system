@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
-import { Connection } from 'mongoose';
+import { Connection, Types } from 'mongoose';
 
 @Injectable()
 export class ValidateFieldsService {
@@ -31,7 +31,7 @@ export class ValidateFieldsService {
     }
   }
 
-  public async isActive(modelName: string, id: string): Promise<void> {
+  public async isActive(modelName: string, id: Types.ObjectId): Promise<void> {
     const model = this.connection.model(modelName);
 
     const document = await model.findById(id).lean<{ status: boolean }>();

@@ -27,6 +27,9 @@ export class TeacherDto {
   @Min(1)
   hourPrice: number;
 
+  @IsString()
+  description: string;
+
   @IsArray()
   @ArrayNotEmpty()
   @IsMongoId({ each: true })
