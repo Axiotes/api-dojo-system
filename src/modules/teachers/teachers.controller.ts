@@ -3,8 +3,11 @@ import {
   Controller,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { AuthGuard } from '@nestjs/passport';
 
 import { TeachersService } from './teachers.service';
 import { TeacherDto } from './dtos/teacher.dto';
@@ -14,6 +17,8 @@ import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe
 import { TeacherDocument } from '@ds-types/documents/teacher-document.type';
 import { ImageBase64Interceptor } from '@ds-common/interceptors/image-base64/image-base64.interceptor';
 import { ApiResponse } from '@ds-types/api-response.type';
+import { Roles } from '@ds-common/decorators/roles.decorator';
+import { RoleGuard } from '@ds-common/guards/role/role.guard';
 
 @UseInterceptors(ImageBase64Interceptor)
 @Controller('teachers')
@@ -23,6 +28,14 @@ export class TeachersController {
     private readonly reduceImagePipe: ReduceImagePipe,
   ) {}
 
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 5,
+      ttl: 60000,
+    },
+  })
   @UploadImage()
   @Post()
   public async createTeacher(
