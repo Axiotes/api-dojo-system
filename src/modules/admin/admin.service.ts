@@ -15,22 +15,18 @@ import { FindAdminDto } from './dtos/find-admin.dto';
 import { UpdateAdminDto } from './dtos/update-admin.dto';
 
 import { AdminDocument } from '@ds-types/documents/admin';
+import { ValidateFieldsService } from '@ds-services/validate-fields/validate-fields.service';
 
 @Injectable()
 export class AdminService {
   constructor(
     @InjectModel(Admin.name) private adminModel: Model<Admin>,
     private jwtService: JwtService,
+    private readonly validadeFieldsService: ValidateFieldsService,
   ) {}
 
   public async createAdmin(adminDto: AdminDto): Promise<AdminDocument> {
-    const admin = await this.adminModel
-      .findOne({ email: adminDto.email })
-      .exec();
-
-    if (admin) {
-      throw new ConflictException('An admin with this email already exists');
-    }
+    await this.validadeFieldsService.validateEmail('Admin', adminDto.email);
 
     return await this.adminModel.create(adminDto);
   }
