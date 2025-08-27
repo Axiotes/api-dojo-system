@@ -1,5 +1,7 @@
-import { IsEnum, IsMongoId, IsNumber } from 'class-validator';
+import { IsEnum, IsMongoId, IsNumber, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
+import { Types } from 'mongoose';
 
 import { Period } from '@ds-enums/period.enum';
 
@@ -15,14 +17,18 @@ export class PlanDto {
     description: 'Quantidade do período definido em period',
     example: '3',
   })
+  @Transform(({ value }) => parseInt(value))
   @IsNumber()
+  @Min(1)
   periodQuantity: number;
 
   @ApiProperty({
     description: 'Preço do plano',
     example: '150.00',
   })
+  @Transform(({ value }) => parseInt(value))
   @IsNumber()
+  @Min(1)
   value: number;
 
   @ApiProperty({
@@ -30,5 +36,5 @@ export class PlanDto {
     example: '64f1b2a3c4d5e6f7890abc12',
   })
   @IsMongoId()
-  modality: string;
+  modality: Types.ObjectId;
 }

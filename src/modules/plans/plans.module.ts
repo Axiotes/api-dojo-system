@@ -5,12 +5,12 @@ import { PlansSchema } from './schemas/plans.schema';
 import { PlansService } from './plans.service';
 import { PlansController } from './plans.controller';
 
-import { ModalitiesModule } from '@ds-modules/modalities/modalities.module';
+import { ServicesModule } from '@ds-services/services.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'Plans', schema: PlansSchema }]),
-    ModalitiesModule,
+    ServicesModule,
   ],
   providers: [PlansService],
   controllers: [PlansController],

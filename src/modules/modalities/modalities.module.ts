@@ -15,6 +15,6 @@ import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe
   ],
   controllers: [ModalitiesController],
   providers: [ModalitiesService, ReduceImagePipe],
-  exports: [ModalitiesService],
+  exports: [],
 })
 export class ModalitiesModule {}

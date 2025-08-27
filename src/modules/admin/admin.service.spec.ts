@@ -13,9 +13,11 @@ import { UpdateAdminDto } from './dtos/update-admin.dto';
 
 import { AdminDocument } from '@ds-types/documents/admin';
 import { AuthModule } from '@ds-modules/auth/auth.module';
+import { ValidateFieldsService } from '@ds-services/validate-fields/validate-fields.service';
 
 describe('AdminService', () => {
   let service: AdminService;
+  let validateFieldService: ValidateFieldsService;
   let model: Model<AdminDocument>;
 
   const mockAdminModel = {
@@ -44,6 +46,12 @@ describe('AdminService', () => {
       providers: [
         AdminService,
         {
+          provide: ValidateFieldsService,
+          useValue: {
+            validateEmail: jest.fn(),
+          },
+        },
+        {
           provide: getModelToken(Admin.name),
           useValue: mockAdminModel,
         },
@@ -60,6 +68,9 @@ describe('AdminService', () => {
       .compile();
 
     service = module.get<AdminService>(AdminService);
+    validateFieldService = module.get<ValidateFieldsService>(
+      ValidateFieldsService,
+    );
     model = module.get<Model<AdminDocument>>(getModelToken(Admin.name));
 
     jest.clearAllMocks();
@@ -76,15 +87,17 @@ describe('AdminService', () => {
       password: 'Password123',
     };
 
-    mockAdminModel.findOne.mockReturnThis();
-    mockAdminModel.exec.mockResolvedValue(null);
+    validateFieldService.validateEmail = jest.fn().mockImplementation(() => {});
     mockAdminModel.create.mockResolvedValue(adminDto);
 
     const result = await service.createAdmin(adminDto);
 
     expect(result).toEqual(adminDto);
-    expect(model.findOne).toHaveBeenCalledWith({ email: adminDto.email });
     expect(model.create).toHaveBeenCalledWith(adminDto);
+    expect(validateFieldService.validateEmail).toHaveBeenCalledWith(
+      'Admin',
+      adminDto.email,
+    );
   });
 
   it('should throw ConflictException if admin already exists', async () => {
@@ -94,13 +107,12 @@ describe('AdminService', () => {
       password: 'Password123',
     };
 
-    mockAdminModel.findOne.mockReturnThis();
-    mockAdminModel.exec.mockResolvedValue(adminDto);
-
-    await expect(service.createAdmin(adminDto)).rejects.toThrow(
-      new ConflictException('An admin with this email already exists'),
+    (validateFieldService.validateEmail as jest.Mock).mockRejectedValue(
+      new ConflictException(`Email ${adminDto.email} already exists`),
     );
-    expect(model.findOne).toHaveBeenCalledWith({ email: adminDto.email });
+    await expect(service.createAdmin(adminDto)).rejects.toThrow(
+      new ConflictException(`Email ${adminDto.email} already exists`),
+    );
     expect(model.create).toHaveBeenCalledTimes(0);
   });
 

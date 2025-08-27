@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
@@ -7,13 +7,13 @@ import { PlansService } from './plans.service';
 import { Plans } from './schemas/plans.schema';
 import { PlanDto } from './dtos/plan.dto';
 
-import { ModalitiesService } from '@ds-modules/modalities/modalities.service';
 import { PlanDocument } from '@ds-types/documents/plan-document';
 import { Period } from '@ds-enums/period.enum';
+import { ValidateFieldsService } from '@ds-services/validate-fields/validate-fields.service';
 
 describe('PlansService', () => {
   let service: PlansService;
-  let modalitiesService: ModalitiesService;
+  let validateFieldsService: ValidateFieldsService;
   let model: Model<PlanDocument>;
 
   const mockPlansModel = {
@@ -35,9 +35,9 @@ describe('PlansService', () => {
       providers: [
         PlansService,
         {
-          provide: ModalitiesService,
+          provide: ValidateFieldsService,
           useValue: {
-            findById: jest.fn(),
+            isActive: jest.fn(),
           },
         },
         {
@@ -48,7 +48,9 @@ describe('PlansService', () => {
     }).compile();
 
     service = module.get<PlansService>(PlansService);
-    modalitiesService = module.get<ModalitiesService>(ModalitiesService);
+    validateFieldsService = module.get<ValidateFieldsService>(
+      ValidateFieldsService,
+    );
     model = module.get<Model<PlanDocument>>(getModelToken(Plans.name));
 
     jest.clearAllMocks();
@@ -63,7 +65,7 @@ describe('PlansService', () => {
       period: Period.MONTHLY,
       periodQuantity: 3,
       value: 150,
-      modality: '64f1b2a3c4d5e6f7890abc12',
+      modality: new Types.ObjectId('64f1b2a3c4d5e6f7890abc12'),
     };
     const modality = {
       _id: dto.modality,
@@ -79,7 +81,7 @@ describe('PlansService', () => {
       modality,
     };
 
-    modalitiesService.findById = jest.fn().mockResolvedValue(modality);
+    validateFieldsService.isActive = jest.fn().mockImplementation(() => {});
     mockPlansModel.create.mockResolvedValue(dto);
     mockPlansModel.findById.mockReturnThis();
     mockPlansModel.exec.mockResolvedValue(plan);
@@ -87,8 +89,11 @@ describe('PlansService', () => {
     const result = await service.createPlan(dto);
 
     expect(result).toEqual(plan);
-    expect(modalitiesService.findById).toHaveBeenCalledWith(dto.modality);
     expect(model.create).toHaveBeenCalledWith(dto);
+    expect(validateFieldsService.isActive).toHaveBeenCalledWith(
+      'Modalities',
+      dto.modality,
+    );
   });
 
   it('should throw BadRequestException if modality is disabled when creating plan', async () => {
@@ -96,7 +101,7 @@ describe('PlansService', () => {
       period: Period.MONTHLY,
       periodQuantity: 3,
       value: 150,
-      modality: '64f1b2a3c4d5e6f7890abc12',
+      modality: new Types.ObjectId('64f1b2a3c4d5e6f7890abc12'),
     };
     const modality = {
       _id: dto.modality,
@@ -106,10 +111,15 @@ describe('PlansService', () => {
       __v: 0,
     };
 
-    modalitiesService.findById = jest.fn().mockResolvedValue(modality);
-
+    (validateFieldsService.isActive as jest.Mock).mockRejectedValue(
+      new BadRequestException(`Modalities with id ${modality._id} is disabled`),
+    );
     await expect(service.createPlan(dto)).rejects.toThrow(
-      new BadRequestException(`Modality with id ${dto.modality} is disabled`),
+      new BadRequestException(`Modalities with id ${dto.modality} is disabled`),
+    );
+    expect(validateFieldsService.isActive).toHaveBeenCalledWith(
+      'Modalities',
+      dto.modality,
     );
     expect(model.create).toHaveBeenCalledTimes(0);
     expect(model.findById).toHaveBeenCalledTimes(0);
