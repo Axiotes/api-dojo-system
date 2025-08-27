@@ -22,11 +22,11 @@ export class AdminService {
   constructor(
     @InjectModel(Admin.name) private adminModel: Model<Admin>,
     private jwtService: JwtService,
-    private readonly validadeFieldsService: ValidateFieldsService,
+    private readonly validateFieldsService: ValidateFieldsService,
   ) {}
 
   public async createAdmin(adminDto: AdminDto): Promise<AdminDocument> {
-    await this.validadeFieldsService.validateEmail('Admin', adminDto.email);
+    await this.validateFieldsService.validateEmail('Admin', adminDto.email);
 
     return await this.adminModel.create(adminDto);
   }
