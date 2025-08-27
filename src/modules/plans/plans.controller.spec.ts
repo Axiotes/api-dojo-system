@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException } from '@nestjs/common';
+import { Types } from 'mongoose';
 
 import { PlansController } from './plans.controller';
 import { PlansService } from './plans.service';
@@ -42,7 +43,7 @@ describe('PlansController', () => {
       period: Period.MONTHLY,
       periodQuantity: 3,
       value: 150,
-      modality: '64f1b2a3c4d5e6f7890abc12',
+      modality: new Types.ObjectId('64f1b2a3c4d5e6f7890abc12'),
     };
     const plan = {
       period: Period.MONTHLY,
