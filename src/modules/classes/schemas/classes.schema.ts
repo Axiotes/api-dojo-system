@@ -5,6 +5,7 @@ import { Modalities } from '@ds-modules/modalities/schemas/modalities.schema';
 import { Teachers } from '@ds-modules/teachers/schemas/teachers.schema';
 import { Age } from '@ds-types/age.type';
 import { Hour } from '@ds-types/hour.type';
+import { Athletes } from '@ds-modules/athletes/schemas/athletes.schema';
 
 @Schema({ timestamps: true })
 export class Classes {
@@ -42,10 +43,15 @@ export class Classes {
   weekDays: string[];
 
   @Prop({
-    type: String,
+    type: Buffer,
     required: [true, 'A class must have a image'],
   })
-  image: string;
+  image: Buffer;
+
+  @Prop({
+    type: [{ type: Types.ObjectId, ref: Athletes.name }],
+  })
+  athletes: Types.ObjectId[];
 
   @Prop({
     required: [true, 'A class must have a status'],
