@@ -1,6 +1,4 @@
-import { IsNotEmpty, IsString, Matches, Validate } from 'class-validator';
-
-import { HourConstraint } from '@ds-common/validators/hour.validator';
+import { IsNotEmpty, IsString, Matches } from 'class-validator';
 
 export class HourDto {
   @IsNotEmpty()
@@ -16,7 +14,4 @@ export class HourDto {
     message: 'end must be in HH:MM format',
   })
   end: string;
-
-  @Validate(HourConstraint)
-  validate(): void {}
 }

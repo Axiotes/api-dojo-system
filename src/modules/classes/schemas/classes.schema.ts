@@ -31,9 +31,9 @@ export class Classes {
 
   @Prop({
     type: Number,
-    required: [true, 'A class must have a maximum number of students'],
+    required: [true, 'A class must have a maximum number of athletes'],
   })
-  maxStudents: number;
+  maxAthletes: number;
 
   @Prop({
     type: [String],

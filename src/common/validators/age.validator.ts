@@ -19,6 +19,6 @@ export class AgeConstraint implements ValidatorConstraintInterface {
   }
 
   public defaultMessage(): string {
-    return 'min time must be less than max age';
+    return 'min age must be less than max age';
   }
 }

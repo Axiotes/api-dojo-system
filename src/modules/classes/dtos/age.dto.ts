@@ -1,7 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsNumber, IsOptional, Min, Validate } from 'class-validator';
-
-import { AgeConstraint } from '@ds-common/validators/age.validator';
+import { IsNumber, IsOptional, Min } from 'class-validator';
 
 export class AgeDto {
   @Transform(({ value }) => parseInt(value))
@@ -14,7 +12,4 @@ export class AgeDto {
   @IsNumber()
   @Min(1)
   max: number;
-
-  @Validate(AgeConstraint)
-  validate(): void {}
 }
