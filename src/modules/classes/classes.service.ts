@@ -38,18 +38,19 @@ export class ClassesService {
     }
 
     const modalityMatch = teacher.modalities.some(
-      (teacherModality) => teacherModality._id === modality._id,
+      (teacherModality) =>
+        teacherModality._id.toString() === modality._id.toString(),
     );
 
     if (!modalityMatch) {
-      new BadRequestException(
+      throw new BadRequestException(
         `Teacher ${teacher.name} does not have ${modality.name} modality`,
       );
     }
 
     const classDoc = await this.classesModel.create(newClass);
 
-    classDoc.populate([
+    await classDoc.populate([
       {
         path: 'modality',
         select: '-createdAt -updatedAt -image',

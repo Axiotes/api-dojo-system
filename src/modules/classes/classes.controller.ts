@@ -1,4 +1,10 @@
-import { Body, Controller, Post, UploadedFile } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 
 import { ClassesService } from './classes.service';
 import { ClassDto } from './dtos/class.dto';
@@ -7,7 +13,9 @@ import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe
 import { UploadImage } from '@ds-common/decorators/upload-image.decorator';
 import { ApiResponse } from '@ds-types/api-response.type';
 import { ClassDocument } from '@ds-types/documents/class-document.type';
+import { ImageBase64Interceptor } from '@ds-common/interceptors/image-base64/image-base64.interceptor';
 
+@UseInterceptors(ImageBase64Interceptor)
 @Controller('classes')
 export class ClassesController {
   constructor(
