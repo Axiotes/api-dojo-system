@@ -1,10 +1,10 @@
 import {
   ArrayNotEmpty,
   IsArray,
+  IsEnum,
   IsMongoId,
   IsNotEmpty,
   IsNumber,
-  IsString,
   Min,
   Validate,
   ValidateNested,
@@ -17,6 +17,7 @@ import { AgeDto } from './age.dto';
 
 import { AgeConstraint } from '@ds-common/validators/age.validator';
 import { HourConstraint } from '@ds-common/validators/hour.validator';
+import { WeekDays } from '@ds-enums/week-days.enum';
 
 export class ClassDto {
   @IsMongoId()
@@ -44,6 +45,6 @@ export class ClassDto {
 
   @IsArray()
   @ArrayNotEmpty()
-  @IsString({ each: true })
-  weekDays: string[];
+  @IsEnum(WeekDays, { each: true })
+  weekDays: WeekDays[];
 }

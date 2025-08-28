@@ -6,6 +6,7 @@ import { Teachers } from '@ds-modules/teachers/schemas/teachers.schema';
 import { Age } from '@ds-types/age.type';
 import { Hour } from '@ds-types/hour.type';
 import { Athletes } from '@ds-modules/athletes/schemas/athletes.schema';
+import { WeekDays } from '@ds-enums/week-days.enum';
 
 @Schema({ timestamps: true })
 export class Classes {
@@ -38,9 +39,13 @@ export class Classes {
   @Prop({
     type: [String],
     required: [true, 'A class must have a week day'],
-    validate: [(weekDay: string[]): boolean => weekDay.length > 0],
+    enum: Object.values(WeekDays),
+    validate: [
+      (weekDay: string[]): boolean => weekDay.length > 0,
+      'At least one week day must be provided',
+    ],
   })
-  weekDays: string[];
+  weekDays: WeekDays[];
 
   @Prop({
     type: Buffer,
