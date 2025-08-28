@@ -5,15 +5,14 @@ import {
   IsMongoId,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
+  IsString,
+  Matches,
   Min,
   Validate,
-  ValidateNested,
 } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import { Types } from 'mongoose';
-
-import { HourDto } from './hour.dto';
-import { AgeDto } from './age.dto';
 
 import { AgeConstraint } from '@ds-common/validators/age.validator';
 import { HourConstraint } from '@ds-common/validators/hour.validator';
@@ -27,16 +26,31 @@ export class ClassDto {
   teacher: Types.ObjectId;
 
   @IsNotEmpty()
-  @ValidateNested()
-  @Type(() => HourDto)
-  @Validate(HourConstraint)
-  hour: HourDto;
+  @IsString()
+  @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+    message: 'start must be in HH:MM format',
+  })
+  startHour: string;
 
   @IsNotEmpty()
-  @ValidateNested()
-  @Type(() => AgeDto)
+  @IsString()
+  @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+    message: 'end must be in HH:MM format',
+  })
+  @Validate(HourConstraint)
+  endHour: string;
+
+  @Transform(({ value }) => parseInt(value))
+  @IsNumber()
+  @Min(1)
+  minAge: number;
+
+  @IsOptional()
+  @Transform(({ value }) => parseInt(value))
+  @IsNumber()
+  @Min(1)
   @Validate(AgeConstraint)
-  age: AgeDto;
+  maxAge: number;
 
   @Transform(({ value }) => parseInt(value))
   @IsNumber()

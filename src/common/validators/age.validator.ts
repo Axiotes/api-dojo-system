@@ -4,14 +4,14 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 
-import { Age } from '@ds-types/age.type';
+import { ClassDto } from '@ds-modules/classes/dtos/class.dto';
 
 @ValidatorConstraint({ async: false })
 export class AgeConstraint implements ValidatorConstraintInterface {
-  public validate(age: Age, args: ValidationArguments): boolean {
-    const obj = args.object as Age;
-    const min = obj.min;
-    const max = obj.max;
+  public validate(maxAge: number, args: ValidationArguments): boolean {
+    const obj = args.object as ClassDto;
+    const min = obj.minAge;
+    const max = obj.maxAge;
 
     if (!max) return true;
 

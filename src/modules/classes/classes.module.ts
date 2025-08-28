@@ -7,9 +7,9 @@ import { ClassesController } from './classes.controller';
 import { ClassesService } from './classes.service';
 
 import { ServicesModule } from '@ds-services/services.module';
-import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe';
 import { ModalitiesModule } from '@ds-modules/modalities/modalities.module';
 import { TeachersModule } from '@ds-modules/teachers/teachers.module';
+import { PipesModule } from '@ds-common/pipes/pipes.module';
 
 @Module({
   imports: [
@@ -20,8 +20,9 @@ import { TeachersModule } from '@ds-modules/teachers/teachers.module';
     ServicesModule,
     ModalitiesModule,
     TeachersModule,
+    PipesModule,
   ],
   controllers: [ClassesController],
-  providers: [ClassesService, ReduceImagePipe],
+  providers: [ClassesService],
 })
 export class ClassesModule {}

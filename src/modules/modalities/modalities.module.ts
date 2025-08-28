@@ -5,16 +5,17 @@ import { ModalitiesSchema } from './schemas/modalities.schema';
 import { ModalitiesController } from './modalities.controller';
 import { ModalitiesService } from './modalities.service';
 
-import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe';
+import { PipesModule } from '@ds-common/pipes/pipes.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: 'Modalities', schema: ModalitiesSchema },
     ]),
+    PipesModule,
   ],
   controllers: [ModalitiesController],
-  providers: [ModalitiesService, ReduceImagePipe],
+  providers: [ModalitiesService],
   exports: [ModalitiesService],
 })
 export class ModalitiesModule {}

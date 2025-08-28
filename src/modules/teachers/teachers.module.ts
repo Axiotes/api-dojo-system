@@ -6,17 +6,18 @@ import { TeachersController } from './teachers.controller';
 import { TeachersService } from './teachers.service';
 
 import { ModalitiesModule } from '@ds-modules/modalities/modalities.module';
-import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe';
 import { ServicesModule } from '@ds-services/services.module';
+import { PipesModule } from '@ds-common/pipes/pipes.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'Teachers', schema: TeachersSchema }]),
     ModalitiesModule,
     ServicesModule,
+    PipesModule,
   ],
   controllers: [TeachersController],
-  providers: [TeachersService, ReduceImagePipe],
+  providers: [TeachersService],
   exports: [TeachersService],
 })
 export class TeachersModule {}

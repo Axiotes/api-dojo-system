@@ -15,6 +15,7 @@ import { PaymentModule } from './modules/payment/payment.module';
 import { AuthModule } from './modules/auth/auth.module';
 
 import { AdminModule } from '@ds-modules/admin/admin.module';
+import { PipesModule } from '@ds-common/pipes/pipes.module';
 
 @Module({
   imports: [
@@ -49,6 +50,8 @@ import { AdminModule } from '@ds-modules/admin/admin.module';
     PaymentModule,
 
     AuthModule,
+
+    PipesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

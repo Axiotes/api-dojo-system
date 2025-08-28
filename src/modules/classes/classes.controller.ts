@@ -23,8 +23,18 @@ export class ClassesController {
   ): Promise<ApiResponse<ClassDocument>> {
     const reducedImageBuffer = await this.reduceImagePipe.transform(file);
 
-    const newClass = {
-      ...classDto,
+    const { startHour, endHour, minAge, maxAge, ...rest } = classDto;
+
+    const newClass: ClassDocument = {
+      ...rest,
+      hour: {
+        start: startHour,
+        end: endHour,
+      },
+      age: {
+        min: minAge,
+        max: maxAge,
+      },
       image: reducedImageBuffer,
     } as ClassDocument;
 
