@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Query, Types } from 'mongoose';
+import { Types } from 'mongoose';
 
 import { Modalities } from '@ds-modules/modalities/schemas/modalities.schema';
 import { Teachers } from '@ds-modules/teachers/schemas/teachers.schema';
@@ -67,18 +67,3 @@ export class Classes {
 }
 
 export const ClassesSchema = SchemaFactory.createForClass(Classes);
-
-ClassesSchema.pre<Query<Classes[], Classes>>(/^find/, function (next) {
-  this.populate([
-    {
-      path: 'modality',
-      select: '-createdAt -updatedAt -image',
-    },
-    {
-      path: 'teacher',
-      select: 'name description image',
-    },
-  ]);
-
-  next();
-});

@@ -117,7 +117,9 @@ export class ModalitiesController {
       throw new BadRequestException('Invalid id format');
     }
 
-    const modality = await this.modalitiesService.findById(id);
+    const modality = await this.modalitiesService.findById(
+      new Types.ObjectId(id),
+    );
 
     return {
       data: modality,

@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import { Modalities } from './schemas/modalities.schema';
 import { FindModalitiesDto } from './dtos/find-modalities.dto';
@@ -35,7 +35,7 @@ export class ModalitiesService {
     return await this.modalitiesModel.create(newModality);
   }
 
-  public async findById(id: string): Promise<ModalitiesDocument> {
+  public async findById(id: Types.ObjectId): Promise<ModalitiesDocument> {
     const modality = await this.modalitiesModel.findById(id).exec();
 
     if (!modality) {
@@ -63,7 +63,7 @@ export class ModalitiesService {
   public async update(
     updateModality: Partial<ModalitiesDocument>,
   ): Promise<ModalitiesDocument> {
-    const modality = await this.findById(updateModality._id as string);
+    const modality = await this.findById(updateModality._id as Types.ObjectId);
 
     if (updateModality.name && updateModality.name != modality.name) {
       const nameExist = await this.modalitiesModel

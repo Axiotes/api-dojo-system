@@ -17,5 +17,6 @@ import { ServicesModule } from '@ds-services/services.module';
   ],
   controllers: [TeachersController],
   providers: [TeachersService, ReduceImagePipe],
+  exports: [TeachersService],
 })
 export class TeachersModule {}

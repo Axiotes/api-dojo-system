@@ -8,6 +8,8 @@ import { ClassesService } from './classes.service';
 
 import { ServicesModule } from '@ds-services/services.module';
 import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe';
+import { ModalitiesModule } from '@ds-modules/modalities/modalities.module';
+import { TeachersModule } from '@ds-modules/teachers/teachers.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe
       { name: 'ClassesHistory', schema: ClassesHistorySchema },
     ]),
     ServicesModule,
+    ModalitiesModule,
+    TeachersModule,
   ],
   controllers: [ClassesController],
   providers: [ClassesService, ReduceImagePipe],
