@@ -18,5 +18,5 @@ export class HourDto {
   end: string;
 
   @Validate(HourConstraint)
-  validateInterval(): void {}
+  validate(): void {}
 }
