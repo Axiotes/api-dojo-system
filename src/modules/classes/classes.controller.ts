@@ -3,8 +3,11 @@ import {
   Controller,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { Throttle } from '@nestjs/throttler';
 
 import { ClassesService } from './classes.service';
 import { ClassDto } from './dtos/class.dto';
@@ -14,6 +17,8 @@ import { UploadImage } from '@ds-common/decorators/upload-image.decorator';
 import { ApiResponse } from '@ds-types/api-response.type';
 import { ClassDocument } from '@ds-types/documents/class-document.type';
 import { ImageBase64Interceptor } from '@ds-common/interceptors/image-base64/image-base64.interceptor';
+import { RoleGuard } from '@ds-common/guards/role/role.guard';
+import { Roles } from '@ds-common/decorators/roles.decorator';
 
 @UseInterceptors(ImageBase64Interceptor)
 @Controller('classes')
@@ -23,6 +28,14 @@ export class ClassesController {
     private readonly reduceImagePipe: ReduceImagePipe,
   ) {}
 
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 5,
+      ttl: 60000,
+    },
+  })
   @UploadImage()
   @Post()
   public async createClass(
