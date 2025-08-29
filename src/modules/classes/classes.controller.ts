@@ -134,7 +134,7 @@ export class ClassesController {
 
     const { startHour, endHour, minAge, maxAge, ...rest } = classDto;
 
-    const newClass: ClassDocument = {
+    const newClass = {
       ...rest,
       hour: {
         start: startHour,
