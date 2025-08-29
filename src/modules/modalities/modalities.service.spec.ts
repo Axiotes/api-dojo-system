@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 
@@ -89,7 +89,7 @@ describe('ModalitiesService', () => {
   });
 
   it('should find a modality by ID succesfully', async () => {
-    const id = '60c72b2f9b1d8c001c8e4e1a';
+    const id = new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a');
     const modality: Partial<ModalitiesDocument> = {
       id,
       name: 'Test',
@@ -107,7 +107,7 @@ describe('ModalitiesService', () => {
   });
 
   it('should throw a NotFoundException if modality is not found', async () => {
-    const id = '60c72b2f9b1d8c001c8e4e1a';
+    const id = new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a');
 
     mockModalitiesModel.findById.mockReturnThis();
     mockModalitiesModel.exec.mockResolvedValue(null);

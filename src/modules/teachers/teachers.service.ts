@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import { Teachers } from './schemas/teachers.schema';
 
@@ -31,5 +31,15 @@ export class TeachersService {
     const teacher = await this.teachersModel.create(newTeacher);
 
     return await this.teachersModel.findById(teacher._id).exec();
+  }
+
+  public async findById(id: Types.ObjectId): Promise<TeacherDocument> {
+    const teacher = await this.teachersModel.findById(id).exec();
+
+    if (!teacher) {
+      throw new NotFoundException(`Teacher with id ${id} not found`);
+    }
+
+    return teacher;
   }
 }
