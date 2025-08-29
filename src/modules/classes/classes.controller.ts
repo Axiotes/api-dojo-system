@@ -102,7 +102,17 @@ export class ClassesController {
           description: 'Imagem da modalidade (jpg, jpeg, png, gif)',
         },
       },
-      required: ['image'],
+      required: [
+        'modality',
+        'teacher',
+        'startHour',
+        'endHour',
+        'minAge',
+        'maxAge',
+        'maxAthletes',
+        'weekDays',
+        'image',
+      ],
     },
   })
   @ApiConsumes('multipart/form-data')
