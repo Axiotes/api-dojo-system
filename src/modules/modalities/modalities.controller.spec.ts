@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException } from '@nestjs/common';
+import { Types } from 'mongoose';
 
 import { ModalitiesController } from './modalities.controller';
 import { ModalitiesService } from './modalities.service';
@@ -91,7 +92,9 @@ describe('ModalitiesController', () => {
     const result = await controller.findById(id);
 
     expect(result).toEqual({ data: modality });
-    expect(modalitiesService.findById).toHaveBeenCalledWith(id);
+    expect(modalitiesService.findById).toHaveBeenCalledWith(
+      new Types.ObjectId(id),
+    );
   });
 
   it('should throw BadRequestException for invalid ID format in findByID', async () => {
