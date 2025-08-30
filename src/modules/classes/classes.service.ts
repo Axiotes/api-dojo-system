@@ -13,7 +13,6 @@ import { ClassDocument } from '@ds-types/documents/class-document.type';
 import { ModalitiesService } from '@ds-modules/modalities/modalities.service';
 import { TeachersService } from '@ds-modules/teachers/teachers.service';
 import { Role } from '@ds-types/role.type';
-import { PlansService } from '@ds-modules/plans/plans.service';
 
 @Injectable()
 export class ClassesService {
@@ -23,7 +22,6 @@ export class ClassesService {
     private classesHistoryModel: Model<ClassesHistory>,
     private readonly modalitiesService: ModalitiesService,
     private readonly teachersService: TeachersService,
-    private readonly plansService: PlansService,
   ) {}
 
   public async createClass(newClass: ClassDocument): Promise<ClassDocument> {
@@ -81,26 +79,11 @@ export class ClassesService {
     return classDoc;
   }
 
-  public async populateByRole(
+  public async formatClassByRole(
     classDoc: ClassDocument,
     role?: Role,
   ): Promise<ClassDocument> {
-    if (role !== 'admin') {
-      classDoc.athletes = null;
-
-      return await classDoc.populate([
-        {
-          path: 'modality',
-          select: 'name',
-        },
-        {
-          path: 'teacher',
-          select: 'name',
-        },
-      ]);
-    }
-
-    return await classDoc.populate([
+    const populatedClass = await classDoc.populate([
       {
         path: 'modality',
         select: 'name',
@@ -110,5 +93,15 @@ export class ClassesService {
         select: 'name',
       },
     ]);
+    const classObj = populatedClass.toObject();
+    classObj.teacher.modalities = undefined;
+
+    if (role !== 'admin') {
+      classObj.athletes = undefined;
+
+      return classObj;
+    }
+
+    return classObj;
   }
 }

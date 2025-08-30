@@ -162,7 +162,10 @@ export class ClassesController {
 
   @UseGuards(OptionalJwtGuard)
   @Get(':id')
-  public async findById(@Param('id') id: string, @Req() req: Request) {
+  public async findById(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ): Promise<ApiResponse<ClassDocument>> {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Invalid id format');
     }
@@ -171,7 +174,7 @@ export class ClassesController {
     const role = req['user']?.role;
 
     return {
-      data: await this.classesService.populateByRole(classDoc, role),
+      data: await this.classesService.formatClassByRole(classDoc, role),
     };
   }
 }
