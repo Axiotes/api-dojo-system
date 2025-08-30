@@ -1,6 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import { Classes } from './schemas/classes.schema';
 import { ClassesHistory } from './schemas/classes-history.schema';
@@ -8,6 +12,8 @@ import { ClassesHistory } from './schemas/classes-history.schema';
 import { ClassDocument } from '@ds-types/documents/class-document.type';
 import { ModalitiesService } from '@ds-modules/modalities/modalities.service';
 import { TeachersService } from '@ds-modules/teachers/teachers.service';
+import { Role } from '@ds-types/role.type';
+import { PlansService } from '@ds-modules/plans/plans.service';
 
 @Injectable()
 export class ClassesService {
@@ -17,6 +23,7 @@ export class ClassesService {
     private classesHistoryModel: Model<ClassesHistory>,
     private readonly modalitiesService: ModalitiesService,
     private readonly teachersService: TeachersService,
+    private readonly plansService: PlansService,
   ) {}
 
   public async createClass(newClass: ClassDocument): Promise<ClassDocument> {
@@ -57,10 +64,51 @@ export class ClassesService {
       },
       {
         path: 'teacher',
-        select: 'name description image',
+        select: 'name description',
       },
     ]);
 
     return classDoc;
+  }
+
+  public async findById(id: Types.ObjectId): Promise<ClassDocument> {
+    const classDoc = await this.classesModel.findById(id);
+
+    if (!classDoc) {
+      throw new NotFoundException(`Class with id ${id} not found`);
+    }
+
+    return classDoc;
+  }
+
+  public async populateByRole(
+    classDoc: ClassDocument,
+    role?: Role,
+  ): Promise<ClassDocument> {
+    if (role !== 'admin') {
+      classDoc.athletes = null;
+
+      return await classDoc.populate([
+        {
+          path: 'modality',
+          select: 'name',
+        },
+        {
+          path: 'teacher',
+          select: 'name',
+        },
+      ]);
+    }
+
+    return await classDoc.populate([
+      {
+        path: 'modality',
+        select: 'name',
+      },
+      {
+        path: 'teacher',
+        select: 'name',
+      },
+    ]);
   }
 }

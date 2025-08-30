@@ -1,6 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsBoolean, IsNumber, IsOptional, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsMongoId,
+  IsNumber,
+  IsOptional,
+  Min,
+} from 'class-validator';
+import { Types } from 'mongoose';
 
 export class FindPlansDto {
   @ApiProperty({ description: 'Número de documentos que serão pulados' })
@@ -20,4 +27,9 @@ export class FindPlansDto {
   @Transform(({ value }) => value === 'true')
   @IsBoolean()
   status: boolean;
+
+  @ApiPropertyOptional({ description: 'Modalidade do plano' })
+  @IsOptional()
+  @IsMongoId()
+  modality: Types.ObjectId;
 }

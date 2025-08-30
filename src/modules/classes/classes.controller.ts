@@ -1,7 +1,11 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  Get,
+  Param,
   Post,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -14,6 +18,7 @@ import {
   ApiCookieAuth,
   ApiOperation,
 } from '@nestjs/swagger';
+import { Types } from 'mongoose';
 
 import { ClassesService } from './classes.service';
 import { ClassDto } from './dtos/class.dto';
@@ -25,6 +30,7 @@ import { ClassDocument } from '@ds-types/documents/class-document.type';
 import { ImageBase64Interceptor } from '@ds-common/interceptors/image-base64/image-base64.interceptor';
 import { RoleGuard } from '@ds-common/guards/role/role.guard';
 import { Roles } from '@ds-common/decorators/roles.decorator';
+import { OptionalJwtGuard } from '@ds-common/guards/optional-jwt/optional-jwt.guard';
 
 @UseInterceptors(ImageBase64Interceptor)
 @Controller('classes')
@@ -151,6 +157,21 @@ export class ClassesController {
 
     return {
       data: modality,
+    };
+  }
+
+  @UseGuards(OptionalJwtGuard)
+  @Get(':id')
+  public async findById(@Param('id') id: string, @Req() req: Request) {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    const classDoc = await this.classesService.findById(new Types.ObjectId(id));
+    const role = req['user']?.role;
+
+    return {
+      data: await this.classesService.populateByRole(classDoc, role),
     };
   }
 }

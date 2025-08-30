@@ -14,5 +14,6 @@ import { ServicesModule } from '@ds-services/services.module';
   ],
   providers: [PlansService],
   controllers: [PlansController],
+  exports: [PlansService],
 })
 export class PlansModule {}
