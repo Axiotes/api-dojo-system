@@ -1,7 +1,12 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  Get,
+  Param,
   Post,
+  Query,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -14,9 +19,12 @@ import {
   ApiCookieAuth,
   ApiOperation,
 } from '@nestjs/swagger';
+import { Types } from 'mongoose';
+import { Request } from 'express';
 
 import { ClassesService } from './classes.service';
 import { ClassDto } from './dtos/class.dto';
+import { FindClassesDto } from './dtos/find-classes.dto';
 
 import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe';
 import { UploadImage } from '@ds-common/decorators/upload-image.decorator';
@@ -25,6 +33,7 @@ import { ClassDocument } from '@ds-types/documents/class-document.type';
 import { ImageBase64Interceptor } from '@ds-common/interceptors/image-base64/image-base64.interceptor';
 import { RoleGuard } from '@ds-common/guards/role/role.guard';
 import { Roles } from '@ds-common/decorators/roles.decorator';
+import { OptionalJwtGuard } from '@ds-common/guards/optional-jwt/optional-jwt.guard';
 
 @UseInterceptors(ImageBase64Interceptor)
 @Controller('classes')
@@ -151,6 +160,73 @@ export class ClassesController {
 
     return {
       data: modality,
+    };
+  }
+
+  @ApiOperation({
+    summary: 'Buscar uma turma por ID',
+    description: `Qualquer usuário pode realizar está ação. No entanto, 
+      apenas usuários com token jwt e cargos "admin" recebem
+      informações privilegiadas sobre a turma`,
+  })
+  @UseGuards(OptionalJwtGuard)
+  @Throttle({
+    default: {
+      limit: 30,
+      ttl: 60000,
+    },
+  })
+  @Get(':id')
+  public async findById(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ): Promise<ApiResponse<ClassDocument>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    const classDoc = await this.classesService.findById(new Types.ObjectId(id));
+    const role = req['user']?.role;
+
+    return {
+      data: await this.classesService.formatClassByRole(classDoc, role),
+    };
+  }
+
+  @ApiOperation({
+    summary: 'Buscar turmas com paginação e filtros',
+    description: `Qualquer usuário pode realizar está ação. No entanto, 
+      apenas usuários com token jwt e cargos "admin" recebem
+      informações privilegiadas sobre as turmas`,
+  })
+  @UseGuards(OptionalJwtGuard)
+  @Throttle({
+    default: {
+      limit: 30,
+      ttl: 60000,
+    },
+  })
+  @Get()
+  public async findAll(
+    @Query() queryParams: FindClassesDto,
+    @Req() req: Request,
+  ): Promise<ApiResponse<ClassDocument[]>> {
+    const classes = await this.classesService.findAll(queryParams);
+    const role = req['user']?.role;
+
+    const classesPromises = classes.map(
+      async (classDoc) =>
+        await this.classesService.formatClassByRole(classDoc, role),
+    );
+    const formatedClasses = await Promise.all(classesPromises);
+
+    return {
+      data: formatedClasses,
+      pagination: {
+        skip: queryParams.skip,
+        limit: queryParams.limit,
+      },
+      total: formatedClasses.length,
     };
   }
 }

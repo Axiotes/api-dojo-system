@@ -6,6 +6,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { PlansService } from './plans.service';
 import { Plans } from './schemas/plans.schema';
 import { PlanDto } from './dtos/plan.dto';
+import { FindPlansDto } from './dtos/find-plans.dto';
 
 import { PlanDocument } from '@ds-types/documents/plan-document';
 import { Period } from '@ds-enums/period.enum';
@@ -163,7 +164,12 @@ describe('PlansService', () => {
   });
 
   it('should find all plans with pagination', async () => {
-    const queryParams = { skip: 0, limit: 5, status: true };
+    const queryParams: FindPlansDto = {
+      skip: 0,
+      limit: 5,
+      status: true,
+      modality: new Types.ObjectId(),
+    };
     const plans = [
       {
         _id: '60c72b2f9b1d8c001c8e4e1a',

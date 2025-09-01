@@ -10,6 +10,7 @@ import { ServicesModule } from '@ds-services/services.module';
 import { ModalitiesModule } from '@ds-modules/modalities/modalities.module';
 import { TeachersModule } from '@ds-modules/teachers/teachers.module';
 import { PipesModule } from '@ds-common/pipes/pipes.module';
+import { PlansModule } from '@ds-modules/plans/plans.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { PipesModule } from '@ds-common/pipes/pipes.module';
     ServicesModule,
     ModalitiesModule,
     TeachersModule,
+    PlansModule,
     PipesModule,
   ],
   controllers: [ClassesController],

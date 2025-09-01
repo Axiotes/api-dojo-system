@@ -44,6 +44,10 @@ export class PlansService {
       query.where('status').equals(queryParams.status);
     }
 
+    if (queryParams.modality !== undefined) {
+      query.where('modality').equals(queryParams.modality);
+    }
+
     return await query.exec();
   }
 }

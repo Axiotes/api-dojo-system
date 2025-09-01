@@ -4,6 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 import { AuthRole } from '@ds-enums/auth-role.enum';
+import { JwtPayload } from '@ds-types/jwt-payload.type';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -17,7 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  public validate(paylod: { id: string; role: AuthRole }): {
+  public validate(paylod: JwtPayload): {
     id: string;
     role: AuthRole;
   } {

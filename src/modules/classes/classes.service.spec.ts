@@ -1,11 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model, Types } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 import { ClassesService } from './classes.service';
 import { Classes } from './schemas/classes.schema';
 import { ClassesHistory } from './schemas/classes-history.schema';
+import { FindClassesDto } from './dtos/find-classes.dto';
 
 import { ClassDocument } from '@ds-types/documents/class-document.type';
 import { ModalitiesService } from '@ds-modules/modalities/modalities.service';
@@ -283,5 +284,310 @@ describe('ClassesService', () => {
     expect(modalitiesService.findById).toHaveBeenCalledWith(newClass.modality);
     expect(teachersService.findById).toHaveBeenCalledWith(newClass.teacher);
     expect(classesModel.create).toHaveBeenCalledTimes(0);
+  });
+
+  it('should find a class by ID succesfully', async () => {
+    const id = new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a');
+    const classDoc: Partial<ClassDocument> = {
+      _id: id,
+      modality: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1b'),
+      teacher: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1c'),
+      hour: {
+        start: '17:00',
+        end: '18:00',
+      },
+      age: {
+        min: 4,
+        max: 8,
+      },
+      maxAthletes: 15,
+      weekDays: [WeekDays.MONDAY, WeekDays.WEDNESDAY],
+      image: Buffer.from('fake-image'),
+      athletes: [],
+    };
+
+    mockModel.findById.mockReturnThis();
+    mockModel.exec.mockResolvedValue(classDoc);
+
+    const result = await service.findById(id);
+
+    expect(result).toEqual(classDoc);
+    expect(classesModel.findById).toHaveBeenCalledWith(id);
+  });
+
+  it('should throw a NotFoundException if class is not found', async () => {
+    const id = new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a');
+
+    mockModel.findById.mockReturnThis();
+    mockModel.exec.mockResolvedValue(null);
+
+    await expect(service.findById(id)).rejects.toThrow(
+      new NotFoundException(`Class with id ${id} not found`),
+    );
+    expect(classesModel.findById).toHaveBeenCalledWith(id);
+  });
+
+  it('should find all classses with pagination and filter', async () => {
+    const queryParams: FindClassesDto = {
+      skip: 0,
+      limit: 5,
+      status: true,
+      modality: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a'),
+      startHour: '17:00',
+      endHour: '18:00',
+      minAge: 4,
+      maxAge: 8,
+      weekDays: [WeekDays.MONDAY],
+    };
+    const classes: Partial<ClassDocument>[] = [
+      {
+        _id: new Types.ObjectId('60c72b2f9b1d8c001c8e4e2b'),
+        modality: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1b'),
+        teacher: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1c'),
+        hour: {
+          start: '17:00',
+          end: '18:00',
+        },
+        age: {
+          min: 4,
+          max: 8,
+        },
+        maxAthletes: 15,
+        weekDays: [WeekDays.MONDAY, WeekDays.WEDNESDAY],
+        image: Buffer.from('fake-image'),
+        athletes: [],
+      },
+    ];
+
+    mockModel.find.mockReturnThis();
+    mockModel.skip.mockReturnThis();
+    mockModel.limit.mockReturnThis();
+    mockModel.exec.mockResolvedValue(classes);
+
+    const result = await service.findAll(queryParams);
+
+    expect(result).toEqual(classes);
+    expect(result.length).toBe(classes.length);
+    expect(classesModel.find).toHaveBeenCalled();
+    expect(mockModel.skip).toHaveBeenCalledWith(queryParams.skip);
+    expect(mockModel.limit).toHaveBeenCalledWith(queryParams.limit);
+  });
+
+  it('should find a class by ID succesfully', async () => {
+    const id = new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a');
+    const classDoc: Partial<ClassDocument> = {
+      _id: id,
+      modality: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1b'),
+      teacher: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1c'),
+      hour: {
+        start: '17:00',
+        end: '18:00',
+      },
+      age: {
+        min: 4,
+        max: 8,
+      },
+      maxAthletes: 15,
+      weekDays: [WeekDays.MONDAY, WeekDays.WEDNESDAY],
+      image: Buffer.from('fake-image'),
+      athletes: [],
+    };
+
+    mockModel.findById.mockReturnThis();
+    mockModel.exec.mockResolvedValue(classDoc);
+
+    const result = await service.findById(id);
+
+    expect(result).toEqual(classDoc);
+    expect(classesModel.findById).toHaveBeenCalledWith(id);
+  });
+
+  it('should throw a NotFoundException if class is not found', async () => {
+    const id = new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a');
+
+    mockModel.findById.mockReturnThis();
+    mockModel.exec.mockResolvedValue(null);
+
+    await expect(service.findById(id)).rejects.toThrow(
+      new NotFoundException(`Class with id ${id} not found`),
+    );
+    expect(classesModel.findById).toHaveBeenCalledWith(id);
+  });
+
+  it('should find all classses with pagination and filter', async () => {
+    const queryParams: FindClassesDto = {
+      skip: 0,
+      limit: 5,
+      status: true,
+      modality: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a'),
+      startHour: '17:00',
+      endHour: '18:00',
+      minAge: 4,
+      maxAge: 8,
+      weekDays: [WeekDays.MONDAY],
+    };
+    const classes: Partial<ClassDocument>[] = [
+      {
+        _id: new Types.ObjectId('60c72b2f9b1d8c001c8e4e2b'),
+        modality: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1b'),
+        teacher: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1c'),
+        hour: {
+          start: '17:00',
+          end: '18:00',
+        },
+        age: {
+          min: 4,
+          max: 8,
+        },
+        maxAthletes: 15,
+        weekDays: [WeekDays.MONDAY, WeekDays.WEDNESDAY],
+        image: Buffer.from('fake-image'),
+        athletes: [
+          new Types.ObjectId('64f1b2a3c4d5e6f7890abc12'),
+          new Types.ObjectId('64f1b2a3c4d5e6f7890abc23'),
+        ],
+      },
+    ];
+
+    mockModel.find.mockReturnThis();
+    mockModel.skip.mockReturnThis();
+    mockModel.limit.mockReturnThis();
+    mockModel.exec.mockResolvedValue(classes);
+
+    const result = await service.findAll(queryParams);
+
+    expect(result).toEqual(classes);
+    expect(result.length).toBe(classes.length);
+    expect(classesModel.find).toHaveBeenCalled();
+    expect(mockModel.skip).toHaveBeenCalledWith(queryParams.skip);
+    expect(mockModel.limit).toHaveBeenCalledWith(queryParams.limit);
+  });
+
+  it('should format class document without admin role', async () => {
+    const role = undefined;
+    const modality = {
+      _id: new Types.ObjectId('60c72b2f9b1d8c001c8e4e3c'),
+      name: 'Test 1',
+      description: 'Unit tests 1',
+      image: Buffer.from('fake-image'),
+    };
+    const teacher = {
+      _id: new Types.ObjectId('60c72b2f9b1d8c001c8e4e2b'),
+      name: 'Test',
+      modalities: [
+        new Types.ObjectId('64f1b2a3c4d5e6f7890abc12'),
+        new Types.ObjectId('64f1b2a3c4d5e6f7890abc34'),
+      ],
+    };
+    const classDoc = {
+      _id: new Types.ObjectId('60c72b2f9b1d8c001c8e4e2b'),
+      modality: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1b'),
+      teacher: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1c'),
+      hour: {
+        start: '17:00',
+        end: '18:00',
+      },
+      age: {
+        min: 4,
+        max: 8,
+      },
+      maxAthletes: 15,
+      weekDays: [WeekDays.MONDAY, WeekDays.WEDNESDAY],
+      image: Buffer.from('fake-image'),
+      athletes: [
+        new Types.ObjectId('64f1b2a3c4d5e6f7890abc12'),
+        new Types.ObjectId('64f1b2a3c4d5e6f7890abc23'),
+      ],
+      populate: jest.fn().mockResolvedValue({
+        toObject: () => ({
+          _id: new Types.ObjectId('60c72b2f9b1d8c001c8e4e2b'),
+          modality,
+          teacher,
+          hour: { start: '17:00', end: '18:00' },
+          age: { min: 4, max: 8 },
+          maxAthletes: 15,
+          weekDays: ['Segunda-feira', 'Quarta-feira'],
+          image: Buffer.from('fake-image'),
+          athletes: [
+            new Types.ObjectId('64f1b2a3c4d5e6f7890abc12'),
+            new Types.ObjectId('64f1b2a3c4d5e6f7890abc23'),
+          ],
+        }),
+      }),
+    } as unknown as ClassDocument;
+
+    const result = await service.formatClassByRole(classDoc, role);
+
+    expect(result.modality).toEqual(modality);
+    expect(result.teacher).toEqual({
+      _id: teacher._id,
+      name: teacher.name,
+      modalities: undefined,
+    });
+    expect(result.athletes).toBeUndefined();
+  });
+
+  it('should format class document with admin role', async () => {
+    const role = 'admin';
+    const modality = {
+      _id: new Types.ObjectId('60c72b2f9b1d8c001c8e4e3c'),
+      name: 'Test 1',
+      description: 'Unit tests 1',
+      image: Buffer.from('fake-image'),
+    };
+    const teacher = {
+      _id: new Types.ObjectId('60c72b2f9b1d8c001c8e4e2b'),
+      name: 'Test',
+      modalities: [
+        new Types.ObjectId('64f1b2a3c4d5e6f7890abc12'),
+        new Types.ObjectId('64f1b2a3c4d5e6f7890abc34'),
+      ],
+    };
+    const classDoc = {
+      _id: new Types.ObjectId('60c72b2f9b1d8c001c8e4e2b'),
+      modality: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1b'),
+      teacher: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1c'),
+      hour: {
+        start: '17:00',
+        end: '18:00',
+      },
+      age: {
+        min: 4,
+        max: 8,
+      },
+      maxAthletes: 15,
+      weekDays: [WeekDays.MONDAY, WeekDays.WEDNESDAY],
+      image: Buffer.from('fake-image'),
+      athletes: [
+        new Types.ObjectId('64f1b2a3c4d5e6f7890abc12'),
+        new Types.ObjectId('64f1b2a3c4d5e6f7890abc23'),
+      ],
+      populate: jest.fn().mockResolvedValue({
+        toObject: () => ({
+          _id: new Types.ObjectId('60c72b2f9b1d8c001c8e4e2b'),
+          modality,
+          teacher,
+          hour: { start: '17:00', end: '18:00' },
+          age: { min: 4, max: 8 },
+          maxAthletes: 15,
+          weekDays: ['Segunda-feira', 'Quarta-feira'],
+          image: Buffer.from('fake-image'),
+          athletes: [
+            new Types.ObjectId('64f1b2a3c4d5e6f7890abc12'),
+            new Types.ObjectId('64f1b2a3c4d5e6f7890abc23'),
+          ],
+        }),
+      }),
+    } as unknown as ClassDocument;
+
+    const result = await service.formatClassByRole(classDoc, role);
+
+    expect(result.modality).toEqual(modality);
+    expect(result.teacher).toEqual({
+      _id: teacher._id,
+      name: teacher.name,
+      modalities: undefined,
+    });
+    expect(result.athletes).toEqual(classDoc.athletes);
   });
 });
