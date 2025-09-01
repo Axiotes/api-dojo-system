@@ -100,7 +100,12 @@ describe('PlansController', () => {
   });
 
   it('should find all plans successfully', async () => {
-    const queryParams: FindPlansDto = { skip: 0, limit: 5, status: true };
+    const queryParams: FindPlansDto = {
+      skip: 0,
+      limit: 5,
+      status: true,
+      modality: new Types.ObjectId(),
+    };
     const plans = [
       {
         _id: '60c72b2f9b1d8c001c8e4e1a',
