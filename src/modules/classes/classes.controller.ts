@@ -170,6 +170,12 @@ export class ClassesController {
       informações privilegiadas sobre a turma`,
   })
   @UseGuards(OptionalJwtGuard)
+  @Throttle({
+    default: {
+      limit: 30,
+      ttl: 60000,
+    },
+  })
   @Get(':id')
   public async findById(
     @Param('id') id: string,
@@ -194,6 +200,12 @@ export class ClassesController {
       informações privilegiadas sobre as turmas`,
   })
   @UseGuards(OptionalJwtGuard)
+  @Throttle({
+    default: {
+      limit: 30,
+      ttl: 60000,
+    },
+  })
   @Get()
   public async findAll(
     @Query() queryParams: FindClassesDto,
