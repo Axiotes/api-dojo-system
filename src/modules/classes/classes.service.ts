@@ -8,6 +8,7 @@ import { Model, Types } from 'mongoose';
 
 import { Classes } from './schemas/classes.schema';
 import { ClassesHistory } from './schemas/classes-history.schema';
+import { FindClassesDto } from './dtos/find-classes.dto';
 
 import { ClassDocument } from '@ds-types/documents/class-document.type';
 import { ModalitiesService } from '@ds-modules/modalities/modalities.service';
@@ -77,6 +78,71 @@ export class ClassesService {
     }
 
     return classDoc;
+  }
+
+  public async findAll(queryParams: FindClassesDto): Promise<ClassDocument[]> {
+    let filter = {};
+
+    console.log(queryParams.weekDays);
+
+    const verifyQueryParams: { [K in keyof FindClassesDto]?: () => void } = {
+      status: () => (filter = { ...filter, status: queryParams.status }),
+      modality: () => (filter = { ...filter, modality: queryParams.modality }),
+      minAge: () => {
+        filter = {
+          ...filter,
+          $or: [
+            {
+              $and: [
+                { 'age.min': { $lte: queryParams.maxAge } },
+                { 'age.max': { $gte: queryParams.minAge } },
+              ],
+            },
+            {
+              $and: [
+                { 'age.min': { $lte: queryParams.maxAge } },
+                { 'age.max': { $exists: false } },
+              ],
+            },
+          ],
+        };
+      },
+      startHour: () => {
+        filter = {
+          ...filter,
+          $or: [
+            {
+              $and: [
+                { 'hour.start': { $gte: queryParams.startHour } },
+                { 'hour.start': { $lt: queryParams.endHour } },
+              ],
+            },
+            {
+              $and: [
+                { 'hour.end': { $gt: queryParams.startHour } },
+                { 'hour.end': { $lte: queryParams.endHour } },
+              ],
+            },
+          ],
+        };
+      },
+      weekDays: () =>
+        (filter = { ...filter, weekDays: { $in: queryParams.weekDays } }),
+    };
+
+    for (const key in queryParams) {
+      const func = verifyQueryParams[key];
+
+      if (func) func();
+    }
+
+    const classes = await this.classesModel
+      .find(filter)
+      .skip(queryParams.skip)
+      .limit(queryParams.limit)
+      .exec();
+
+    return classes;
   }
 
   public async formatClassByRole(

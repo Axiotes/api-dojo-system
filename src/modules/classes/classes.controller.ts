@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Req,
   UploadedFile,
   UseGuards,
@@ -22,6 +23,7 @@ import { Types } from 'mongoose';
 
 import { ClassesService } from './classes.service';
 import { ClassDto } from './dtos/class.dto';
+import { FindClassesDto } from './dtos/find-classes.dto';
 
 import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe';
 import { UploadImage } from '@ds-common/decorators/upload-image.decorator';
@@ -175,6 +177,31 @@ export class ClassesController {
 
     return {
       data: await this.classesService.formatClassByRole(classDoc, role),
+    };
+  }
+
+  @UseGuards(OptionalJwtGuard)
+  @Get()
+  public async findAll(
+    @Query() queryParams: FindClassesDto,
+    @Req() req: Request,
+  ): Promise<ApiResponse<ClassDocument[]>> {
+    const classes = await this.classesService.findAll(queryParams);
+    const role = req['user']?.role;
+
+    const classesPromises = classes.map(
+      async (classDoc) =>
+        await this.classesService.formatClassByRole(classDoc, role),
+    );
+    const formatedClasses = await Promise.all(classesPromises);
+
+    return {
+      data: formatedClasses,
+      pagination: {
+        skip: queryParams.skip,
+        limit: queryParams.limit,
+      },
+      total: formatedClasses.length,
     };
   }
 }
