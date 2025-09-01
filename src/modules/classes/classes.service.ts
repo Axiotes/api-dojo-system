@@ -71,7 +71,7 @@ export class ClassesService {
   }
 
   public async findById(id: Types.ObjectId): Promise<ClassDocument> {
-    const classDoc = await this.classesModel.findById(id);
+    const classDoc = await this.classesModel.findById(id).exec();
 
     if (!classDoc) {
       throw new NotFoundException(`Class with id ${id} not found`);
@@ -82,8 +82,6 @@ export class ClassesService {
 
   public async findAll(queryParams: FindClassesDto): Promise<ClassDocument[]> {
     let filter = {};
-
-    console.log(queryParams.weekDays);
 
     const verifyQueryParams: { [K in keyof FindClassesDto]?: () => void } = {
       status: () => (filter = { ...filter, status: queryParams.status }),
