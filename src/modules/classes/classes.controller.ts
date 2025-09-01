@@ -162,6 +162,12 @@ export class ClassesController {
     };
   }
 
+  @ApiOperation({
+    summary: 'Buscar uma turma por ID',
+    description: `Qualquer usuário pode realizar está ação. No entanto, 
+      apenas usuários com token jwt e cargos "admin" recebem
+      informações privilegiadas sobre a turma`,
+  })
   @UseGuards(OptionalJwtGuard)
   @Get(':id')
   public async findById(
@@ -180,6 +186,12 @@ export class ClassesController {
     };
   }
 
+  @ApiOperation({
+    summary: 'Buscar turmas com paginação e filtros',
+    description: `Qualquer usuário pode realizar está ação. No entanto, 
+      apenas usuários com token jwt e cargos "admin" recebem
+      informações privilegiadas sobre as turmas`,
+  })
   @UseGuards(OptionalJwtGuard)
   @Get()
   public async findAll(
