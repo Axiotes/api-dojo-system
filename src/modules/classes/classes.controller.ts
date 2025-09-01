@@ -20,6 +20,7 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 import { Types } from 'mongoose';
+import { Request } from 'express';
 
 import { ClassesService } from './classes.service';
 import { ClassDto } from './dtos/class.dto';
