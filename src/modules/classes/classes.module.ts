@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { ClassesSchema } from './schemas/classes.schema';
@@ -18,13 +18,14 @@ import { PlansModule } from '@ds-modules/plans/plans.module';
       { name: 'Classes', schema: ClassesSchema },
       { name: 'ClassesHistory', schema: ClassesHistorySchema },
     ]),
+    forwardRef(() => TeachersModule),
     ServicesModule,
     ModalitiesModule,
-    TeachersModule,
     PlansModule,
     PipesModule,
   ],
   controllers: [ClassesController],
   providers: [ClassesService],
+  exports: [ClassesService],
 })
 export class ClassesModule {}
