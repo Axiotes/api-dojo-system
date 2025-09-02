@@ -55,11 +55,10 @@ export class TeachersService {
   }
 
   public async monthlyWorkload(
-    id: Types.ObjectId,
+    teacher: TeacherDocument,
     month: number,
     year: number,
   ): Promise<number> {
-    const teacher = await this.findById(id);
     const classes = await this.classesService.findByTeacher(teacher.id);
 
     let totalMinutes = 0;
@@ -78,14 +77,22 @@ export class TeachersService {
         endHour * 60 + endMinute - (startHour * 60 + startMinute);
 
       const classDays = days.filter((day) =>
-        classDoc.weekDays.includes(
-          day.toLocaleDateString('pt-BR', { weekday: 'long' }) as WeekDays,
+        classDoc.weekDays.some(
+          (weekDay) =>
+            weekDay.toLocaleLowerCase() ===
+            (
+              day.toLocaleDateString('pt-BR', { weekday: 'long' }) as WeekDays
+            ).toLocaleLowerCase(),
         ),
       );
 
       totalMinutes += classDays.length * durationMinutes;
     }
 
-    return totalMinutes;
+    return totalMinutes / 60;
+  }
+
+  public calculateSalarie(hourPrice: number, workload: number): number {
+    return workload * hourPrice;
   }
 }
