@@ -12,6 +12,7 @@ import { startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { Teachers } from './schemas/teachers.schema';
 import { DateDto } from './dtos/date.dto';
 import { FindTeachersDto } from './dtos/find-teachers.dto';
+import { UpdateTeacherDto } from './dtos/update-teacher.dto';
 
 import { TeacherDocument } from '@ds-types/documents/teacher-document.type';
 import { ValidateFieldsService } from '@ds-services/validate-fields/validate-fields.service';
@@ -198,56 +199,65 @@ export class TeachersService {
     const teacher = await this.findById(updateTeacher.id, []);
     const teacherUpdates: Partial<TeacherDocument> = {};
 
-    if (updateTeacher.email && updateTeacher.email !== teacher.email) {
-      await this.validateFieldsService.validateEmail(
-        'Teachers',
-        updateTeacher.email,
-      );
-
-      updateTeacher.email = updateTeacher.email;
-    }
-
-    if (updateTeacher.cpf && updateTeacher.cpf !== teacher.cpf) {
-      await this.validateFieldsService.validateCpf(
-        'Teachers',
-        updateTeacher.cpf,
-      );
-
-      updateTeacher.cpf = updateTeacher.cpf;
-    }
-
-    if (updateTeacher.modalities.length !== 0) {
-      const modalitiesPromise = updateTeacher.modalities.map(
-        async (modalityId) => {
-          await this.validateFieldsService.isActive('Modalities', modalityId);
-        },
-      );
-      await Promise.all(modalitiesPromise);
-
-      const teacherClasses = await this.classesService.findByTeacher(
-        teacher.id,
-        ['modality'],
-      );
-
-      teacherClasses.forEach((classDoc) => {
-        const modalityMatch = updateTeacher.modalities.some(
-          (modality) => modality.toString() === classDoc.modality.toString(),
+    const verifyUpdate: { [K in keyof UpdateTeacherDto]?: () => void } = {
+      name: () => (teacherUpdates.name = updateTeacher.name ?? teacher.name),
+      cpf: async () => {
+        await this.validateFieldsService.validateCpf(
+          'Teachers',
+          updateTeacher.cpf,
         );
 
-        if (!modalityMatch) {
-          throw new BadRequestException(
-            `Teacher ${teacher.name} must have the ${classDoc.modality} modality to match his class registration`,
-          );
-        }
-      });
+        updateTeacher.cpf = updateTeacher.cpf;
+      },
+      email: async () => {
+        await this.validateFieldsService.validateEmail(
+          'Teachers',
+          updateTeacher.email,
+        );
 
-      teacherUpdates.modalities = updateTeacher.modalities;
+        updateTeacher.email = updateTeacher.email;
+      },
+      description: () =>
+        (teacherUpdates.description =
+          updateTeacher.description ?? teacher.description),
+      hourPrice: () =>
+        (teacherUpdates.hourPrice =
+          updateTeacher.hourPrice ?? teacher.hourPrice),
+      modalities: async () => {
+        const modalitiesPromise = updateTeacher.modalities.map(
+          async (modalityId) => {
+            await this.validateFieldsService.isActive('Modalities', modalityId);
+          },
+        );
+        await Promise.all(modalitiesPromise);
+
+        const teacherClasses = await this.classesService.findByTeacher(
+          teacher.id,
+          ['modality'],
+        );
+
+        teacherClasses.forEach((classDoc) => {
+          const modalityMatch = updateTeacher.modalities.some(
+            (modality) => modality.toString() === classDoc.modality.toString(),
+          );
+
+          if (!modalityMatch) {
+            throw new BadRequestException(
+              `Teacher ${teacher.name} must have the ${classDoc.modality} modality to match his class registration`,
+            );
+          }
+        });
+
+        teacherUpdates.modalities = updateTeacher.modalities;
+      },
+    };
+
+    for (const key in updateTeacher) {
+      const func = verifyUpdate[key];
+
+      if (func) await func();
     }
 
-    teacherUpdates.name = updateTeacher.name ?? teacher.name;
-    teacherUpdates.description =
-      updateTeacher.description ?? teacher.description;
-    teacherUpdates.hourPrice = updateTeacher.hourPrice ?? teacher.hourPrice;
     teacherUpdates.image = updateTeacher.image ?? teacher.image;
 
     return await this.teachersModel.findByIdAndUpdate(
