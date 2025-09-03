@@ -207,7 +207,7 @@ export class TeachersService {
           updateTeacher.cpf,
         );
 
-        updateTeacher.cpf = updateTeacher.cpf;
+        teacherUpdates.cpf = updateTeacher.cpf;
       },
       email: async () => {
         await this.validateFieldsService.validateEmail(
@@ -215,7 +215,7 @@ export class TeachersService {
           updateTeacher.email,
         );
 
-        updateTeacher.email = updateTeacher.email;
+        teacherUpdates.email = updateTeacher.email;
       },
       description: () =>
         (teacherUpdates.description =

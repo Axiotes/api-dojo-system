@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model, Types } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 import { TeachersService } from './teachers.service';
 import { Teachers } from './schemas/teachers.schema';
@@ -468,5 +468,160 @@ describe('TeachersService', () => {
     ]);
     expect(service.monthlyWorkload).toHaveBeenCalledTimes(0);
     expect(service.calculateSalarie).toHaveBeenCalledTimes(0);
+  });
+
+  it('should update teacher successfully', async () => {
+    const id = new Types.ObjectId('64f1b2a3c4d5e6f7890abc1a');
+    const teacher: Partial<TeacherDocument> = {
+      id: id,
+      name: 'Test',
+      cpf: '12345678910',
+      email: 'test@gmail.com',
+      description: 'Old description to unit test',
+      hourPrice: 5.4,
+      image: Buffer.from('fake-image'),
+      modalities: [
+        new Types.ObjectId('64f1b2a3c4d5e6f7890abc15'),
+        new Types.ObjectId('64f1b2a3c4d5e6f7890abc2b'),
+      ],
+    };
+    const newImage = Buffer.from('new-fake-image');
+    const updateTeacher = {
+      name: 'New Name',
+      cpf: '10987654321',
+      email: 'newemail@gmail.com',
+      description: 'Unit tests with jest',
+      hourPrice: 6.2,
+      modalities: [new Types.ObjectId('64f1b2a3c4d5e6f7890abc15')],
+      image: newImage,
+    };
+    const teacherClasses = [
+      { modality: new Types.ObjectId('64f1b2a3c4d5e6f7890abc15') },
+      { modality: new Types.ObjectId('64f1b2a3c4d5e6f7890abc15') },
+      { modality: new Types.ObjectId('64f1b2a3c4d5e6f7890abc15') },
+    ];
+
+    const teacherUpdates = {
+      id: teacher.id,
+      ...updateTeacher,
+      image: newImage,
+    };
+
+    service.findById = jest.fn().mockResolvedValue(teacher);
+    validateFieldsService.validateCpf = jest.fn().mockImplementation(() => {});
+    validateFieldsService.validateEmail = jest
+      .fn()
+      .mockImplementation(() => {});
+    updateTeacher.modalities.forEach(() => {
+      validateFieldsService.isActive = jest.fn().mockImplementation(() => {});
+    });
+    classesService.findByTeacher = jest.fn().mockResolvedValue(teacherClasses);
+    mockTeacherModel.findByIdAndUpdate.mockResolvedValue(teacherUpdates);
+
+    const result = await service.update(teacherUpdates);
+
+    expect(result).toEqual(teacherUpdates);
+    expect(service.findById).toHaveBeenCalledWith(teacher.id, []);
+    expect(validateFieldsService.validateCpf).toHaveBeenCalledWith(
+      'Teachers',
+      updateTeacher.cpf,
+    );
+    expect(validateFieldsService.validateEmail).toHaveBeenCalledWith(
+      'Teachers',
+      updateTeacher.email,
+    );
+    updateTeacher.modalities.forEach((modality) => {
+      expect(validateFieldsService.isActive).toHaveBeenCalledWith(
+        'Modalities',
+        modality,
+      );
+    });
+    expect(validateFieldsService.isActive).toHaveBeenCalledTimes(
+      updateTeacher.modalities.length,
+    );
+    expect(classesService.findByTeacher).toHaveBeenCalledWith(teacher.id, [
+      'modality',
+    ]);
+    expect(model.findByIdAndUpdate).toHaveBeenCalledWith(
+      teacher.id,
+      updateTeacher,
+      { new: true },
+    );
+  });
+
+  it("should throw BadRequestException if the teacher's modalities don't include its class modalities", async () => {
+    const id = new Types.ObjectId('64f1b2a3c4d5e6f7890abc1a');
+    const teacher: Partial<TeacherDocument> = {
+      id: id,
+      name: 'Test',
+      cpf: '12345678910',
+      email: 'test@gmail.com',
+      description: 'Old description to unit test',
+      hourPrice: 5.4,
+      image: Buffer.from('fake-image'),
+      modalities: [
+        new Types.ObjectId('64f1b2a3c4d5e6f7890abc15'),
+        new Types.ObjectId('64f1b2a3c4d5e6f7890abc2b'),
+      ],
+    };
+    const newImage = Buffer.from('new-fake-image');
+    const updateTeacher = {
+      name: 'New Name',
+      cpf: '10987654321',
+      email: 'newemail@gmail.com',
+      description: 'Unit tests with jest',
+      hourPrice: 6.2,
+      modalities: [new Types.ObjectId('64f1b2a3c4d5e6f7890abc2b')],
+      image: newImage,
+    };
+    const teacherClasses = [
+      { modality: new Types.ObjectId('64f1b2a3c4d5e6f7890abc15') },
+      { modality: new Types.ObjectId('64f1b2a3c4d5e6f7890abc15') },
+      { modality: new Types.ObjectId('64f1b2a3c4d5e6f7890abc15') },
+    ];
+
+    const teacherUpdates = {
+      id: teacher.id,
+      ...updateTeacher,
+      image: newImage,
+    };
+
+    service.findById = jest.fn().mockResolvedValue(teacher);
+    validateFieldsService.validateCpf = jest.fn().mockImplementation(() => {});
+    validateFieldsService.validateEmail = jest
+      .fn()
+      .mockImplementation(() => {});
+    updateTeacher.modalities.forEach(() => {
+      validateFieldsService.isActive = jest.fn().mockImplementation(() => {});
+    });
+    classesService.findByTeacher = jest.fn().mockResolvedValue(teacherClasses);
+
+    await expect(service.update(teacherUpdates)).rejects.toThrow(
+      new BadRequestException(
+        `Teacher ${teacher.name} must have the ${teacherClasses[0].modality} modality to match his class registration`,
+      ),
+    );
+    expect(service.findById).toHaveBeenCalledWith(teacher.id, []);
+    expect(validateFieldsService.validateCpf).toHaveBeenCalledWith(
+      'Teachers',
+      updateTeacher.cpf,
+    );
+    expect(validateFieldsService.validateEmail).toHaveBeenCalledWith(
+      'Teachers',
+      updateTeacher.email,
+    );
+    updateTeacher.modalities.forEach((modality) => {
+      expect(validateFieldsService.isActive).toHaveBeenCalledWith(
+        'Modalities',
+        modality,
+      );
+    });
+    expect(validateFieldsService.isActive).toHaveBeenCalledTimes(
+      updateTeacher.modalities.length,
+    );
+    expect(classesService.findByTeacher).toHaveBeenCalledWith(teacher.id, [
+      'modality',
+    ]);
+    expect(model.findByIdAndUpdate).toHaveBeenCalledTimes(0);
   });
 });
