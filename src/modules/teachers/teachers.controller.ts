@@ -301,6 +301,12 @@ export class TeachersController {
     };
   }
 
+  @ApiOperation({
+    summary: 'Desativar professor',
+    description: `Apenas usuários com token JWT e cargos "admin" podem utilizar este endpoint.
+    Ao ser desativado, não poderá ser vinculado a nenhuma turma, 
+    logo, deverá ser desvinculado de turmas ativas antes de ser inativado.`,
+  })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles('admin')
   @Throttle({
@@ -324,6 +330,11 @@ export class TeachersController {
     };
   }
 
+  @ApiOperation({
+    summary: 'Reativar professor',
+    description:
+      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+  })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles('admin')
   @Throttle({
