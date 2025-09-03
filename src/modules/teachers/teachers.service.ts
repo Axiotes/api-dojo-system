@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
@@ -149,7 +150,10 @@ export class TeachersService {
     month: number,
     year: number,
   ): Promise<number> {
-    const classes = await this.classesService.findByTeacher(teacherId);
+    const classes = await this.classesService.findByTeacher(teacherId, [
+      'hour',
+      'weekDays',
+    ]);
 
     let totalMinutes = 0;
 
@@ -186,6 +190,71 @@ export class TeachersService {
     const salarie = workload * hourPrice;
 
     return salarie.toFixed(2);
+  }
+
+  public async update(
+    updateTeacher: Partial<TeacherDocument>,
+  ): Promise<TeacherDocument> {
+    const teacher = await this.findById(updateTeacher.id, []);
+    const teacherUpdates: Partial<TeacherDocument> = {};
+
+    if (updateTeacher.email && updateTeacher.email !== teacher.email) {
+      await this.validateFieldsService.validateEmail(
+        'Teachers',
+        updateTeacher.email,
+      );
+
+      updateTeacher.email = updateTeacher.email;
+    }
+
+    if (updateTeacher.cpf && updateTeacher.cpf !== teacher.cpf) {
+      await this.validateFieldsService.validateCpf(
+        'Teachers',
+        updateTeacher.cpf,
+      );
+
+      updateTeacher.cpf = updateTeacher.cpf;
+    }
+
+    if (updateTeacher.modalities.length !== 0) {
+      const modalitiesPromise = updateTeacher.modalities.map(
+        async (modalityId) => {
+          await this.validateFieldsService.isActive('Modalities', modalityId);
+        },
+      );
+      await Promise.all(modalitiesPromise);
+
+      const teacherClasses = await this.classesService.findByTeacher(
+        teacher.id,
+        ['modality'],
+      );
+
+      teacherClasses.forEach((classDoc) => {
+        const modalityMatch = updateTeacher.modalities.some(
+          (modality) => modality.toString() === classDoc.modality.toString(),
+        );
+
+        if (!modalityMatch) {
+          throw new BadRequestException(
+            `Teacher ${teacher.name} must have the ${classDoc.modality} modality to match his class registration`,
+          );
+        }
+      });
+
+      teacherUpdates.modalities = updateTeacher.modalities;
+    }
+
+    teacherUpdates.name = updateTeacher.name ?? teacher.name;
+    teacherUpdates.description =
+      updateTeacher.description ?? teacher.description;
+    teacherUpdates.hourPrice = updateTeacher.hourPrice ?? teacher.hourPrice;
+    teacherUpdates.image = updateTeacher.image ?? teacher.image;
+
+    return await this.teachersModel.findByIdAndUpdate(
+      teacher.id,
+      teacherUpdates,
+      { new: true },
+    );
   }
 
   private hoursToHHMM(hours: number): string {

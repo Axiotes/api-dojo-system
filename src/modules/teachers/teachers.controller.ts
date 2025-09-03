@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -26,6 +27,7 @@ import { TeachersService } from './teachers.service';
 import { TeacherDto } from './dtos/teacher.dto';
 import { DateDto } from './dtos/date.dto';
 import { FindTeachersDto } from './dtos/find-teachers.dto';
+import { UpdateTeacherDto } from './dtos/update-teacher.dto';
 
 import { UploadImage } from '@ds-common/decorators/upload-image.decorator';
 import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe';
@@ -204,6 +206,38 @@ export class TeachersController {
         limit: queryParams.limit,
       },
       total: teachersData.length,
+    };
+  }
+
+  @UploadImage()
+  @Patch(':id')
+  public async update(
+    @Param('id') id: string,
+    @UploadedFile() file?: Express.Multer.File,
+    @Body() updateDto?: UpdateTeacherDto,
+  ): Promise<ApiResponse<TeacherDocument>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    let teacher: Partial<TeacherDocument> = {
+      id: new Types.ObjectId(id),
+      ...updateDto,
+    };
+
+    if (file) {
+      const reducedImageBuffer = await this.reduceImagePipe.transform(file);
+
+      teacher = {
+        ...teacher,
+        image: reducedImageBuffer,
+      };
+    }
+
+    const updatedTeacher = await this.teachersService.update(teacher);
+
+    return {
+      data: updatedTeacher,
     };
   }
 }
