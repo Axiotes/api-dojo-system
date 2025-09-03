@@ -81,7 +81,7 @@ export class TeachersService {
 
   public async findAllWithRole(
     role: Role,
-    queryParams: FindTeachersDto & DateDto,
+    queryParams: FindTeachersDto,
   ): Promise<TeacherReport[] | TeacherDocument[]> {
     if (role !== 'admin') {
       return await this.findAll(queryParams, ['name', 'description', 'image']);

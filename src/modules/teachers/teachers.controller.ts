@@ -134,6 +134,13 @@ export class TeachersController {
     };
   }
 
+  @ApiCookieAuth()
+  @ApiOperation({
+    summary: 'Buscar um professor por ID',
+    description: `Qualquer usuário pode realizar está ação. No entanto, 
+      apenas usuários com token jwt e cargos "admin" recebem
+      informações pessoais sobre o professor`,
+  })
   @UseGuards(OptionalJwtGuard)
   @Get(':id')
   public async findById(
@@ -158,10 +165,17 @@ export class TeachersController {
     };
   }
 
+  @ApiCookieAuth()
+  @ApiOperation({
+    summary: 'Buscar todos os professores com paginção e filtro por status',
+    description: `Qualquer usuário pode realizar está ação. No entanto, 
+      apenas usuários com token jwt e cargos "admin" recebem
+      informações pessoais sobre o professor`,
+  })
   @UseGuards(OptionalJwtGuard)
   @Get()
   public async findAll(
-    @Query() queryParams: FindTeachersDto & DateDto,
+    @Query() queryParams: FindTeachersDto,
     @Req() req: Request,
   ): Promise<ApiResponse<TeacherReport[] | TeacherDocument[]>> {
     const role = req['user']?.role;
