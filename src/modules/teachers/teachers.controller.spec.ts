@@ -1,14 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Types } from 'mongoose';
 import { Request } from 'express';
+import { BadRequestException } from '@nestjs/common';
 
 import { TeachersController } from './teachers.controller';
 import { TeachersService } from './teachers.service';
 import { TeacherDto } from './dtos/teacher.dto';
 import { DateDto } from './dtos/date.dto';
 import { FindTeachersDto } from './dtos/find-teachers.dto';
+import { UpdateTeacherDto } from './dtos/update-teacher.dto';
 
 import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe';
+import { TeacherDocument } from '@ds-types/documents/teacher-document.type';
 
 describe('TeachersController', () => {
   let controller: TeachersController;
@@ -23,8 +26,10 @@ describe('TeachersController', () => {
           provide: TeachersService,
           useValue: {
             createTeacher: jest.fn(),
+            findById: jest.fn(),
             findByIdWithRole: jest.fn(),
             findAllWithRole: jest.fn(),
+            update: jest.fn(),
           },
         },
         {
@@ -192,6 +197,22 @@ describe('TeachersController', () => {
     );
   });
 
+  it('should throw BadRequestException for invalid ID format in findByID', async () => {
+    const invalidId = '1234';
+    const mockReq: Partial<Request> & { user?: { role?: string } } = {
+      user: { role: undefined },
+    };
+    const queryParams: DateDto = {
+      month: 9,
+      year: 2025,
+    };
+
+    await expect(
+      controller.findById(invalidId, queryParams, mockReq as Request),
+    ).rejects.toThrow(new BadRequestException('Invalid id format'));
+    expect(teachersService.findById).toHaveBeenCalledTimes(0);
+  });
+
   it('should find all teachers with admin role', async () => {
     const mockReq: Partial<Request> & { user?: { role?: string } } = {
       user: { role: 'admin' },
@@ -293,5 +314,50 @@ describe('TeachersController', () => {
       mockReq.user.role,
       queryParams,
     );
+  });
+
+  it('should update teacher successfully', async () => {
+    const id: string = '60c72b2f9b1d8c001c8e4e1a';
+    const updateTeacher: UpdateTeacherDto = {
+      name: 'New Name',
+      cpf: '10987654321',
+      email: 'newemail@gmail.com',
+      description: 'Unit tests with jest',
+      hourPrice: 6.2,
+      modalities: [new Types.ObjectId('64f1b2a3c4d5e6f7890abc2b')],
+    };
+    const mockFile = {
+      buffer: Buffer.from('fake-image'),
+      mimetype: 'image/png',
+    } as Express.Multer.File;
+    const reducedImage = Buffer.from('reduced-image');
+    const updatedTeacher = {
+      _id: id,
+      ...updateTeacher,
+      image: reducedImage,
+      status: true,
+    } as unknown as TeacherDocument;
+
+    reduceImagePipe.transform.mockResolvedValue(reducedImage);
+    teachersService.update = jest.fn().mockResolvedValue(updatedTeacher);
+
+    const result = await controller.update(id, mockFile, updateTeacher);
+
+    expect(result).toEqual({ data: updatedTeacher });
+    expect(reduceImagePipe.transform).toHaveBeenCalledWith(mockFile);
+    expect(teachersService.update).toHaveBeenCalledWith({
+      id: new Types.ObjectId(id),
+      ...updateTeacher,
+      image: reducedImage,
+    });
+  });
+
+  it('should throw BadRequestException for invalid ID format in update', async () => {
+    const invalidId = '1234';
+
+    await expect(controller.update(invalidId)).rejects.toThrow(
+      new BadRequestException('Invalid id format'),
+    );
+    expect(teachersService.findById).toHaveBeenCalledTimes(0);
   });
 });
