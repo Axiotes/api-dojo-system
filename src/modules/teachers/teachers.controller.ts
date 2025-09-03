@@ -20,10 +20,12 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 import { Types } from 'mongoose';
+import { Request } from 'express';
 
 import { TeachersService } from './teachers.service';
 import { TeacherDto } from './dtos/teacher.dto';
 import { DateDto } from './dtos/date.dto';
+import { FindTeachersDto } from './dtos/find-teachers.dto';
 
 import { UploadImage } from '@ds-common/decorators/upload-image.decorator';
 import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe';
@@ -145,7 +147,7 @@ export class TeachersController {
 
     const role = req['user']?.role;
 
-    const teacherData = await this.teachersService.findWithRole(
+    const teacherData = await this.teachersService.findByIdWithRole(
       id,
       role,
       queryParams,
@@ -153,6 +155,29 @@ export class TeachersController {
 
     return {
       data: teacherData,
+    };
+  }
+
+  @UseGuards(OptionalJwtGuard)
+  @Get()
+  public async findAll(
+    @Query() queryParams: FindTeachersDto & DateDto,
+    @Req() req: Request,
+  ): Promise<ApiResponse<TeacherReport[] | TeacherDocument[]>> {
+    const role = req['user']?.role;
+
+    const teachersData = await this.teachersService.findAllWithRole(
+      role,
+      queryParams,
+    );
+
+    return {
+      data: teachersData,
+      pagination: {
+        skip: queryParams.skip,
+        limit: queryParams.limit,
+      },
+      total: teachersData.length,
     };
   }
 }

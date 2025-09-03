@@ -10,6 +10,7 @@ import { startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 
 import { Teachers } from './schemas/teachers.schema';
 import { DateDto } from './dtos/date.dto';
+import { FindTeachersDto } from './dtos/find-teachers.dto';
 
 import { TeacherDocument } from '@ds-types/documents/teacher-document.type';
 import { ValidateFieldsService } from '@ds-services/validate-fields/validate-fields.service';
@@ -47,7 +48,7 @@ export class TeachersService {
     return await this.teachersModel.findById(teacher._id).exec();
   }
 
-  public async findWithRole(
+  public async findByIdWithRole(
     id: string,
     role: Role,
     queryParams: DateDto,
@@ -78,6 +79,38 @@ export class TeachersService {
     };
   }
 
+  public async findAllWithRole(
+    role: Role,
+    queryParams: FindTeachersDto & DateDto,
+  ): Promise<TeacherReport[] | TeacherDocument[]> {
+    if (role !== 'admin') {
+      return await this.findAll(queryParams, ['name', 'description', 'image']);
+    }
+
+    const month = queryParams.month ?? new Date().getMonth() + 1;
+    const year = queryParams.year ?? new Date().getFullYear();
+
+    const teachers = await this.findAll(queryParams, []);
+
+    const reportPromises = teachers.map(async (teacher) => {
+      const workload = await this.monthlyWorkload(teacher.id, month, year);
+      const salarie = await this.calculateSalarie(teacher.id, workload);
+
+      return {
+        teacher,
+        report: {
+          workload,
+          salarie,
+          month,
+          year,
+        },
+      };
+    });
+    const teacherReports = await Promise.all(reportPromises);
+
+    return teacherReports;
+  }
+
   public async findById(
     id: Types.ObjectId,
     fields: (keyof TeacherDocument)[],
@@ -91,6 +124,24 @@ export class TeachersService {
     }
 
     return teacher;
+  }
+
+  public async findAll(
+    queryParams: FindTeachersDto,
+    fields: (keyof TeacherDocument)[],
+  ): Promise<TeacherDocument[]> {
+    const projection = Object.fromEntries(fields.map((key) => [key, 1]));
+
+    const query = this.teachersModel
+      .find({}, projection)
+      .skip(queryParams.skip)
+      .limit(queryParams.limit);
+
+    if (queryParams.status !== undefined) {
+      query.where('status').equals(queryParams.status);
+    }
+
+    return await query.exec();
   }
 
   public async monthlyWorkload(
