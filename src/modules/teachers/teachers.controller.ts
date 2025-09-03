@@ -209,6 +209,58 @@ export class TeachersController {
     };
   }
 
+  @ApiCookieAuth()
+  @ApiOperation({
+    summary: 'Atualizar professor',
+    description:
+      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          description: 'Nome do professor',
+          example: 'Marcos Silva',
+        },
+        cpf: {
+          type: 'string',
+          description: 'CPF do professor (apenas números)',
+          example: '12345678910',
+        },
+        email: {
+          type: 'string',
+          description: 'Email do professor',
+          example: 'marcossilva@gmail.com',
+        },
+        hourPrice: {
+          type: 'number',
+          description: 'Valor da hora/aula do professor',
+          example: '5.0',
+        },
+        description: {
+          type: 'string',
+          description: 'Descrição da modalidade',
+          example: `Faixa Preta 3º Dan. Com mais de 15 anos de experiência no judô.`,
+        },
+        modalities: {
+          type: 'array',
+          description: 'IDs das modalidades (ObjectId do MongoDB)',
+          items: {
+            type: 'string',
+            example: '64f1b2a3c4d5e6f7890abc12',
+          },
+        },
+        image: {
+          type: 'string',
+          format: 'binary',
+          description: 'Imagem da modalidade (jpg, jpeg, png, gif)',
+        },
+      },
+    },
+  })
+  @ApiConsumes('multipart/form-data')
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles('admin')
   @Throttle({
