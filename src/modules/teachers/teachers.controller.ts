@@ -300,4 +300,19 @@ export class TeachersController {
       data: updatedTeacher,
     };
   }
+
+  @Patch('reactivate/:id')
+  public async reactivate(
+    @Param('id') id: string,
+  ): Promise<ApiResponse<string>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    await this.teachersService.setStatus(id, true);
+
+    return {
+      data: 'Teacher successfully reactivate',
+    };
+  }
 }

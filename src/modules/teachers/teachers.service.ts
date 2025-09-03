@@ -267,6 +267,17 @@ export class TeachersService {
     );
   }
 
+  public async setStatus(id: string, status: boolean): Promise<void> {
+    const teacher = await this.teachersModel.findById(id, { status: 1 }).exec();
+
+    if (!teacher) {
+      throw new NotFoundException('Teacher not found');
+    }
+
+    teacher.status = status;
+    await teacher.save();
+  }
+
   private hoursToHHMM(hours: number): string {
     const hour = Math.floor(hours);
     const minute = Math.round((hours - hour) * 60);

@@ -197,7 +197,7 @@ export class AdminController {
     await this.adminService.setStatus(id, true);
 
     return {
-      data: 'Admin successfully deactivated',
+      data: 'Admin successfully reactivate',
     };
   }
 
