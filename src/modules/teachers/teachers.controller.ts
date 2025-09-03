@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -26,6 +27,7 @@ import { TeachersService } from './teachers.service';
 import { TeacherDto } from './dtos/teacher.dto';
 import { DateDto } from './dtos/date.dto';
 import { FindTeachersDto } from './dtos/find-teachers.dto';
+import { UpdateTeacherDto } from './dtos/update-teacher.dto';
 
 import { UploadImage } from '@ds-common/decorators/upload-image.decorator';
 import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe';
@@ -204,6 +206,98 @@ export class TeachersController {
         limit: queryParams.limit,
       },
       total: teachersData.length,
+    };
+  }
+
+  @ApiCookieAuth()
+  @ApiOperation({
+    summary: 'Atualizar professor',
+    description:
+      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          description: 'Nome do professor',
+          example: 'Marcos Silva',
+        },
+        cpf: {
+          type: 'string',
+          description: 'CPF do professor (apenas números)',
+          example: '12345678910',
+        },
+        email: {
+          type: 'string',
+          description: 'Email do professor',
+          example: 'marcossilva@gmail.com',
+        },
+        hourPrice: {
+          type: 'number',
+          description: 'Valor da hora/aula do professor',
+          example: '5.0',
+        },
+        description: {
+          type: 'string',
+          description: 'Descrição da modalidade',
+          example: `Faixa Preta 3º Dan. Com mais de 15 anos de experiência no judô.`,
+        },
+        modalities: {
+          type: 'array',
+          description: 'IDs das modalidades (ObjectId do MongoDB)',
+          items: {
+            type: 'string',
+            example: '64f1b2a3c4d5e6f7890abc12',
+          },
+        },
+        image: {
+          type: 'string',
+          format: 'binary',
+          description: 'Imagem da modalidade (jpg, jpeg, png, gif)',
+        },
+      },
+    },
+  })
+  @ApiConsumes('multipart/form-data')
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
+  @UploadImage()
+  @Patch(':id')
+  public async update(
+    @Param('id') id: string,
+    @UploadedFile() file?: Express.Multer.File,
+    @Body() updateDto?: UpdateTeacherDto,
+  ): Promise<ApiResponse<TeacherDocument>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    let teacher: Partial<TeacherDocument> = {
+      id: new Types.ObjectId(id),
+      ...updateDto,
+    };
+
+    if (file) {
+      const reducedImageBuffer = await this.reduceImagePipe.transform(file);
+
+      teacher = {
+        ...teacher,
+        image: reducedImageBuffer,
+      };
+    }
+
+    const updatedTeacher = await this.teachersService.update(teacher);
+
+    return {
+      data: updatedTeacher,
     };
   }
 }

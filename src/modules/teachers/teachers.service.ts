@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
@@ -11,6 +12,7 @@ import { startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { Teachers } from './schemas/teachers.schema';
 import { DateDto } from './dtos/date.dto';
 import { FindTeachersDto } from './dtos/find-teachers.dto';
+import { UpdateTeacherDto } from './dtos/update-teacher.dto';
 
 import { TeacherDocument } from '@ds-types/documents/teacher-document.type';
 import { ValidateFieldsService } from '@ds-services/validate-fields/validate-fields.service';
@@ -149,7 +151,10 @@ export class TeachersService {
     month: number,
     year: number,
   ): Promise<number> {
-    const classes = await this.classesService.findByTeacher(teacherId);
+    const classes = await this.classesService.findByTeacher(teacherId, [
+      'hour',
+      'weekDays',
+    ]);
 
     let totalMinutes = 0;
 
@@ -186,6 +191,80 @@ export class TeachersService {
     const salarie = workload * hourPrice;
 
     return salarie.toFixed(2);
+  }
+
+  public async update(
+    updateTeacher: Partial<TeacherDocument>,
+  ): Promise<TeacherDocument> {
+    const teacher = await this.findById(updateTeacher.id, []);
+    const teacherUpdates: Partial<TeacherDocument> = {};
+
+    const verifyUpdate: { [K in keyof UpdateTeacherDto]?: () => void } = {
+      name: () => (teacherUpdates.name = updateTeacher.name ?? teacher.name),
+      cpf: async () => {
+        await this.validateFieldsService.validateCpf(
+          'Teachers',
+          updateTeacher.cpf,
+        );
+
+        teacherUpdates.cpf = updateTeacher.cpf;
+      },
+      email: async () => {
+        await this.validateFieldsService.validateEmail(
+          'Teachers',
+          updateTeacher.email,
+        );
+
+        teacherUpdates.email = updateTeacher.email;
+      },
+      description: () =>
+        (teacherUpdates.description =
+          updateTeacher.description ?? teacher.description),
+      hourPrice: () =>
+        (teacherUpdates.hourPrice =
+          updateTeacher.hourPrice ?? teacher.hourPrice),
+      modalities: async () => {
+        const modalitiesPromise = updateTeacher.modalities.map(
+          async (modalityId) => {
+            await this.validateFieldsService.isActive('Modalities', modalityId);
+          },
+        );
+        await Promise.all(modalitiesPromise);
+
+        const teacherClasses = await this.classesService.findByTeacher(
+          teacher.id,
+          ['modality'],
+        );
+
+        teacherClasses.forEach((classDoc) => {
+          const modalityMatch = updateTeacher.modalities.some(
+            (modality) => modality.toString() === classDoc.modality.toString(),
+          );
+
+          if (!modalityMatch) {
+            throw new BadRequestException(
+              `Teacher ${teacher.name} must have the ${classDoc.modality} modality to match his class registration`,
+            );
+          }
+        });
+
+        teacherUpdates.modalities = updateTeacher.modalities;
+      },
+    };
+
+    for (const key in updateTeacher) {
+      const func = verifyUpdate[key];
+
+      if (func) await func();
+    }
+
+    teacherUpdates.image = updateTeacher.image ?? teacher.image;
+
+    return await this.teachersModel.findByIdAndUpdate(
+      teacher.id,
+      teacherUpdates,
+      { new: true },
+    );
   }
 
   private hoursToHHMM(hours: number): string {

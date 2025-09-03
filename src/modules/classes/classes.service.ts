@@ -173,13 +173,16 @@ export class ClassesService {
     return classObj;
   }
 
-  public async findByTeacher(
+  public async findByTeacher<K extends keyof ClassDocument>(
     id: Types.ObjectId,
-  ): Promise<Pick<ClassDocument, 'hour' | 'weekDays'>[]> {
+    fields: K[],
+  ): Promise<Pick<ClassDocument, K>[]> {
+    const projection = Object.fromEntries(fields.map((key) => [key, 1]));
+
     const classes = await this.classesModel
-      .find({ teacher: id, status: true }, { hour: 1, weekDays: 1 })
+      .find({ teacher: id, status: true }, projection)
       .exec();
 
-    return classes;
+    return classes as Pick<ClassDocument, K>[];
   }
 }
