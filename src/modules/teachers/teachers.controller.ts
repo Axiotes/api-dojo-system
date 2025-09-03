@@ -1,11 +1,15 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Param,
   Post,
+  Query,
+  Req,
   UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { AuthGuard } from '@nestjs/passport';
@@ -19,6 +23,7 @@ import { Types } from 'mongoose';
 
 import { TeachersService } from './teachers.service';
 import { TeacherDto } from './dtos/teacher.dto';
+import { DateDto } from './dtos/date.dto';
 
 import { UploadImage } from '@ds-common/decorators/upload-image.decorator';
 import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe';
@@ -26,8 +31,11 @@ import { TeacherDocument } from '@ds-types/documents/teacher-document.type';
 import { ApiResponse } from '@ds-types/api-response.type';
 import { Roles } from '@ds-common/decorators/roles.decorator';
 import { RoleGuard } from '@ds-common/guards/role/role.guard';
+import { OptionalJwtGuard } from '@ds-common/guards/optional-jwt/optional-jwt.guard';
+import { ImageBase64Interceptor } from '@ds-common/interceptors/image-base64/image-base64.interceptor';
+import { TeacherReport } from '@ds-types/teacher-report.type';
 
-// @UseInterceptors(ImageBase64Interceptor)
+@UseInterceptors(ImageBase64Interceptor)
 @Controller('teachers')
 export class TeachersController {
   constructor(
@@ -124,15 +132,27 @@ export class TeachersController {
     };
   }
 
+  @UseGuards(OptionalJwtGuard)
   @Get(':id')
-  public async findById(@Param('id') id: string) {
-    const teacher = await this.teachersService.findById(new Types.ObjectId(id));
-    const workload = await this.teachersService.monthlyWorkload(
-      teacher,
-      9,
-      2025,
+  public async findById(
+    @Param('id') id: string,
+    @Query() queryParams: DateDto,
+    @Req() req: Request,
+  ): Promise<ApiResponse<TeacherReport | TeacherDocument>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    const role = req['user']?.role;
+
+    const teacherData = await this.teachersService.findWithRole(
+      id,
+      role,
+      queryParams,
     );
 
-    return this.teachersService.calculateSalarie(teacher.hourPrice, workload);
+    return {
+      data: teacherData,
+    };
   }
 }

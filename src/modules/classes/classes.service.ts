@@ -32,7 +32,7 @@ export class ClassesService {
   public async createClass(newClass: ClassDocument): Promise<ClassDocument> {
     const [modality, teacher] = await Promise.all([
       this.modalitiesService.findById(newClass.modality),
-      this.teachersService.findById(newClass.teacher),
+      this.teachersService.findById(newClass.teacher, []),
     ]);
 
     if (!modality.status) {

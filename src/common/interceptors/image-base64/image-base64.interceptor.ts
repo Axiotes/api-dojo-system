@@ -18,21 +18,29 @@ export class ImageBase64Interceptor implements NestInterceptor {
     return next.handle().pipe(
       map((data) => {
         if (Array.isArray(data.data)) {
-          const modifiedData = data.data.map((item) => {
-            if (item instanceof Document) item = item.toObject();
-            item.image = `data:image/jpeg;base64,${item.image.toString('base64')}`;
-            return item;
-          });
-
-          return { ...data, data: modifiedData };
+          data.data = data.data.map((item) => this.convertImage(item));
+        } else {
+          data.data = this.convertImage(data.data);
         }
 
-        if (data.data.image) {
-          if (data.data instanceof Document) data.data = data.data.toObject();
-          data.data.image = `data:image/jpeg;base64,${data.data.image.toString('base64')}`;
-          return data;
-        }
+        return data;
       }),
     );
+  }
+
+  private convertImage(res: unknown): unknown {
+    if (!res || typeof res !== 'object') return res;
+
+    if (res instanceof Document) res = res.toObject();
+
+    for (const key of Object.keys(res)) {
+      if (key === 'image' && res[key]) {
+        res[key] = `data:image/jpeg;base64,${res[key].toString('base64')}`;
+      } else if (typeof res[key] === 'object') {
+        res[key] = this.convertImage(res[key]);
+      }
+    }
+
+    return res;
   }
 }
