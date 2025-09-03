@@ -150,7 +150,7 @@ describe('ClassesService', () => {
       },
     });
     expect(modalitiesService.findById).toHaveBeenCalledWith(newClass.modality);
-    expect(teachersService.findById).toHaveBeenCalledWith(newClass.teacher);
+    expect(teachersService.findById).toHaveBeenCalledWith(newClass.teacher, []);
     expect(classesModel.create).toHaveBeenCalledWith(newClass);
   });
 
@@ -194,7 +194,7 @@ describe('ClassesService', () => {
       ),
     );
     expect(modalitiesService.findById).toHaveBeenCalledWith(newClass.modality);
-    expect(teachersService.findById).toHaveBeenCalledWith(newClass.teacher);
+    expect(teachersService.findById).toHaveBeenCalledWith(newClass.teacher, []);
     expect(classesModel.create).toHaveBeenCalledTimes(0);
   });
 
@@ -238,7 +238,7 @@ describe('ClassesService', () => {
       ),
     );
     expect(modalitiesService.findById).toHaveBeenCalledWith(newClass.modality);
-    expect(teachersService.findById).toHaveBeenCalledWith(newClass.teacher);
+    expect(teachersService.findById).toHaveBeenCalledWith(newClass.teacher, []);
     expect(classesModel.create).toHaveBeenCalledTimes(0);
   });
 
@@ -282,7 +282,7 @@ describe('ClassesService', () => {
       ),
     );
     expect(modalitiesService.findById).toHaveBeenCalledWith(newClass.modality);
-    expect(teachersService.findById).toHaveBeenCalledWith(newClass.teacher);
+    expect(teachersService.findById).toHaveBeenCalledWith(newClass.teacher, []);
     expect(classesModel.create).toHaveBeenCalledTimes(0);
   });
 
