@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -22,13 +24,15 @@ export class ClassesService {
     @InjectModel(ClassesHistory.name)
     private classesHistoryModel: Model<ClassesHistory>,
     private readonly modalitiesService: ModalitiesService,
+
+    @Inject(forwardRef(() => TeachersService))
     private readonly teachersService: TeachersService,
   ) {}
 
   public async createClass(newClass: ClassDocument): Promise<ClassDocument> {
     const [modality, teacher] = await Promise.all([
       this.modalitiesService.findById(newClass.modality),
-      this.teachersService.findById(newClass.teacher),
+      this.teachersService.findById(newClass.teacher, []),
     ]);
 
     if (!modality.status) {
@@ -167,5 +171,15 @@ export class ClassesService {
     }
 
     return classObj;
+  }
+
+  public async findByTeacher(
+    id: Types.ObjectId,
+  ): Promise<Pick<ClassDocument, 'hour' | 'weekDays'>[]> {
+    const classes = await this.classesModel
+      .find({ teacher: id, status: true }, { hour: 1, weekDays: 1 })
+      .exec();
+
+    return classes;
   }
 }

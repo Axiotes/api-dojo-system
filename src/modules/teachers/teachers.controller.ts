@@ -1,7 +1,12 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  Get,
+  Param,
   Post,
+  Query,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -14,17 +19,23 @@ import {
   ApiCookieAuth,
   ApiOperation,
 } from '@nestjs/swagger';
+import { Types } from 'mongoose';
+import { Request } from 'express';
 
 import { TeachersService } from './teachers.service';
 import { TeacherDto } from './dtos/teacher.dto';
+import { DateDto } from './dtos/date.dto';
+import { FindTeachersDto } from './dtos/find-teachers.dto';
 
 import { UploadImage } from '@ds-common/decorators/upload-image.decorator';
 import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe';
 import { TeacherDocument } from '@ds-types/documents/teacher-document.type';
-import { ImageBase64Interceptor } from '@ds-common/interceptors/image-base64/image-base64.interceptor';
 import { ApiResponse } from '@ds-types/api-response.type';
 import { Roles } from '@ds-common/decorators/roles.decorator';
 import { RoleGuard } from '@ds-common/guards/role/role.guard';
+import { OptionalJwtGuard } from '@ds-common/guards/optional-jwt/optional-jwt.guard';
+import { ImageBase64Interceptor } from '@ds-common/interceptors/image-base64/image-base64.interceptor';
+import { TeacherReport } from '@ds-types/teacher-report.type';
 
 @UseInterceptors(ImageBase64Interceptor)
 @Controller('teachers')
@@ -120,6 +131,79 @@ export class TeachersController {
 
     return {
       data: teacher,
+    };
+  }
+
+  @ApiCookieAuth()
+  @ApiOperation({
+    summary: 'Buscar um professor por ID',
+    description: `Qualquer usuário pode realizar está ação. No entanto, 
+      apenas usuários com token jwt e cargos "admin" recebem
+      informações pessoais sobre o professor`,
+  })
+  @UseGuards(OptionalJwtGuard)
+  @Throttle({
+    default: {
+      limit: 20,
+      ttl: 60000,
+    },
+  })
+  @Get(':id')
+  public async findById(
+    @Param('id') id: string,
+    @Query() queryParams: DateDto,
+    @Req() req: Request,
+  ): Promise<ApiResponse<TeacherReport | TeacherDocument>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    const role = req['user']?.role;
+
+    const teacherData = await this.teachersService.findByIdWithRole(
+      id,
+      role,
+      queryParams,
+    );
+
+    return {
+      data: teacherData,
+    };
+  }
+
+  @ApiCookieAuth()
+  @ApiOperation({
+    summary: 'Buscar todos os professores com paginção e filtro por status',
+    description: `Qualquer usuário pode realizar está ação. No entanto, 
+      apenas usuários com token jwt e cargos "admin" recebem
+      informações pessoais sobre o professor`,
+  })
+  @UseGuards(OptionalJwtGuard)
+  @Throttle({
+    default: {
+      limit: 20,
+      ttl: 60000,
+    },
+  })
+  @Get()
+  public async findAll(
+    @Query() queryParams: FindTeachersDto,
+    @Req() req: Request,
+  ): Promise<ApiResponse<TeacherReport[] | TeacherDocument[]>> {
+    const role = req['user']?.role;
+
+    const teachersData = await this.teachersService.findAllWithRole(
+      role,
+      queryParams,
+    );
+
+    return {
+      data: teachersData,
+      pagination: {
+        skip: queryParams.skip,
+        limit: queryParams.limit,
+      },
+      total: teachersData.length,
     };
   }
 }

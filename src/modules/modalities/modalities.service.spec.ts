@@ -167,7 +167,7 @@ describe('ModalitiesService', () => {
     expect(mockModalitiesModel.limit).toHaveBeenCalledWith(queryParams.limit);
   });
 
-  it('should update a modality sucessfully', async () => {
+  it('should update a modality successfully', async () => {
     const modality: Partial<ModalitiesDocument> = {
       _id: '60c72b2f9b1d8c001c8e4e1a',
       name: 'Old Name Test',

@@ -1,0 +1,42 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
+import { IsBoolean, IsNumber, IsOptional, Max, Min } from 'class-validator';
+
+export class FindTeachersDto {
+  @ApiProperty({ description: 'Número de documentos que serão pulados' })
+  @Transform(({ value }) => parseInt(value))
+  @IsNumber()
+  @Min(0)
+  skip: number;
+
+  @ApiProperty({ description: 'Número de documentos que serão retornados' })
+  @Transform(({ value }) => parseInt(value))
+  @IsNumber()
+  @Min(1)
+  limit: number;
+
+  @ApiPropertyOptional({ description: 'Status do professor' })
+  @IsOptional()
+  @Transform(({ value }) => value === 'true')
+  @IsBoolean()
+  status?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Número do mês para carga de trabalho e salário mensal',
+  })
+  @IsOptional()
+  @Transform(({ value }) => parseInt(value))
+  @IsNumber()
+  @Min(1)
+  @Max(12)
+  month?: number;
+
+  @ApiPropertyOptional({
+    description: 'Ano para carga de trabalho e salário mensal',
+  })
+  @IsOptional()
+  @Transform(({ value }) => parseInt(value))
+  @IsNumber()
+  @Min(0)
+  year?: number;
+}
