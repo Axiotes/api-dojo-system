@@ -182,8 +182,10 @@ export class TeachersService {
     return totalMinutes / 60;
   }
 
-  public calculateSalarie(hourPrice: number, workload: number): number {
-    return workload * hourPrice;
+  public calculateSalarie(hourPrice: number, workload: number): string {
+    const salarie = workload * hourPrice;
+
+    return salarie.toFixed(2);
   }
 
   private hoursToHHMM(hours: number): string {

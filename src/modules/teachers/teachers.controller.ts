@@ -142,6 +142,12 @@ export class TeachersController {
       informações pessoais sobre o professor`,
   })
   @UseGuards(OptionalJwtGuard)
+  @Throttle({
+    default: {
+      limit: 20,
+      ttl: 60000,
+    },
+  })
   @Get(':id')
   public async findById(
     @Param('id') id: string,
@@ -173,6 +179,12 @@ export class TeachersController {
       informações pessoais sobre o professor`,
   })
   @UseGuards(OptionalJwtGuard)
+  @Throttle({
+    default: {
+      limit: 20,
+      ttl: 60000,
+    },
+  })
   @Get()
   public async findAll(
     @Query() queryParams: FindTeachersDto,
