@@ -267,13 +267,26 @@ export class TeachersService {
     );
   }
 
-  public async setStatus(id: string, status: boolean): Promise<void> {
-    const teacher = await this.teachersModel.findById(id, { status: 1 }).exec();
+  public async deactivate(id: string): Promise<void> {
+    const teacher = await this.findById(new Types.ObjectId(id), [
+      'id',
+      'status',
+      'save',
+    ]);
 
-    if (!teacher) {
-      throw new NotFoundException('Teacher not found');
+    const classes = await this.classesService.findByTeacher(teacher.id, ['id']);
+
+    if (classes.length > 0) {
+      throw new BadRequestException('Teacher is registered in active classes');
     }
 
+    await this.setStatus(teacher, false);
+  }
+
+  public async setStatus(
+    teacher: TeacherDocument,
+    status: boolean,
+  ): Promise<void> {
     teacher.status = status;
     await teacher.save();
   }

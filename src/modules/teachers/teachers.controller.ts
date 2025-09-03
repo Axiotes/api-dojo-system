@@ -301,6 +301,21 @@ export class TeachersController {
     };
   }
 
+  @Patch('deactivate/:id')
+  public async deactivate(
+    @Param('id') id: string,
+  ): Promise<ApiResponse<string>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    await this.teachersService.deactivate(id);
+
+    return {
+      data: 'Teacher successfully deactivate',
+    };
+  }
+
   @Patch('reactivate/:id')
   public async reactivate(
     @Param('id') id: string,
@@ -309,7 +324,12 @@ export class TeachersController {
       throw new BadRequestException('Invalid id format');
     }
 
-    await this.teachersService.setStatus(id, true);
+    const teacher = await this.teachersService.findById(
+      new Types.ObjectId(id),
+      ['status', 'save'],
+    );
+
+    await this.teachersService.setStatus(teacher, true);
 
     return {
       data: 'Teacher successfully reactivate',
