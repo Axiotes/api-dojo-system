@@ -301,6 +301,14 @@ export class TeachersController {
     };
   }
 
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
   @Patch('deactivate/:id')
   public async deactivate(
     @Param('id') id: string,
@@ -316,6 +324,14 @@ export class TeachersController {
     };
   }
 
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
   @Patch('reactivate/:id')
   public async reactivate(
     @Param('id') id: string,
