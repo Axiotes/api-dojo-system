@@ -19,7 +19,7 @@ export class FindTeachersDto {
   @IsOptional()
   @Transform(({ value }) => value === 'true')
   @IsBoolean()
-  status: boolean;
+  status?: boolean;
 
   @ApiPropertyOptional({
     description: 'Número do mês para carga de trabalho e salário mensal',
@@ -29,7 +29,7 @@ export class FindTeachersDto {
   @IsNumber()
   @Min(1)
   @Max(12)
-  month: number;
+  month?: number;
 
   @ApiPropertyOptional({
     description: 'Ano para carga de trabalho e salário mensal',
@@ -38,5 +38,5 @@ export class FindTeachersDto {
   @Transform(({ value }) => parseInt(value))
   @IsNumber()
   @Min(0)
-  year: number;
+  year?: number;
 }

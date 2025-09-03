@@ -61,7 +61,7 @@ describe('PlansService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should create a plan sucessfully', async () => {
+  it('should create a plan successfully', async () => {
     const dto: PlanDto = {
       period: Period.MONTHLY,
       periodQuantity: 3,
@@ -126,7 +126,7 @@ describe('PlansService', () => {
     expect(model.findById).toHaveBeenCalledTimes(0);
   });
 
-  it('should find a plan by id sucessfully', async () => {
+  it('should find a plan by id successfully', async () => {
     const id = '60c72b2f9b1d8c001c8e4e1a';
     const plan = {
       _id: id,

@@ -80,7 +80,7 @@ describe('ClassesService', () => {
     expect(service).toBeDefined();
   });
 
-  it('shoud create a class sucessfully', async () => {
+  it('shoud create a class successfully', async () => {
     const newClass = {
       modality: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a'),
       teacher: new Types.ObjectId('60c72b2f9b1d8c001c8e4e2b'),

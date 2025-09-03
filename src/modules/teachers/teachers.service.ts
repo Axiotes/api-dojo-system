@@ -69,7 +69,7 @@ export class TeachersService {
     const salarie = this.calculateSalarie(teacher.hourPrice, workload);
 
     return {
-      teacher: teacher.toObject(),
+      teacher: teacher,
       report: {
         workload: this.hoursToHHMM(workload),
         salarie,

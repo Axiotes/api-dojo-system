@@ -38,7 +38,7 @@ describe('PlansController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should create a plan sucessfully', async () => {
+  it('should create a plan successfully', async () => {
     const dto: PlanDto = {
       period: Period.MONTHLY,
       periodQuantity: 3,
