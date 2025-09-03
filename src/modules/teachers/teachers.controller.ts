@@ -209,6 +209,14 @@ export class TeachersController {
     };
   }
 
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
   @UploadImage()
   @Patch(':id')
   public async update(
