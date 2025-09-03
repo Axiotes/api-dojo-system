@@ -94,12 +94,12 @@ export class TeachersService {
 
     const reportPromises = teachers.map(async (teacher) => {
       const workload = await this.monthlyWorkload(teacher.id, month, year);
-      const salarie = await this.calculateSalarie(teacher.id, workload);
+      const salarie = this.calculateSalarie(teacher.hourPrice, workload);
 
       return {
         teacher,
         report: {
-          workload,
+          workload: this.hoursToHHMM(workload),
           salarie,
           month,
           year,
