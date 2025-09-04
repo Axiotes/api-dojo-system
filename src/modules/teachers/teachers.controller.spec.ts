@@ -30,6 +30,9 @@ describe('TeachersController', () => {
             findByIdWithRole: jest.fn(),
             findAllWithRole: jest.fn(),
             update: jest.fn(),
+            deactivate: jest.fn(),
+            reactive: jest.fn(),
+            setStatus: jest.fn(),
           },
         },
         {
@@ -356,6 +359,57 @@ describe('TeachersController', () => {
     const invalidId = '1234';
 
     await expect(controller.update(invalidId)).rejects.toThrow(
+      new BadRequestException('Invalid id format'),
+    );
+    expect(teachersService.findById).toHaveBeenCalledTimes(0);
+  });
+
+  it('should deactivate teacher successfully', async () => {
+    const id = '60c72b2f9b1d8c001c8e4e1a';
+
+    teachersService.deactivate = jest.fn().mockImplementation(() => {});
+
+    const result = await controller.deactivate(id);
+
+    expect(result).toEqual({
+      data: 'Teacher successfully deactivate',
+    });
+  });
+
+  it('should throw BadRequestException for invalid ID format in deactivate', async () => {
+    const invalidId = '1234';
+
+    await expect(controller.deactivate(invalidId)).rejects.toThrow(
+      new BadRequestException('Invalid id format'),
+    );
+    expect(teachersService.findById).toHaveBeenCalledTimes(0);
+  });
+
+  it('should reactivate teacher successfully', async () => {
+    const id = '60c72b2f9b1d8c001c8e4e1a';
+
+    const teacher = {
+      status: true,
+    } as TeacherDocument;
+
+    teachersService.findById = jest.fn().mockResolvedValue(teacher);
+    teachersService.setStatus = jest.fn().mockImplementation(() => {});
+
+    const result = await controller.reactivate(id);
+
+    expect(result).toEqual({
+      data: 'Teacher successfully reactivate',
+    });
+    expect(teachersService.findById).toHaveBeenCalledWith(
+      new Types.ObjectId(id),
+      ['status'],
+    );
+  });
+
+  it('should throw BadRequestException for invalid ID format in reactivate', async () => {
+    const invalidId = '1234';
+
+    await expect(controller.reactivate(invalidId)).rejects.toThrow(
       new BadRequestException('Invalid id format'),
     );
     expect(teachersService.findById).toHaveBeenCalledTimes(0);

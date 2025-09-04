@@ -353,7 +353,7 @@ export class TeachersController {
 
     const teacher = await this.teachersService.findById(
       new Types.ObjectId(id),
-      ['status', 'save'],
+      ['status'],
     );
 
     await this.teachersService.setStatus(teacher, true);
