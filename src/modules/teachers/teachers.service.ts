@@ -267,6 +267,29 @@ export class TeachersService {
     );
   }
 
+  public async deactivate(id: string): Promise<void> {
+    const teacher = await this.findById(new Types.ObjectId(id), [
+      'id',
+      'status',
+    ]);
+
+    const classes = await this.classesService.findByTeacher(teacher.id, ['id']);
+
+    if (classes.length > 0) {
+      throw new BadRequestException('Teacher is registered in active classes');
+    }
+
+    await this.setStatus(teacher, false);
+  }
+
+  public async setStatus(
+    teacher: TeacherDocument,
+    status: boolean,
+  ): Promise<void> {
+    teacher.status = status;
+    await teacher.save();
+  }
+
   private hoursToHHMM(hours: number): string {
     const hour = Math.floor(hours);
     const minute = Math.round((hours - hour) * 60);

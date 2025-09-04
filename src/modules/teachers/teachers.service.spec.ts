@@ -32,6 +32,7 @@ describe('TeachersService', () => {
     select: jest.fn().mockReturnThis(),
     exec: jest.fn(),
     create: jest.fn(),
+    save: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -623,5 +624,73 @@ describe('TeachersService', () => {
       'modality',
     ]);
     expect(model.findByIdAndUpdate).toHaveBeenCalledTimes(0);
+  });
+
+  it('should set teacher status true', async () => {
+    const teacher = {
+      status: false,
+      save: jest.fn(),
+    } as unknown as TeacherDocument;
+
+    await service.setStatus(teacher, true);
+
+    expect(teacher.status).toBe(true);
+    expect(teacher.save).toHaveBeenCalled();
+  });
+
+  it('should set teacher status false', async () => {
+    const teacher = {
+      status: true,
+      save: jest.fn(),
+    } as unknown as TeacherDocument;
+
+    await service.setStatus(teacher, false);
+
+    expect(teacher.status).toBe(false);
+    expect(teacher.save).toHaveBeenCalled();
+  });
+
+  it('should deactivate teachet successfully', async () => {
+    const id = new Types.ObjectId();
+
+    const teacher = {
+      id,
+      status: true,
+    } as TeacherDocument;
+
+    service.findById = jest.fn().mockResolvedValue(teacher);
+    classesService.findByTeacher = jest.fn().mockResolvedValue([]);
+    service.setStatus = jest.fn().mockImplementation(() => {});
+
+    await service.deactivate(teacher.id);
+    expect(service.findById).toHaveBeenCalledWith(teacher.id, ['id', 'status']);
+    expect(classesService.findByTeacher).toHaveBeenCalledWith(teacher.id, [
+      'id',
+    ]);
+    expect(service.setStatus).toHaveBeenCalledWith(teacher, false);
+  });
+
+  it('should deactivate teachet successfully', async () => {
+    const id = new Types.ObjectId();
+
+    const teacher = {
+      id,
+      status: true,
+    } as TeacherDocument;
+
+    service.findById = jest.fn().mockResolvedValue(teacher);
+    classesService.findByTeacher = jest
+      .fn()
+      .mockResolvedValue([{ id: new Types.ObjectId() }]);
+    service.setStatus = jest.fn();
+
+    await expect(service.deactivate(teacher.id)).rejects.toThrow(
+      new BadRequestException('Teacher is registered in active classes'),
+    );
+    expect(service.findById).toHaveBeenCalledWith(teacher.id, ['id', 'status']);
+    expect(classesService.findByTeacher).toHaveBeenCalledWith(teacher.id, [
+      'id',
+    ]);
+    expect(service.setStatus).toHaveBeenCalledTimes(0);
   });
 });

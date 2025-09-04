@@ -178,7 +178,7 @@ describe('AdminController', () => {
 
     const result = await controller.reactivate(adminId);
 
-    expect(result).toEqual({ data: 'Admin successfully deactivated' });
+    expect(result).toEqual({ data: 'Admin successfully reactivate' });
     expect(adminService.setStatus).toHaveBeenCalledWith(adminId, status);
   });
 

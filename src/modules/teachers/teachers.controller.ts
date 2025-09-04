@@ -300,4 +300,66 @@ export class TeachersController {
       data: updatedTeacher,
     };
   }
+
+  @ApiOperation({
+    summary: 'Desativar professor',
+    description: `Apenas usuários com token JWT e cargos "admin" podem utilizar este endpoint.
+    Ao ser desativado, não poderá ser vinculado a nenhuma turma, 
+    logo, deverá ser desvinculado de turmas ativas antes de ser inativado.`,
+  })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
+  @Patch('deactivate/:id')
+  public async deactivate(
+    @Param('id') id: string,
+  ): Promise<ApiResponse<string>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    await this.teachersService.deactivate(id);
+
+    return {
+      data: 'Teacher successfully deactivate',
+    };
+  }
+
+  @ApiOperation({
+    summary: 'Reativar professor',
+    description:
+      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+  })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
+  @Patch('reactivate/:id')
+  public async reactivate(
+    @Param('id') id: string,
+  ): Promise<ApiResponse<string>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    const teacher = await this.teachersService.findById(
+      new Types.ObjectId(id),
+      ['status'],
+    );
+
+    await this.teachersService.setStatus(teacher, true);
+
+    return {
+      data: 'Teacher successfully reactivate',
+    };
+  }
 }
