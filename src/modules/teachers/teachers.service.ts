@@ -271,7 +271,6 @@ export class TeachersService {
     const teacher = await this.findById(new Types.ObjectId(id), [
       'id',
       'status',
-      'save',
     ]);
 
     const classes = await this.classesService.findByTeacher(teacher.id, ['id']);
