@@ -178,7 +178,7 @@ export class ClassesController {
       ttl: 60000,
     },
   })
-  @Get(':id')
+  @Get('id/:id')
   public async findById(
     @Param('id') id: string,
     @Req() req: Request,
@@ -231,13 +231,4 @@ export class ClassesController {
       total: formatedClasses.length,
     };
   }
-
-  // @Get('top-five')
-  // public async topFive(): Promise<ApiResponse<any[]>> {
-  //   const teachers = await this.classesService.topFiveTeachers();
-
-  //   return {
-  //     data: teachers,
-  //   };
-  // }
 }

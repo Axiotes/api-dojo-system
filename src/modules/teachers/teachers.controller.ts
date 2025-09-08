@@ -150,7 +150,7 @@ export class TeachersController {
       ttl: 60000,
     },
   })
-  @Get(':id')
+  @Get('id/:id')
   public async findById(
     @Param('id') id: string,
     @Query() queryParams: DateDto,
@@ -209,14 +209,16 @@ export class TeachersController {
     };
   }
 
-  // @Get('top-five')
-  // public async topFive(): Promise<ApiResponse<any[]>> {
-  //   const teachers = await this.teachersService.topFive();
+  @Get('top-five')
+  public async topFive(): Promise<
+    ApiResponse<{ teacher: TeacherDocument; totalClasses: number }[]>
+  > {
+    const teachers = await this.teachersService.topFive();
 
-  //   return {
-  //     data: teachers,
-  //   };
-  // }
+    return {
+      data: teachers,
+    };
+  }
 
   @ApiCookieAuth()
   @ApiOperation({

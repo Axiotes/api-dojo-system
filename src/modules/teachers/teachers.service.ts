@@ -290,32 +290,28 @@ export class TeachersService {
     await teacher.save();
   }
 
-  // public async topFive() {
-  //   const top = await this.classesService.topFiveTeachers();
+  public async topFive(): Promise<
+    {
+      teacher: TeacherDocument;
+      totalClasses: number;
+    }[]
+  > {
+    const topTeachers = await this.classesService.topFiveTeachers();
 
-  //   if (!top.length) return [];
+    if (!topTeachers.length) return [];
 
-  //   const teacherIds = top.map((t) => t.teacherId);
+    const teacherIds = topTeachers.map((teacher) => teacher._id);
 
-  //   const teachers = await this.teachersModel
-  //     .find({ _id: { $in: teacherIds }, status: true }) // filtra só ativos
-  //     .select([
-  //       'name',
-  //       'email',
-  //       'description',
-  //       'hourPrice',
-  //       'modalities',
-  //       'status',
-  //     ])
-  //     .lean()
-  //     .exec();
+    const teachers = await this.teachersModel
+      .find({ _id: { $in: teacherIds }, status: true })
+      .select(['name', 'description', 'image'])
+      .exec();
 
-  //   return top.map((item) => ({
-  //     teacherId: item.teacherId,
-  //     totalClasses: item.totalClasses,
-  //     teacher: teachers.find((t) => t._id.equals(item.teacherId)) || null,
-  //   }));
-  // }
+    return topTeachers.map((teacher) => ({
+      teacher: teachers.find((t) => t._id.equals(teacher._id)),
+      totalClasses: teacher.totalClasses,
+    }));
+  }
 
   private hoursToHHMM(hours: number): string {
     const hour = Math.floor(hours);
