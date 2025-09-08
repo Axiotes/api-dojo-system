@@ -209,6 +209,17 @@ export class TeachersController {
     };
   }
 
+  @ApiOperation({
+    summary: 'Buscar 5 principais professores',
+    description: `Qualquer usuário pode realizar está ação. 
+    Retorna os 5 professores com maior número de turmas ativas ministradas`,
+  })
+  @Throttle({
+    default: {
+      limit: 30,
+      ttl: 60000,
+    },
+  })
   @Get('top-five')
   public async topFive(): Promise<
     ApiResponse<{ teacher: TeacherDocument; totalClasses: number }[]>
