@@ -307,9 +307,9 @@ export class TeachersService {
       .select(['name', 'description', 'image'])
       .exec();
 
-    return topTeachers.map((teacher) => ({
-      teacher: teachers.find((t) => t._id.equals(teacher._id)),
-      totalClasses: teacher.totalClasses,
+    return topTeachers.map((topTeacher) => ({
+      teacher: teachers.find((teacher) => teacher._id.equals(topTeacher._id)),
+      totalClasses: topTeacher.totalClasses,
     }));
   }
 
