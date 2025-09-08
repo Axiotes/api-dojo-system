@@ -414,4 +414,38 @@ describe('TeachersController', () => {
     );
     expect(teachersService.findById).toHaveBeenCalledTimes(0);
   });
+
+  it('should return top 5 teachers', async () => {
+    const topTeachers = [
+      { _id: new Types.ObjectId('64f1b2a3c4d5e6f7890abc2b'), totalClasses: 12 },
+      { _id: new Types.ObjectId('64f1b2a3c4d5e6f7890abc1a'), totalClasses: 10 },
+      { _id: new Types.ObjectId('64f1b2a3c4d5e6f7890abc3c'), totalClasses: 9 },
+      { _id: new Types.ObjectId('64f1b2a3c4d5e6f7890abc4d'), totalClasses: 8 },
+      { _id: new Types.ObjectId('64f1b2a3c4d5e6f7890abc5e'), totalClasses: 6 },
+    ];
+    const teachers = topTeachers.map((teacher, index) => {
+      return {
+        _id: teacher._id,
+        name: `Teacher ${index + 1}`,
+        description: `Description ${index + 1}`,
+        image: Buffer.from(`image${index + 1}`),
+        status: true,
+      } as TeacherDocument;
+    });
+    const teacherTotalClasses = topTeachers.map((topTeacher) => ({
+      teacher: teachers.find((teacher) => {
+        const teacherId = teacher._id as Types.ObjectId;
+
+        return teacherId.equals(topTeacher._id);
+      }),
+      totalClasses: topTeacher.totalClasses,
+    }));
+
+    teachersService.topFive = jest.fn().mockResolvedValue(teacherTotalClasses);
+
+    const result = await controller.topFive();
+
+    expect(result).toEqual({ data: teacherTotalClasses });
+    expect(teachersService.topFive).toHaveBeenCalledTimes(1);
+  });
 });

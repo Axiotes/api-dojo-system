@@ -109,7 +109,7 @@ export class ModalitiesController {
       ttl: 60000,
     },
   })
-  @Get(':id')
+  @Get('id/:id')
   public async findById(
     @Param('id') id: string,
   ): Promise<ApiResponse<ModalitiesDocument>> {

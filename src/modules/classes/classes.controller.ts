@@ -145,6 +145,8 @@ export class ClassesController {
 
     const newClass = {
       ...rest,
+      teacher: new Types.ObjectId(classDto.teacher),
+      modality: new Types.ObjectId(classDto.modality),
       hour: {
         start: startHour,
         end: endHour,
@@ -176,7 +178,7 @@ export class ClassesController {
       ttl: 60000,
     },
   })
-  @Get(':id')
+  @Get('id/:id')
   public async findById(
     @Param('id') id: string,
     @Req() req: Request,

@@ -150,7 +150,7 @@ export class TeachersController {
       ttl: 60000,
     },
   })
-  @Get(':id')
+  @Get('id/:id')
   public async findById(
     @Param('id') id: string,
     @Query() queryParams: DateDto,
@@ -206,6 +206,28 @@ export class TeachersController {
         limit: queryParams.limit,
       },
       total: teachersData.length,
+    };
+  }
+
+  @ApiOperation({
+    summary: 'Buscar 5 principais professores',
+    description: `Qualquer usuário pode realizar está ação. 
+    Retorna os 5 professores com maior número de turmas ativas ministradas`,
+  })
+  @Throttle({
+    default: {
+      limit: 30,
+      ttl: 60000,
+    },
+  })
+  @Get('top-five')
+  public async topFive(): Promise<
+    ApiResponse<{ teacher: TeacherDocument; totalClasses: number }[]>
+  > {
+    const teachers = await this.teachersService.topFive();
+
+    return {
+      data: teachers,
     };
   }
 

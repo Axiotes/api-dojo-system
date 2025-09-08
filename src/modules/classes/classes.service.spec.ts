@@ -32,6 +32,7 @@ describe('ClassesService', () => {
     skip: jest.fn().mockReturnThis(),
     limit: jest.fn().mockReturnThis(),
     select: jest.fn().mockReturnThis(),
+    aggregate: jest.fn().mockReturnThis(),
     exec: jest.fn(),
     create: jest.fn(),
   };
@@ -589,5 +590,29 @@ describe('ClassesService', () => {
       modalities: undefined,
     });
     expect(result.athletes).toEqual(classDoc.athletes);
+  });
+
+  it('should return top 5 teachers', async () => {
+    const mockResult = [
+      { _id: 'teacher1', totalClasses: 12 },
+      { _id: 'teacher2', totalClasses: 10 },
+      { _id: 'teacher3', totalClasses: 9 },
+      { _id: 'teacher4', totalClasses: 8 },
+      { _id: 'teacher5', totalClasses: 6 },
+    ];
+
+    mockModel.aggregate.mockReturnThis();
+    mockModel.exec.mockResolvedValue(mockResult);
+
+    const result = await service.topFiveTeachers();
+
+    expect(classesModel.aggregate).toHaveBeenCalledWith([
+      { $match: { status: true } },
+      { $group: { _id: '$teacher', totalClasses: { $sum: 1 } } },
+      { $sort: { totalClasses: -1 } },
+      { $limit: 5 },
+      { $project: { _id: 1, totalClasses: 1 } },
+    ]);
+    expect(result).toEqual(mockResult);
   });
 });

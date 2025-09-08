@@ -51,6 +51,7 @@ describe('TeachersService', () => {
           provide: ClassesService,
           useValue: {
             findByTeacher: jest.fn(),
+            topFiveTeachers: jest.fn(),
           },
         },
         {
@@ -692,5 +693,63 @@ describe('TeachersService', () => {
       'id',
     ]);
     expect(service.setStatus).toHaveBeenCalledTimes(0);
+  });
+
+  it('should return top 5 teachers', async () => {
+    const topTeachers = [
+      { _id: new Types.ObjectId('64f1b2a3c4d5e6f7890abc2b'), totalClasses: 12 },
+      { _id: new Types.ObjectId('64f1b2a3c4d5e6f7890abc1a'), totalClasses: 10 },
+      { _id: new Types.ObjectId('64f1b2a3c4d5e6f7890abc3c'), totalClasses: 9 },
+      { _id: new Types.ObjectId('64f1b2a3c4d5e6f7890abc4d'), totalClasses: 8 },
+      { _id: new Types.ObjectId('64f1b2a3c4d5e6f7890abc5e'), totalClasses: 6 },
+    ];
+    const teachers = topTeachers.map((teacher, index) => {
+      return {
+        _id: teacher._id,
+        name: `Teacher ${index + 1}`,
+        description: `Description ${index + 1}`,
+        image: Buffer.from(`image${index + 1}`),
+        status: true,
+      } as TeacherDocument;
+    });
+    const teacherTotalClasses = topTeachers.map((topTeacher) => ({
+      teacher: teachers.find((teacher) => {
+        const teacherId = teacher._id as Types.ObjectId;
+
+        return teacherId.equals(topTeacher._id);
+      }),
+      totalClasses: topTeacher.totalClasses,
+    }));
+
+    classesService.topFiveTeachers = jest.fn().mockResolvedValue(topTeachers);
+    mockTeacherModel.find.mockReturnThis();
+    mockTeacherModel.select.mockReturnThis();
+    mockTeacherModel.exec.mockResolvedValue(teachers);
+
+    const result = await service.topFive();
+
+    expect(result).toEqual(teacherTotalClasses);
+    expect(classesService.topFiveTeachers).toHaveBeenCalled();
+    expect(mockTeacherModel.find).toHaveBeenCalledWith({
+      _id: { $in: topTeachers.map((teacher) => teacher._id) },
+      status: true,
+    });
+    expect(mockTeacherModel.select).toHaveBeenCalledWith([
+      'name',
+      'description',
+      'image',
+    ]);
+  });
+
+  it('should return empty array if no top teachers', async () => {
+    classesService.topFiveTeachers = jest.fn().mockResolvedValue([]);
+
+    const result = await service.topFive();
+
+    expect(result).toEqual([]);
+    expect(classesService.topFiveTeachers).toHaveBeenCalled();
+    expect(mockTeacherModel.find).toHaveBeenCalledTimes(0);
+    expect(mockTeacherModel.select).toHaveBeenCalledTimes(0);
+    expect(mockTeacherModel.exec).toHaveBeenCalledTimes(0);
   });
 });

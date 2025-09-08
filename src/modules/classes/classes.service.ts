@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, PipelineStage, Types } from 'mongoose';
 
 import { Classes } from './schemas/classes.schema';
 import { ClassesHistory } from './schemas/classes-history.schema';
@@ -184,5 +184,19 @@ export class ClassesService {
       .exec();
 
     return classes as Pick<ClassDocument, K>[];
+  }
+
+  public async topFiveTeachers(): Promise<
+    { _id: Types.ObjectId; totalClasses: number }[]
+  > {
+    const pipeline: PipelineStage[] = [
+      { $match: { status: true } },
+      { $group: { _id: '$teacher', totalClasses: { $sum: 1 } } },
+      { $sort: { totalClasses: -1 } },
+      { $limit: 5 },
+      { $project: { _id: 1, totalClasses: 1 } },
+    ];
+
+    return this.classesModel.aggregate(pipeline).exec();
   }
 }

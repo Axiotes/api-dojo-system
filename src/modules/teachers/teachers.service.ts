@@ -290,6 +290,29 @@ export class TeachersService {
     await teacher.save();
   }
 
+  public async topFive(): Promise<
+    {
+      teacher: TeacherDocument;
+      totalClasses: number;
+    }[]
+  > {
+    const topTeachers = await this.classesService.topFiveTeachers();
+
+    if (!topTeachers.length) return [];
+
+    const teacherIds = topTeachers.map((teacher) => teacher._id);
+
+    const teachers = await this.teachersModel
+      .find({ _id: { $in: teacherIds }, status: true })
+      .select(['name', 'description', 'image'])
+      .exec();
+
+    return topTeachers.map((topTeacher) => ({
+      teacher: teachers.find((teacher) => teacher._id.equals(topTeacher._id)),
+      totalClasses: topTeacher.totalClasses,
+    }));
+  }
+
   private hoursToHHMM(hours: number): string {
     const hour = Math.floor(hours);
     const minute = Math.round((hours - hour) * 60);
