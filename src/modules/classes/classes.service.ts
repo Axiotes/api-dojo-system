@@ -185,4 +185,18 @@ export class ClassesService {
 
     return classes as Pick<ClassDocument, K>[];
   }
+
+  // public async topFiveTeachers(): Promise<
+  //   { teacherId: Types.ObjectId; totalClasses: number }[]
+  // > {
+  //   const pipeline: PipelineStage[] = [
+  //     { $match: { status: true } },
+  //     { $group: { _id: '$teacher', totalClasses: { $sum: 1 } } },
+  //     { $sort: { totalClasses: -1 } },
+  //     { $limit: 5 },
+  //     { $project: { teacherId: '$_id', totalClasses: 1, _id: 0 } },
+  //   ];
+
+  //   return this.classesModel.aggregate(pipeline).exec();
+  // }
 }

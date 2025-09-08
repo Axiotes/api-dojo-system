@@ -290,6 +290,33 @@ export class TeachersService {
     await teacher.save();
   }
 
+  // public async topFive() {
+  //   const top = await this.classesService.topFiveTeachers();
+
+  //   if (!top.length) return [];
+
+  //   const teacherIds = top.map((t) => t.teacherId);
+
+  //   const teachers = await this.teachersModel
+  //     .find({ _id: { $in: teacherIds }, status: true }) // filtra só ativos
+  //     .select([
+  //       'name',
+  //       'email',
+  //       'description',
+  //       'hourPrice',
+  //       'modalities',
+  //       'status',
+  //     ])
+  //     .lean()
+  //     .exec();
+
+  //   return top.map((item) => ({
+  //     teacherId: item.teacherId,
+  //     totalClasses: item.totalClasses,
+  //     teacher: teachers.find((t) => t._id.equals(item.teacherId)) || null,
+  //   }));
+  // }
+
   private hoursToHHMM(hours: number): string {
     const hour = Math.floor(hours);
     const minute = Math.round((hours - hour) * 60);

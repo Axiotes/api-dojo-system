@@ -209,6 +209,15 @@ export class TeachersController {
     };
   }
 
+  // @Get('top-five')
+  // public async topFive(): Promise<ApiResponse<any[]>> {
+  //   const teachers = await this.teachersService.topFive();
+
+  //   return {
+  //     data: teachers,
+  //   };
+  // }
+
   @ApiCookieAuth()
   @ApiOperation({
     summary: 'Atualizar professor',

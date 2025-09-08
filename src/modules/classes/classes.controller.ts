@@ -145,6 +145,8 @@ export class ClassesController {
 
     const newClass = {
       ...rest,
+      teacher: new Types.ObjectId(classDto.teacher),
+      modality: new Types.ObjectId(classDto.modality),
       hour: {
         start: startHour,
         end: endHour,
@@ -229,4 +231,13 @@ export class ClassesController {
       total: formatedClasses.length,
     };
   }
+
+  // @Get('top-five')
+  // public async topFive(): Promise<ApiResponse<any[]>> {
+  //   const teachers = await this.classesService.topFiveTeachers();
+
+  //   return {
+  //     data: teachers,
+  //   };
+  // }
 }
