@@ -6,6 +6,6 @@ import { ReportService } from './report/report.service';
 
 @Module({
   providers: [LoggerService, ValidateFieldsService, ReportService],
-  exports: [ValidateFieldsService],
+  exports: [ValidateFieldsService, ReportService],
 })
 export class ServicesModule {}

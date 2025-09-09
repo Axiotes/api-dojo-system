@@ -20,12 +20,15 @@ import { ClassesService } from '@ds-modules/classes/classes.service';
 import { WeekDays } from '@ds-enums/week-days.enum';
 import { Role } from '@ds-types/role.type';
 import { TeacherReport } from '@ds-types/teacher-report.type';
+import { ReportService } from '@ds-services/report/report.service';
+import { Report } from '@ds-types/report.type';
 
 @Injectable()
 export class TeachersService {
   constructor(
     @InjectModel(Teachers.name) private teachersModel: Model<Teachers>,
     private readonly validateFieldsService: ValidateFieldsService,
+    private readonly reportService: ReportService,
 
     @Inject(forwardRef(() => ClassesService))
     private readonly classesService: ClassesService,
@@ -311,6 +314,15 @@ export class TeachersService {
       teacher: teachers.find((teacher) => teacher._id.equals(topTeacher._id)),
       totalClasses: topTeacher.totalClasses,
     }));
+  }
+
+  public async report(): Promise<Report> {
+    const reportBuffer: Report = await this.reportService.createPdf(
+      (doc) => this.reportService.teacherReport(doc),
+      'teacher-report.pdf',
+    );
+
+    return reportBuffer;
   }
 
   private hoursToHHMM(hours: number): string {
