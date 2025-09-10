@@ -1,38 +1,46 @@
 import { Injectable } from '@nestjs/common';
-import * as PDFDocument from 'pdfkit';
+import * as Handlebars from 'handlebars';
 
-import { Report } from '@ds-types/report.type';
+import { PuppeteerService } from '@ds-services/puppeteer/puppeteer.service';
 
 @Injectable()
 export class ReportService {
-  public async createPdf(
-    buildContent: (doc: PDFDocument) => void,
-    filename: string,
-  ): Promise<Report> {
-    const doc = new PDFDocument();
-    const chunks = [];
+  constructor(private readonly puppeteerService: PuppeteerService) {}
 
-    return new Promise((resolve) => {
-      doc.on('data', (chunk) => chunks.push(chunk));
-      doc.on('end', () => {
-        const result = Buffer.concat(chunks);
+  public async htmlToPdf(html: string): Promise<Buffer> {
+    const page = await this.puppeteerService.newPage();
 
-        resolve({
-          filename,
-          mimeType: 'application/pdf',
-          file: result,
-        });
+    try {
+      await page.setContent(html, { waitUntil: 'networkidle0' });
+      await page.emulateMediaType('screen');
+
+      const pdf = await page.pdf({
+        format: 'A4',
+        printBackground: true,
+        landscape: false,
+        margin: {
+          top: '20mm',
+          right: '12mm',
+          bottom: '20mm',
+          left: '12mm',
+        },
       });
 
-      buildContent(doc);
-
-      doc.end();
-    });
+      return Buffer.from(pdf);
+    } finally {
+      await page.close();
+    }
   }
 
-  public teacherReport(doc: PDFDocument): void {
-    doc.fontSize(20).text('Relatório de Professores', { align: 'center' });
-    doc.moveDown();
-    doc.fontSize(12).text('Testes de geração de PDF', { align: 'center' });
+  public async templateToPdf(
+    templateString: string,
+    data: any,
+  ): Promise<Buffer> {
+    const template = Handlebars.compile(templateString, {
+      noEscape: true,
+    });
+    const html = template(data);
+
+    return await this.htmlToPdf(html);
   }
 }

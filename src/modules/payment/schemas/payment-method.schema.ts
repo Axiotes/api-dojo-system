@@ -3,7 +3,12 @@ import { Prop } from '@nestjs/mongoose';
 import { CardType } from '@ds-enums/card-type.enum';
 
 export class PaymentMethod {
-  @Prop({ enum: CardType, required: true, default: CardType.CREDIT })
+  @Prop({
+    type: String,
+    enum: CardType,
+    required: true,
+    default: CardType.CREDIT,
+  })
   cardType: CardType;
 
   @Prop({ required: [true, 'A payment method must have a cardholder name'] })

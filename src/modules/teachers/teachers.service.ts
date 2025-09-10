@@ -1,3 +1,6 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+
 import {
   BadRequestException,
   forwardRef,
@@ -317,12 +320,23 @@ export class TeachersService {
   }
 
   public async report(): Promise<Report> {
-    const reportBuffer: Report = await this.reportService.createPdf(
-      (doc) => this.reportService.teacherReport(doc),
-      'teacher-report.pdf',
+    const templatePath = path.join(
+      process.cwd(),
+      'src/templates',
+      'teacher-report.hbs',
+    );
+    const templateString = fs.readFileSync(templatePath, 'utf-8');
+
+    const pdfBuffer = await this.reportService.templateToPdf(
+      templateString,
+      {},
     );
 
-    return reportBuffer;
+    return {
+      filename: `teachers-report.pdf`,
+      mimeType: 'application/pdf',
+      file: pdfBuffer,
+    };
   }
 
   private hoursToHHMM(hours: number): string {
