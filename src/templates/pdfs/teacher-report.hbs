@@ -3,6 +3,31 @@
     <meta charset="UTF-8" />
     <title>{{{header.title}}}</title>
     <style>
+      h2 {
+        font-size: 22px;
+        font-family: Arial, sans-serif;
+      }
+
+      table {
+        width: 100%; 
+        margin-bottom: 20px;
+        border-collapse: collapse; 
+        font-family: Arial, sans-serif;
+      }
+
+      td {
+        width: 50%; 
+        height: 50px; 
+        padding: 8px;
+      }
+
+      th {
+        text-align: left; 
+        background-color: #f0f0f0; 
+        font-size: 18px; 
+        padding: 8px;
+      }
+
       .teachers {
         width: 100%;
         display: flex;
@@ -11,11 +36,6 @@
         justify-content: center;
         gap: 0px;
         margin-top: 20px;
-      }
-
-      h2 {
-        font-size: 22px;
-        font-family: Arial, sans-serif;
       }
 
       .field {
@@ -36,51 +56,53 @@
     <div class="teachers">
       <h2>Professores</h2>
 
-      <table border="1" style="border-collapse: collapse; width: 100%; font-family: Arial, sans-serif;">
-        <tr>
-          <th colspan="2" style="text-align: left; background-color: #f0f0f0; font-size: 18px; padding: 8px">Arthur Axiotes</th>
-        </tr>
-        <tr>
-          <td style="width: 50%; height: 50px; padding: 8px;">
-            <p class="field"><strong>CPF</strong></p>
-            <p class="value">712.165.304-40</p>
-          </td>
-          <td style="width: 50%; height: 50px; padding: 8px;">
-            <p class="field"><strong>Email</strong></p>
-            <p class="value">arthuraxiotes@gmail.com</p>
-          </td>
-        </tr>
-        <tr>
-          <td style="width: 50%; height: 50px; padding: 8px;">
-            <p class="field"><strong>Modalidades</strong></p>
-            <p class="value">Judô</p>
-          </td>
-          <td style="width: 50%; height: 50px; padding: 8px;">
-            <p class="field"><strong>Turmas vinculadas</strong></p>
-            <p class="value">6</p>
-          </td>
-        </tr>
-        <tr>
-          <td style="width: 50%; height: 50px; padding: 8px;">
-            <p class="field"><strong>Valor da hora/aula</strong></p>
-            <p class="value">R$ 21,95</p>
-          </td>
-          <td style="width: 50%; height: 50px; padding: 8px;">
-            <p class="field"><strong>Data de Cadastro</strong></p>
-            <p class="value">30/03/2025</p>
-          </td>
-        </tr>
-        <tr>
-          <td style="width: 50%; height: 50px; padding: 8px;">
-            <p class="field"><strong>Carga horária (Setembro)</strong></p>
-            <p class="value">52 horas</p>
-          </td>
-          <td style="width: 50%; height: 50px; padding: 8px;">
-            <p class="field"><strong>Salário (Setembro)</strong></p>
-            <p class="value">R$ 1.141,4</p>
-          </td>
-        </tr>
-      </table>
+      {{#each teachers}}
+        <table border="1">
+          <tr>
+            <th colspan="2">{{this.name}}</th>
+          </tr>
+          <tr>
+            <td >
+              <p class="field"><strong>CPF</strong></p>
+              <p class="value">{{this.cpf}}</p>
+            </td>
+            <td >
+              <p class="field"><strong>Email</strong></p>
+              <p class="value">{{this.email}}</p>
+            </td>
+          </tr>
+          <tr>
+            <td >
+              <p class="field"><strong>Modalidades</strong></p>
+              <p class="value">{{this.modalities}}</p>
+            </td>
+            <td >
+              <p class="field"><strong>Turmas vinculadas</strong></p>
+              <p class="value">{{this.totalClasses}}</p>
+            </td>
+          </tr>
+          <tr>
+            <td >
+              <p class="field"><strong>Valor da hora/aula</strong></p>
+              <p class="value">R$ {{this.hourPrice}}</p>
+            </td>
+            <td >
+              <p class="field"><strong>Data de Cadastro</strong></p>
+              <p class="value">{{this.createdAt}}</p>
+            </td>
+          </tr>
+          <tr>
+            <td >
+              <p class="field"><strong>Carga horária ({{this.month}})</strong></p>
+              <p class="value">{{this.workload}}</p>
+            </td>
+            <td >
+              <p class="field"><strong>Salário ({{this.month}})</strong></p>
+              <p class="value">R$ {{this.salary}}</p>
+            </td>
+          </tr>
+        </table>
+      {{/each}}
     </div>
   </body>
 </html>

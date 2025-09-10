@@ -25,6 +25,7 @@ import { Role } from '@ds-types/role.type';
 import { TeacherReport } from '@ds-types/teacher-report.type';
 import { ReportService } from '@ds-services/report/report.service';
 import { Report } from '@ds-types/report.type';
+import { TeachersPdf } from '@ds-types/teachers-pdf.type';
 
 @Injectable()
 export class TeachersService {
@@ -74,13 +75,13 @@ export class TeachersService {
 
     const teacher = await this.findById(new Types.ObjectId(id), []);
     const workload = await this.monthlyWorkload(teacher.id, month, year);
-    const salarie = this.calculateSalarie(teacher.hourPrice, workload);
+    const salary = this.calculateSalary(teacher.hourPrice, workload);
 
     return {
       teacher: teacher,
       report: {
         workload: this.hoursToHHMM(workload),
-        salarie,
+        salary,
         month,
         year,
       },
@@ -102,13 +103,13 @@ export class TeachersService {
 
     const reportPromises = teachers.map(async (teacher) => {
       const workload = await this.monthlyWorkload(teacher.id, month, year);
-      const salarie = this.calculateSalarie(teacher.hourPrice, workload);
+      const salary = this.calculateSalary(teacher.hourPrice, workload);
 
       return {
         teacher,
         report: {
           workload: this.hoursToHHMM(workload),
-          salarie,
+          salary,
           month,
           year,
         },
@@ -193,10 +194,13 @@ export class TeachersService {
     return totalMinutes / 60;
   }
 
-  public calculateSalarie(hourPrice: number, workload: number): string {
-    const salarie = workload * hourPrice;
+  public calculateSalary(hourPrice: number, workload: number): string {
+    const salary = workload * hourPrice;
 
-    return salarie.toFixed(2);
+    return salary.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   }
 
   public async update(
@@ -302,7 +306,7 @@ export class TeachersService {
       totalClasses: number;
     }[]
   > {
-    const topTeachers = await this.classesService.topFiveTeachers();
+    const topTeachers = await this.classesService.teachersClasses(5);
 
     if (!topTeachers.length) return [];
 
@@ -327,10 +331,91 @@ export class TeachersService {
     );
     const templateString = fs.readFileSync(templatePath, 'utf-8');
 
+    const pdfData = await this.teacherPdfData();
+
+    const pdfBuffer = await this.reportService.templateToPdf(
+      templateString,
+      pdfData,
+    );
+
+    return {
+      filename: `teachers-report.pdf`,
+      mimeType: 'application/pdf',
+      file: pdfBuffer,
+    };
+  }
+
+  private async teacherPdfData(): Promise<TeachersPdf> {
+    const months = [
+      'Janeiro',
+      'Fevereiro',
+      'Março',
+      'Abril',
+      'Maio',
+      'Junho',
+      'Julho',
+      'Agosto',
+      'Setembro',
+      'Outubro',
+      'Novembro',
+      'Dezembro',
+    ];
+
+    const totalTeachers = await this.teachersModel.countDocuments({
+      status: true,
+    });
+
+    const teachersClasses =
+      await this.classesService.teachersClasses(totalTeachers);
+
+    const teacherIds = teachersClasses.map((teacher) => teacher._id);
+
+    const teachers = await this.teachersModel
+      .find({ _id: { $in: teacherIds }, status: true })
+      .select(['name', 'cpf', 'email', 'modalities', 'hourPrice', 'createdAt'])
+      .exec();
+
+    const teachersDataPromises = teachersClasses.map(async (teacherClass) => {
+      const teacher = teachers.find((t) => t._id.equals(teacherClass._id));
+
+      const month = new Date().getMonth();
+      const workload = await this.monthlyWorkload(
+        teacher._id,
+        month + 1,
+        new Date().getFullYear(),
+      );
+      const salary = this.calculateSalary(teacher.hourPrice, workload);
+
+      const formattedCpf = teacher.cpf.replace(
+        /(\d{3})(\d{3})(\d{3})(\d{2})/,
+        '$1.$2.$3-$4',
+      );
+      const modalitiesNames = teacher.modalities.map((modality) => {
+        return modality['name'];
+      });
+
+      return {
+        name: teacher.name,
+        cpf: formattedCpf,
+        email: teacher.email,
+        modalities: modalitiesNames.join(', '),
+        totalClasses: teacherClass.totalClasses,
+        hourPrice: teacher.hourPrice.toLocaleString('pt-BR'),
+        createdAt: teacher['createdAt'].toLocaleDateString('pt-BR', {
+          timeZone: 'America/Sao_Paulo',
+        }),
+        workload: this.hoursText(workload),
+        salary,
+        month: months[month],
+      };
+    });
+
+    const teachersData = await Promise.all(teachersDataPromises);
+
     const logoPath = path.join(process.cwd(), 'src/assets/logo.png');
     const logoBase64 = fs.readFileSync(logoPath, 'base64');
 
-    const pdfBuffer = await this.reportService.templateToPdf(templateString, {
+    return {
       header: {
         title: 'Relatório de Professores da academia',
         logoPath: `data:image/png;base64,${logoBase64}`,
@@ -341,12 +426,7 @@ export class TeachersService {
           timeZone: 'America/Sao_Paulo',
         }),
       },
-    });
-
-    return {
-      filename: `teachers-report.pdf`,
-      mimeType: 'application/pdf',
-      file: pdfBuffer,
+      teachers: teachersData,
     };
   }
 
@@ -357,5 +437,20 @@ export class TeachersService {
     const mm = String(minute).padStart(2, '0');
 
     return `${hh}:${mm}`;
+  }
+
+  private hoursText(hours: number): string {
+    const hour = Math.floor(hours);
+    const minute = Math.round((hours - hour) * 60);
+    const hh = String(hour).padStart(2, '0');
+    const mm = String(minute).padStart(2, '0');
+
+    let text = `${hh} hora(s)`;
+
+    if (minute > 0) {
+      text = text + ` e ${mm} minuto(s)`;
+    }
+
+    return text;
   }
 }

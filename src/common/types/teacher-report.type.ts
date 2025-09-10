@@ -4,7 +4,7 @@ export type TeacherReport = {
   teacher: TeacherDocument;
   report: {
     workload: string;
-    salarie: string;
+    salary: string;
     month: number;
     year: number;
   };

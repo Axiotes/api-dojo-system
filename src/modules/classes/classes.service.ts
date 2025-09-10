@@ -186,14 +186,14 @@ export class ClassesService {
     return classes as Pick<ClassDocument, K>[];
   }
 
-  public async topFiveTeachers(): Promise<
-    { _id: Types.ObjectId; totalClasses: number }[]
-  > {
+  public async teachersClasses(
+    limit: number,
+  ): Promise<{ _id: Types.ObjectId; totalClasses: number }[]> {
     const pipeline: PipelineStage[] = [
       { $match: { status: true } },
       { $group: { _id: '$teacher', totalClasses: { $sum: 1 } } },
       { $sort: { totalClasses: -1 } },
-      { $limit: 5 },
+      { $limit: limit },
       { $project: { _id: 1, totalClasses: 1 } },
     ];
 

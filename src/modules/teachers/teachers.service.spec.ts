@@ -153,7 +153,7 @@ describe('TeachersService', () => {
     const workload = 30;
     const hourPrice = 5;
 
-    const result = service.calculateSalarie(hourPrice, workload);
+    const result = service.calculateSalary(hourPrice, workload);
 
     expect(result).toEqual((hourPrice * workload).toFixed(2));
   });
@@ -333,14 +333,14 @@ describe('TeachersService', () => {
 
     service.findAll = jest.fn().mockResolvedValue(teachers);
     service.monthlyWorkload = jest.fn().mockResolvedValue(workload);
-    service.calculateSalarie = jest.fn().mockReturnValue(salarie);
+    service.calculateSalary = jest.fn().mockReturnValue(salarie);
 
     const result = await service.findAllWithRole(role, queryParams);
 
     expect(result).toEqual(teachersReport);
     expect(service.findAll).toHaveBeenCalledWith(queryParams, []);
     expect(service.monthlyWorkload).toHaveBeenCalledTimes(teachers.length);
-    expect(service.calculateSalarie).toHaveBeenCalledTimes(teachers.length);
+    expect(service.calculateSalary).toHaveBeenCalledTimes(teachers.length);
   });
 
   it('should find all teachers without admin role', async () => {
@@ -371,7 +371,7 @@ describe('TeachersService', () => {
 
     service.findAll = jest.fn().mockResolvedValue(teachers);
     service.monthlyWorkload = jest.fn();
-    service.calculateSalarie = jest.fn();
+    service.calculateSalary = jest.fn();
 
     const result = await service.findAllWithRole(role, queryParams);
 
@@ -382,7 +382,7 @@ describe('TeachersService', () => {
       'image',
     ]);
     expect(service.monthlyWorkload).toHaveBeenCalledTimes(0);
-    expect(service.calculateSalarie).toHaveBeenCalledTimes(0);
+    expect(service.calculateSalary).toHaveBeenCalledTimes(0);
   });
 
   it('should find teacher by id with admin role', async () => {
@@ -425,7 +425,7 @@ describe('TeachersService', () => {
 
     service.findById = jest.fn().mockResolvedValue(teacher);
     service.monthlyWorkload = jest.fn().mockResolvedValue(workload);
-    service.calculateSalarie = jest.fn().mockReturnValue(salarie);
+    service.calculateSalary = jest.fn().mockReturnValue(salarie);
 
     const result = await service.findByIdWithRole(id, role, queryParams);
 
@@ -458,7 +458,7 @@ describe('TeachersService', () => {
     };
     service.findById = jest.fn().mockResolvedValue(teacher);
     service.monthlyWorkload = jest.fn();
-    service.calculateSalarie = jest.fn();
+    service.calculateSalary = jest.fn();
 
     const result = await service.findByIdWithRole(id, role, queryParams);
 
@@ -469,7 +469,7 @@ describe('TeachersService', () => {
       'image',
     ]);
     expect(service.monthlyWorkload).toHaveBeenCalledTimes(0);
-    expect(service.calculateSalarie).toHaveBeenCalledTimes(0);
+    expect(service.calculateSalary).toHaveBeenCalledTimes(0);
   });
 
   it('should update teacher successfully', async () => {
