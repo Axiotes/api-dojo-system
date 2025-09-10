@@ -322,15 +322,26 @@ export class TeachersService {
   public async report(): Promise<Report> {
     const templatePath = path.join(
       process.cwd(),
-      'src/templates',
+      'src/templates/pdfs',
       'teacher-report.hbs',
     );
     const templateString = fs.readFileSync(templatePath, 'utf-8');
 
-    const pdfBuffer = await this.reportService.templateToPdf(
-      templateString,
-      {},
-    );
+    const logoPath = path.join(process.cwd(), 'src/assets/logo.png');
+    const logoBase64 = fs.readFileSync(logoPath, 'base64');
+
+    const pdfBuffer = await this.reportService.templateToPdf(templateString, {
+      header: {
+        title: 'Relatório de Professores da academia',
+        logoPath: `data:image/png;base64,${logoBase64}`,
+        date: new Date().toLocaleDateString('pt-BR', {
+          timeZone: 'America/Sao_Paulo',
+        }),
+        time: new Date().toLocaleTimeString('pt-BR', {
+          timeZone: 'America/Sao_Paulo',
+        }),
+      },
+    });
 
     return {
       filename: `teachers-report.pdf`,

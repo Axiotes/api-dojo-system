@@ -1,3 +1,6 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+
 import { Injectable } from '@nestjs/common';
 import * as Handlebars from 'handlebars';
 
@@ -32,15 +35,32 @@ export class ReportService {
     }
   }
 
-  public async templateToPdf(
+  public async templateToPdf<T>(
     templateString: string,
-    data: any,
+    data: T,
   ): Promise<Buffer> {
+    this.registerPartials();
+
     const template = Handlebars.compile(templateString, {
       noEscape: true,
     });
     const html = template(data);
 
     return await this.htmlToPdf(html);
+  }
+
+  private registerPartials(): void {
+    const partialsPath = path.join(
+      process.cwd(),
+      'src/templates/pdfs/partials',
+    );
+    const files = fs.readdirSync(partialsPath);
+
+    files.forEach((file) => {
+      const name = path.parse(file).name;
+      const filePath = path.join(partialsPath, file);
+      const content = fs.readFileSync(filePath, 'utf-8');
+      Handlebars.registerPartial(name, content);
+    });
   }
 }

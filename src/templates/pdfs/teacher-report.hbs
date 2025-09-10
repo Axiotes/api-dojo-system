@@ -1,0 +1,86 @@
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{{header.title}}}</title>
+    <style>
+      .teachers {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        justify-content: center;
+        gap: 0px;
+        margin-top: 20px;
+      }
+
+      h2 {
+        font-size: 22px;
+        font-family: Arial, sans-serif;
+      }
+
+      .field {
+        font-size: 16px; 
+        margin: 0;
+        margin-bottom: 4px;
+      }
+
+      .value {
+        font-size: 14px; 
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    {{> header header}}
+
+    <div class="teachers">
+      <h2>Professores</h2>
+
+      <table border="1" style="border-collapse: collapse; width: 100%; font-family: Arial, sans-serif;">
+        <tr>
+          <th colspan="2" style="text-align: left; background-color: #f0f0f0; font-size: 18px; padding: 8px">Arthur Axiotes</th>
+        </tr>
+        <tr>
+          <td style="width: 50%; height: 50px; padding: 8px;">
+            <p class="field"><strong>CPF</strong></p>
+            <p class="value">712.165.304-40</p>
+          </td>
+          <td style="width: 50%; height: 50px; padding: 8px;">
+            <p class="field"><strong>Email</strong></p>
+            <p class="value">arthuraxiotes@gmail.com</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 50%; height: 50px; padding: 8px;">
+            <p class="field"><strong>Modalidades</strong></p>
+            <p class="value">Judô</p>
+          </td>
+          <td style="width: 50%; height: 50px; padding: 8px;">
+            <p class="field"><strong>Turmas vinculadas</strong></p>
+            <p class="value">6</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 50%; height: 50px; padding: 8px;">
+            <p class="field"><strong>Valor da hora/aula</strong></p>
+            <p class="value">R$ 21,95</p>
+          </td>
+          <td style="width: 50%; height: 50px; padding: 8px;">
+            <p class="field"><strong>Data de Cadastro</strong></p>
+            <p class="value">30/03/2025</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 50%; height: 50px; padding: 8px;">
+            <p class="field"><strong>Carga horária (Setembro)</strong></p>
+            <p class="value">52 horas</p>
+          </td>
+          <td style="width: 50%; height: 50px; padding: 8px;">
+            <p class="field"><strong>Salário (Setembro)</strong></p>
+            <p class="value">R$ 1.141,4</p>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>
