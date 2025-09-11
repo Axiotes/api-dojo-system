@@ -8,10 +8,22 @@ export type TeachersPdf = {
     email: string;
     modalities: string;
     totalClasses: number;
-    hourPrice: string;
-    createdAt: string;
-    workload: string;
-    salary: string;
+    hourPrice: string | number;
+    createdAt: string | Date;
+    workload: string | number;
+    salary: string | number;
     month: string;
   }[];
+  indicators: {
+    totalTeachers: number;
+    totalSalary: string;
+    averageHourPrice: string;
+    averageWorkload: string;
+    averageSalary: string;
+    costEvolution: string;
+    moreClasses: string;
+    lessClasses: string;
+    month: string;
+    year: number;
+  };
 };

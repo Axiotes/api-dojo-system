@@ -29,6 +29,7 @@ import { TeachersPdf } from '@ds-types/teachers-pdf.type';
 import { hoursToHHMM } from '@ds-common/helpers/hours-to-hhmm.helper';
 import { hoursText } from '@ds-common/helpers/hours-text.helper';
 import { logoBase64 } from '@ds-common/helpers/logo-base64.helper';
+import { costEvolution } from '@ds-common/helpers/cost-evolution.helper';
 
 @Injectable()
 export class TeachersService {
@@ -84,7 +85,10 @@ export class TeachersService {
       teacher: teacher,
       report: {
         workload: hoursToHHMM(workload),
-        salary,
+        salary: salary.toLocaleString('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }),
         month,
         year,
       },
@@ -112,7 +116,10 @@ export class TeachersService {
         teacher,
         report: {
           workload: hoursToHHMM(workload),
-          salary,
+          salary: salary.toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }),
           month,
           year,
         },
@@ -197,13 +204,10 @@ export class TeachersService {
     return totalMinutes / 60;
   }
 
-  public calculateSalary(hourPrice: number, workload: number): string {
+  public calculateSalary(hourPrice: number, workload: number): number {
     const salary = workload * hourPrice;
 
-    return salary.toLocaleString('pt-BR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
+    return salary;
   }
 
   public async update(
@@ -336,7 +340,7 @@ export class TeachersService {
 
     const pdfData = await this.teacherPdfData();
 
-    const pdfBuffer = await this.reportService.templateToPdf(
+    const pdfBuffer = await this.reportService.templateToPdf<TeachersPdf>(
       templateString,
       pdfData,
     );
@@ -349,6 +353,54 @@ export class TeachersService {
   }
 
   private async teacherPdfData(): Promise<TeachersPdf> {
+    const month = new Date().getMonth();
+    const year = new Date().getFullYear();
+
+    const teachersData = await this.teachersData(month, year);
+    const indicators = await this.teachersIndicators(teachersData);
+
+    const formattedTeachers = teachersData.map((teacher) => {
+      const formattedCpf = teacher.cpf.replace(
+        /(\d{3})(\d{3})(\d{3})(\d{2})/,
+        '$1.$2.$3-$4',
+      );
+      const createdAt = teacher.createdAt as Date;
+
+      return {
+        ...teacher,
+        cpf: formattedCpf,
+        hourPrice: teacher.hourPrice.toLocaleString('pt-BR'),
+        createdAt: createdAt.toLocaleDateString('pt-BR', {
+          timeZone: 'America/Sao_Paulo',
+        }),
+        workload: hoursText(teacher.workload as number),
+        salary: teacher.salary.toLocaleString('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }),
+      };
+    });
+
+    return {
+      header: {
+        title: 'Relatório de Professores da academia',
+        logoPath: logoBase64(),
+        date: new Date().toLocaleDateString('pt-BR', {
+          timeZone: 'America/Sao_Paulo',
+        }),
+        time: new Date().toLocaleTimeString('pt-BR', {
+          timeZone: 'America/Sao_Paulo',
+        }),
+      },
+      teachers: formattedTeachers,
+      indicators,
+    };
+  }
+
+  private async teachersData(
+    month: number,
+    year: number,
+  ): Promise<TeachersPdf['teachers']> {
     const months = [
       'Janeiro',
       'Fevereiro',
@@ -381,52 +433,106 @@ export class TeachersService {
     const teachersDataPromises = teachersClasses.map(async (teacherClass) => {
       const teacher = teachers.find((t) => t._id.equals(teacherClass._id));
 
-      const month = new Date().getMonth();
-      const workload = await this.monthlyWorkload(
-        teacher._id,
-        month + 1,
-        new Date().getFullYear(),
-      );
+      const workload = await this.monthlyWorkload(teacher._id, month, year);
       const salary = this.calculateSalary(teacher.hourPrice, workload);
-
-      const formattedCpf = teacher.cpf.replace(
-        /(\d{3})(\d{3})(\d{3})(\d{2})/,
-        '$1.$2.$3-$4',
-      );
       const modalitiesNames = teacher.modalities.map((modality) => {
         return modality['name'];
       });
 
       return {
         name: teacher.name,
-        cpf: formattedCpf,
+        cpf: teacher.cpf,
         email: teacher.email,
         modalities: modalitiesNames.join(', '),
         totalClasses: teacherClass.totalClasses,
-        hourPrice: teacher.hourPrice.toLocaleString('pt-BR'),
-        createdAt: teacher['createdAt'].toLocaleDateString('pt-BR', {
-          timeZone: 'America/Sao_Paulo',
-        }),
-        workload: hoursText(workload),
-        salary,
+        hourPrice: teacher.hourPrice,
+        createdAt: teacher['createdAt'],
+        workload: workload,
+        salary: salary,
         month: months[month],
       };
     });
 
     const teachersData = await Promise.all(teachersDataPromises);
 
+    return teachersData;
+  }
+
+  private async teachersIndicators(
+    teachersData: TeachersPdf['teachers'],
+  ): Promise<TeachersPdf['indicators']> {
+    const totalTeachers = teachersData.length;
+    let totalSalary = 0;
+    let totalHourPrice = 0;
+    let totalWorkload = 0;
+    let month = '';
+    const year = new Date().getFullYear();
+    const teachersTotalClasses = [];
+
+    teachersData.forEach((teacher) => {
+      month = teacher.month;
+
+      const salary = teacher.salary as number;
+      totalSalary += salary;
+
+      const hourPrice = teacher.hourPrice as number;
+      totalHourPrice += hourPrice;
+
+      const workload = teacher.workload as number;
+      totalWorkload += workload;
+
+      const totalClasses = teacher.totalClasses;
+      teachersTotalClasses.push({ name: teacher.name, totalClasses });
+    });
+
+    teachersTotalClasses.sort((a, b) => b.totalClasses - a.totalClasses);
+
+    const moreClasses = teachersTotalClasses[0];
+    const lessClasses = teachersTotalClasses[teachersTotalClasses.length - 1];
+
+    const averageHourPrice =
+      totalTeachers > 0 ? totalHourPrice / totalTeachers : 0;
+    const averageWorkload =
+      totalTeachers > 0 ? totalWorkload / totalTeachers : 0;
+    const averageSalary = totalTeachers > 0 ? totalSalary / totalTeachers : 0;
+
+    const now = new Date();
+    const lastMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() - 1,
+      now.getDate(),
+    );
+    const lastTeachersData = await this.teachersData(
+      lastMonth.getMonth() + 1,
+      lastMonth.getFullYear(),
+    );
+
+    let lastTotalSalary = 0;
+    lastTeachersData.forEach((teacher) => {
+      const salary = teacher.salary as number;
+      lastTotalSalary += salary;
+    });
+
     return {
-      header: {
-        title: 'Relatório de Professores da academia',
-        logoPath: logoBase64(),
-        date: new Date().toLocaleDateString('pt-BR', {
-          timeZone: 'America/Sao_Paulo',
-        }),
-        time: new Date().toLocaleTimeString('pt-BR', {
-          timeZone: 'America/Sao_Paulo',
-        }),
-      },
-      teachers: teachersData,
+      totalTeachers,
+      totalSalary: totalSalary.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
+      averageHourPrice: averageHourPrice.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
+      averageWorkload: hoursText(averageWorkload),
+      averageSalary: averageSalary.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
+      moreClasses: `${moreClasses.name} (${moreClasses.totalClasses})`,
+      lessClasses: `${lessClasses.name} (${lessClasses.totalClasses})`,
+      costEvolution: costEvolution(totalSalary, lastTotalSalary),
+      month,
+      year,
     };
   }
 }

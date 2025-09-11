@@ -28,7 +28,7 @@
         padding: 8px;
       }
 
-      .teachers {
+      .data {
         width: 100%;
         display: flex;
         flex-direction: column;
@@ -36,6 +36,7 @@
         justify-content: center;
         gap: 0px;
         margin-top: 20px;
+        margin-bottom: 20px;
       }
 
       .field {
@@ -53,7 +54,7 @@
   <body>
     {{> header header}}
 
-    <div class="teachers">
+    <div class="data">
       <h2>Professores</h2>
 
       {{#each teachers}}
@@ -103,6 +104,55 @@
           </tr>
         </table>
       {{/each}}
+    </div>
+
+    <div class="data">
+      <h2>Indicadores</h2>
+      <table border="1">
+        <tr>
+          <th colspan="2">{{indicators.month}} de {{indicators.year}}</th>
+        </tr>
+        <tr>
+          <td >
+            <p class="field"><strong>Total de professores</strong></p>
+            <p class="value">{{indicators.totalTeachers}}</p>
+          </td>
+          <td >
+            <p class="field"><strong>Gastos totais</strong></p>
+            <p class="value">R$ {{indicators.totalSalary}}</p>
+          </td>
+        </tr>
+        <tr>
+          <td >
+            <p class="field"><strong>Média do valor de hora/aula</strong></p>
+            <p class="value">R$ {{indicators.averageHourPrice}}</p>
+          </td>
+          <td >
+            <p class="field"><strong>Média da carga hóraria</strong></p>
+            <p class="value">{{indicators.averageWorkload}}</p>
+          </td>
+        </tr>
+        <tr>
+          <td >
+            <p class="field"><strong>Média salarial</strong></p>
+            <p class="value">R$ {{indicators.averageSalary}}</p>
+          </td>
+          <td >
+            <p class="field"><strong>Evolução de custos</strong></p>
+            <p class="value">{{indicators.costEvolution}}</p>
+          </td>
+        </tr>
+        <tr>
+          <td >
+            <p class="field"><strong>Mais aulas</strong></p>
+            <p class="value">{{indicators.moreClasses}}</p>
+          </td>
+          <td >
+            <p class="field"><strong>Menos aulas</strong></p>
+            <p class="value">{{indicators.lessClasses}}</p>
+          </td>
+        </tr>
+      </table>
     </div>
   </body>
 </html>
