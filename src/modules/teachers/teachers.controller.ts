@@ -233,6 +233,8 @@ export class TeachersController {
     };
   }
 
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
   @Throttle({
     default: {
       limit: 10,
