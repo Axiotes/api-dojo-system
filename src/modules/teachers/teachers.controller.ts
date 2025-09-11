@@ -233,6 +233,11 @@ export class TeachersController {
     };
   }
 
+  @ApiOperation({
+    summary: 'Gerar relatório dos professores',
+    description: `Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint.
+    Gera um relatório em PDF com informações sobre todos os professores ativos cadastrados no sistema`,
+  })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles('admin')
   @Throttle({
