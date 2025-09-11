@@ -26,6 +26,9 @@ import { TeacherReport } from '@ds-types/teacher-report.type';
 import { ReportService } from '@ds-services/report/report.service';
 import { Report } from '@ds-types/report.type';
 import { TeachersPdf } from '@ds-types/teachers-pdf.type';
+import { hoursToHHMM } from '@ds-common/helpers/hours-to-hhmm.helper';
+import { hoursText } from '@ds-common/helpers/hours-text.helper';
+import { logoBase64 } from '@ds-common/helpers/logo-base64.helper';
 
 @Injectable()
 export class TeachersService {
@@ -80,7 +83,7 @@ export class TeachersService {
     return {
       teacher: teacher,
       report: {
-        workload: this.hoursToHHMM(workload),
+        workload: hoursToHHMM(workload),
         salary,
         month,
         year,
@@ -108,7 +111,7 @@ export class TeachersService {
       return {
         teacher,
         report: {
-          workload: this.hoursToHHMM(workload),
+          workload: hoursToHHMM(workload),
           salary,
           month,
           year,
@@ -404,7 +407,7 @@ export class TeachersService {
         createdAt: teacher['createdAt'].toLocaleDateString('pt-BR', {
           timeZone: 'America/Sao_Paulo',
         }),
-        workload: this.hoursText(workload),
+        workload: hoursText(workload),
         salary,
         month: months[month],
       };
@@ -412,13 +415,10 @@ export class TeachersService {
 
     const teachersData = await Promise.all(teachersDataPromises);
 
-    const logoPath = path.join(process.cwd(), 'src/assets/logo.png');
-    const logoBase64 = fs.readFileSync(logoPath, 'base64');
-
     return {
       header: {
         title: 'Relatório de Professores da academia',
-        logoPath: `data:image/png;base64,${logoBase64}`,
+        logoPath: logoBase64(),
         date: new Date().toLocaleDateString('pt-BR', {
           timeZone: 'America/Sao_Paulo',
         }),
@@ -428,29 +428,5 @@ export class TeachersService {
       },
       teachers: teachersData,
     };
-  }
-
-  private hoursToHHMM(hours: number): string {
-    const hour = Math.floor(hours);
-    const minute = Math.round((hours - hour) * 60);
-    const hh = String(hour).padStart(2, '0');
-    const mm = String(minute).padStart(2, '0');
-
-    return `${hh}:${mm}`;
-  }
-
-  private hoursText(hours: number): string {
-    const hour = Math.floor(hours);
-    const minute = Math.round((hours - hour) * 60);
-    const hh = String(hour).padStart(2, '0');
-    const mm = String(minute).padStart(2, '0');
-
-    let text = `${hh} hora(s)`;
-
-    if (minute > 0) {
-      text = text + ` e ${mm} minuto(s)`;
-    }
-
-    return text;
   }
 }
