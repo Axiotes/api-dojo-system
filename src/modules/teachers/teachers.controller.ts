@@ -233,6 +233,12 @@ export class TeachersController {
     };
   }
 
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
   @UseInterceptors(ReportBase64Interceptor)
   @Get('report')
   public async report(): Promise<ApiResponse<Report>> {
