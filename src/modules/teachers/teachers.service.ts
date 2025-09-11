@@ -78,7 +78,11 @@ export class TeachersService {
     const year = queryParams.year ?? new Date().getFullYear();
 
     const teacher = await this.findById(new Types.ObjectId(id), []);
-    const workload = await this.monthlyWorkload(teacher.id, month, year);
+    const workload = await this.monthlyWorkload(
+      teacher._id as Types.ObjectId,
+      month,
+      year,
+    );
     const salary = this.calculateSalary(teacher.hourPrice, workload);
 
     return {
@@ -109,7 +113,11 @@ export class TeachersService {
     const teachers = await this.findAll(queryParams, []);
 
     const reportPromises = teachers.map(async (teacher) => {
-      const workload = await this.monthlyWorkload(teacher.id, month, year);
+      const workload = await this.monthlyWorkload(
+        teacher._id as Types.ObjectId,
+        month,
+        year,
+      );
       const salary = this.calculateSalary(teacher.hourPrice, workload);
 
       return {
@@ -353,11 +361,14 @@ export class TeachersService {
   }
 
   private async teacherPdfData(): Promise<TeachersPdf> {
-    const month = new Date().getMonth();
-    const year = new Date().getFullYear();
+    const date = new Date();
 
-    const teachersData = await this.teachersData(month, year);
-    const indicators = await this.teachersIndicators(teachersData);
+    console.log('Current Month: ', date.getMonth() + 1);
+    const teachersData = await this.teachersData(
+      date.getMonth() + 1,
+      date.getFullYear(),
+    );
+    const indicators = await this.teachersIndicators(teachersData, date);
 
     const formattedTeachers = teachersData.map((teacher) => {
       const formattedCpf = teacher.cpf.replace(
@@ -449,7 +460,7 @@ export class TeachersService {
         createdAt: teacher['createdAt'],
         workload: workload,
         salary: salary,
-        month: months[month],
+        month: months[month - 1],
       };
     });
 
@@ -460,6 +471,7 @@ export class TeachersService {
 
   private async teachersIndicators(
     teachersData: TeachersPdf['teachers'],
+    date: Date,
   ): Promise<TeachersPdf['indicators']> {
     const totalTeachers = teachersData.length;
     let totalSalary = 0;
@@ -496,12 +508,12 @@ export class TeachersService {
       totalTeachers > 0 ? totalWorkload / totalTeachers : 0;
     const averageSalary = totalTeachers > 0 ? totalSalary / totalTeachers : 0;
 
-    const now = new Date();
     const lastMonth = new Date(
-      now.getFullYear(),
-      now.getMonth() - 1,
-      now.getDate(),
+      date.getFullYear(),
+      date.getMonth() - 1,
+      date.getDate(),
     );
+    console.log('Last Month:', lastMonth.getMonth() + 1);
     const lastTeachersData = await this.teachersData(
       lastMonth.getMonth() + 1,
       lastMonth.getFullYear(),
