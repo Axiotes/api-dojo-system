@@ -33,6 +33,8 @@ describe('TeachersController', () => {
             deactivate: jest.fn(),
             reactive: jest.fn(),
             setStatus: jest.fn(),
+            report: jest.fn(),
+            topFive: jest.fn(),
           },
         },
         {
@@ -447,5 +449,22 @@ describe('TeachersController', () => {
 
     expect(result).toEqual({ data: teacherTotalClasses });
     expect(teachersService.topFive).toHaveBeenCalledTimes(1);
+  });
+
+  it('should generate teachers report in pdf format', async () => {
+    const pdfBuffer = Buffer.from('fake-pdf-buffer');
+
+    const report = {
+      filename: 'teachers_report.pdf',
+      mimeType: 'application/pdf',
+      data: pdfBuffer,
+    };
+
+    teachersService.report = jest.fn().mockResolvedValue(report);
+
+    const result = await controller.report();
+
+    expect(result).toEqual({ data: report });
+    expect(teachersService.report).toHaveBeenCalledTimes(1);
   });
 });

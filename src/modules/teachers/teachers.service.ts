@@ -363,7 +363,6 @@ export class TeachersService {
   private async teacherPdfData(): Promise<TeachersPdf> {
     const date = new Date();
 
-    console.log('Current Month: ', date.getMonth() + 1);
     const teachersData = await this.teachersData(
       date.getMonth() + 1,
       date.getFullYear(),
@@ -513,7 +512,6 @@ export class TeachersService {
       date.getMonth() - 1,
       date.getDate(),
     );
-    console.log('Last Month:', lastMonth.getMonth() + 1);
     const lastTeachersData = await this.teachersData(
       lastMonth.getMonth() + 1,
       lastMonth.getFullYear(),
