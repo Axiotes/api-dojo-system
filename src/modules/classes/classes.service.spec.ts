@@ -593,6 +593,7 @@ describe('ClassesService', () => {
   });
 
   it('should return top 5 teachers', async () => {
+    const limit = 5;
     const mockResult = [
       { _id: 'teacher1', totalClasses: 12 },
       { _id: 'teacher2', totalClasses: 10 },
@@ -604,15 +605,16 @@ describe('ClassesService', () => {
     mockModel.aggregate.mockReturnThis();
     mockModel.exec.mockResolvedValue(mockResult);
 
-    const result = await service.topFiveTeachers();
+    const result = await service.teachersClasses(limit);
 
     expect(classesModel.aggregate).toHaveBeenCalledWith([
       { $match: { status: true } },
       { $group: { _id: '$teacher', totalClasses: { $sum: 1 } } },
       { $sort: { totalClasses: -1 } },
-      { $limit: 5 },
+      { $limit: limit },
       { $project: { _id: 1, totalClasses: 1 } },
     ]);
     expect(result).toEqual(mockResult);
+    expect(result.length).toBeLessThanOrEqual(limit);
   });
 });

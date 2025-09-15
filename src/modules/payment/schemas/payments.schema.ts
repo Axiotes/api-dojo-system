@@ -14,7 +14,11 @@ export class Payments {
   })
   athlete: Types.ObjectId;
 
-  @Prop({ enum: PaymentMode, required: [true, 'A payment must have a mode'] })
+  @Prop({
+    type: String,
+    enum: PaymentMode,
+    required: [true, 'A payment must have a mode'],
+  })
   mode: PaymentMode;
 
   @Prop({

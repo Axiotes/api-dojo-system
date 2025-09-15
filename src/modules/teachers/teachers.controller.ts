@@ -38,6 +38,8 @@ import { RoleGuard } from '@ds-common/guards/role/role.guard';
 import { OptionalJwtGuard } from '@ds-common/guards/optional-jwt/optional-jwt.guard';
 import { ImageBase64Interceptor } from '@ds-common/interceptors/image-base64/image-base64.interceptor';
 import { TeacherReport } from '@ds-types/teacher-report.type';
+import { Report } from '@ds-types/report.type';
+import { ReportBase64Interceptor } from '@ds-common/interceptors/report-base64/report-base64.interceptor';
 
 @UseInterceptors(ImageBase64Interceptor)
 @Controller('teachers')
@@ -228,6 +230,29 @@ export class TeachersController {
 
     return {
       data: teachers,
+    };
+  }
+
+  @ApiOperation({
+    summary: 'Gerar relatório dos professores',
+    description: `Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint.
+    Gera um relatório em PDF com informações sobre todos os professores ativos cadastrados no sistema`,
+  })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
+  @UseInterceptors(ReportBase64Interceptor)
+  @Get('report')
+  public async report(): Promise<ApiResponse<Report>> {
+    const report = await this.teachersService.report();
+
+    return {
+      data: report,
     };
   }
 

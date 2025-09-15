@@ -6,7 +6,11 @@ import { Period } from '@ds-enums/period.enum';
 
 @Schema({ timestamps: true })
 export class Plans {
-  @Prop({ required: [true, 'A plan must have a period'], enum: Period })
+  @Prop({
+    type: String,
+    required: [true, 'A plan must have a period'],
+    enum: Period,
+  })
   period: Period;
 
   @Prop({ required: [true, 'A plan must have a period'], type: Number })

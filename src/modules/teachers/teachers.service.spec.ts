@@ -1,3 +1,6 @@
+import * as fs from 'fs';
+import * as path from 'path';
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model, Types } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
@@ -12,10 +15,25 @@ import { ValidateFieldsService } from '@ds-services/validate-fields/validate-fie
 import { TeacherDocument } from '@ds-types/documents/teacher-document.type';
 import { ClassesService } from '@ds-modules/classes/classes.service';
 import { WeekDays } from '@ds-enums/week-days.enum';
+import { ReportService } from '@ds-services/report/report.service';
+import { PuppeteerService } from '@ds-services/puppeteer/puppeteer.service';
+import { TeachersPdf } from '@ds-types/teachers-pdf.type';
+
+jest.mock('puppeteer', () => ({
+  launch: jest.fn().mockResolvedValue({
+    newPage: jest.fn().mockResolvedValue({
+      goto: jest.fn(),
+      pdf: jest.fn().mockResolvedValue(Buffer.from('fake-pdf')),
+      close: jest.fn(),
+    }),
+    close: jest.fn(),
+  }),
+}));
 
 describe('TeachersService', () => {
   let service: TeachersService;
   let validateFieldsService: ValidateFieldsService;
+  let reportService: ReportService;
   let classesService: ClassesService;
 
   let model: Model<TeacherDocument>;
@@ -51,7 +69,20 @@ describe('TeachersService', () => {
           provide: ClassesService,
           useValue: {
             findByTeacher: jest.fn(),
-            topFiveTeachers: jest.fn(),
+            teachersClasses: jest.fn(),
+          },
+        },
+        {
+          provide: ReportService,
+          useValue: {
+            templateToPdf: jest.fn(),
+          },
+        },
+        {
+          provide: PuppeteerService,
+          useValue: {
+            launchBrowser: jest.fn(),
+            onModuleDestroy: jest.fn(),
           },
         },
         {
@@ -65,6 +96,7 @@ describe('TeachersService', () => {
     validateFieldsService = module.get<ValidateFieldsService>(
       ValidateFieldsService,
     );
+    reportService = module.get<ReportService>(ReportService);
     classesService = module.get<ClassesService>(ClassesService);
     model = module.get<Model<TeacherDocument>>(getModelToken(Teachers.name));
 
@@ -153,9 +185,9 @@ describe('TeachersService', () => {
     const workload = 30;
     const hourPrice = 5;
 
-    const result = service.calculateSalarie(hourPrice, workload);
+    const result = service.calculateSalary(hourPrice, workload);
 
-    expect(result).toEqual((hourPrice * workload).toFixed(2));
+    expect(result).toEqual(hourPrice * workload);
   });
 
   it("should calculate the teacher's monthly workload successfully", async () => {
@@ -318,13 +350,13 @@ describe('TeachersService', () => {
       },
     ];
     const workload = 30;
-    const salarie = '150';
+    const salary = '150';
     const teachersReport = teachers.map((teacher) => {
       return {
         teacher,
         report: {
           workload: '30:00',
-          salarie,
+          salary,
           month: queryParams.month,
           year: queryParams.year,
         },
@@ -333,14 +365,14 @@ describe('TeachersService', () => {
 
     service.findAll = jest.fn().mockResolvedValue(teachers);
     service.monthlyWorkload = jest.fn().mockResolvedValue(workload);
-    service.calculateSalarie = jest.fn().mockReturnValue(salarie);
+    service.calculateSalary = jest.fn().mockReturnValue(salary);
 
     const result = await service.findAllWithRole(role, queryParams);
 
     expect(result).toEqual(teachersReport);
     expect(service.findAll).toHaveBeenCalledWith(queryParams, []);
     expect(service.monthlyWorkload).toHaveBeenCalledTimes(teachers.length);
-    expect(service.calculateSalarie).toHaveBeenCalledTimes(teachers.length);
+    expect(service.calculateSalary).toHaveBeenCalledTimes(teachers.length);
   });
 
   it('should find all teachers without admin role', async () => {
@@ -371,7 +403,7 @@ describe('TeachersService', () => {
 
     service.findAll = jest.fn().mockResolvedValue(teachers);
     service.monthlyWorkload = jest.fn();
-    service.calculateSalarie = jest.fn();
+    service.calculateSalary = jest.fn();
 
     const result = await service.findAllWithRole(role, queryParams);
 
@@ -382,7 +414,7 @@ describe('TeachersService', () => {
       'image',
     ]);
     expect(service.monthlyWorkload).toHaveBeenCalledTimes(0);
-    expect(service.calculateSalarie).toHaveBeenCalledTimes(0);
+    expect(service.calculateSalary).toHaveBeenCalledTimes(0);
   });
 
   it('should find teacher by id with admin role', async () => {
@@ -412,12 +444,12 @@ describe('TeachersService', () => {
       image: Buffer.from('new-fake-image'),
     };
     const workload = 30;
-    const salarie = '150';
+    const salary = '150';
     const teachersReport = {
       teacher,
       report: {
         workload: '30:00',
-        salarie,
+        salary,
         month: queryParams.month,
         year: queryParams.year,
       },
@@ -425,7 +457,7 @@ describe('TeachersService', () => {
 
     service.findById = jest.fn().mockResolvedValue(teacher);
     service.monthlyWorkload = jest.fn().mockResolvedValue(workload);
-    service.calculateSalarie = jest.fn().mockReturnValue(salarie);
+    service.calculateSalary = jest.fn().mockReturnValue(salary);
 
     const result = await service.findByIdWithRole(id, role, queryParams);
 
@@ -458,7 +490,7 @@ describe('TeachersService', () => {
     };
     service.findById = jest.fn().mockResolvedValue(teacher);
     service.monthlyWorkload = jest.fn();
-    service.calculateSalarie = jest.fn();
+    service.calculateSalary = jest.fn();
 
     const result = await service.findByIdWithRole(id, role, queryParams);
 
@@ -469,7 +501,7 @@ describe('TeachersService', () => {
       'image',
     ]);
     expect(service.monthlyWorkload).toHaveBeenCalledTimes(0);
-    expect(service.calculateSalarie).toHaveBeenCalledTimes(0);
+    expect(service.calculateSalary).toHaveBeenCalledTimes(0);
   });
 
   it('should update teacher successfully', async () => {
@@ -721,7 +753,7 @@ describe('TeachersService', () => {
       totalClasses: topTeacher.totalClasses,
     }));
 
-    classesService.topFiveTeachers = jest.fn().mockResolvedValue(topTeachers);
+    classesService.teachersClasses = jest.fn().mockResolvedValue(topTeachers);
     mockTeacherModel.find.mockReturnThis();
     mockTeacherModel.select.mockReturnThis();
     mockTeacherModel.exec.mockResolvedValue(teachers);
@@ -729,7 +761,7 @@ describe('TeachersService', () => {
     const result = await service.topFive();
 
     expect(result).toEqual(teacherTotalClasses);
-    expect(classesService.topFiveTeachers).toHaveBeenCalled();
+    expect(classesService.teachersClasses).toHaveBeenCalled();
     expect(mockTeacherModel.find).toHaveBeenCalledWith({
       _id: { $in: topTeachers.map((teacher) => teacher._id) },
       status: true,
@@ -742,14 +774,49 @@ describe('TeachersService', () => {
   });
 
   it('should return empty array if no top teachers', async () => {
-    classesService.topFiveTeachers = jest.fn().mockResolvedValue([]);
+    classesService.teachersClasses = jest.fn().mockResolvedValue([]);
 
     const result = await service.topFive();
 
     expect(result).toEqual([]);
-    expect(classesService.topFiveTeachers).toHaveBeenCalled();
+    expect(classesService.teachersClasses).toHaveBeenCalled();
     expect(mockTeacherModel.find).toHaveBeenCalledTimes(0);
     expect(mockTeacherModel.select).toHaveBeenCalledTimes(0);
     expect(mockTeacherModel.exec).toHaveBeenCalledTimes(0);
+  });
+
+  it('should generate teachers report pdf', async () => {
+    const fakeTemplate = '<h1>template</h1>';
+    const fakePdfBuffer = Buffer.from('fake-pdf');
+    const fakePdfData: TeachersPdf = {
+      header: {} as TeachersPdf['header'],
+      teachers: [],
+      indicators: {} as TeachersPdf['indicators'],
+    };
+
+    jest.spyOn(path, 'join').mockReturnValue('fake/path/teacher-report.hbs');
+    jest.spyOn(fs, 'readFileSync').mockReturnValue(fakeTemplate);
+
+    /* eslint-disable-next-line */
+    jest.spyOn(service as any, 'teacherPdfData').mockResolvedValue(fakePdfData);
+
+    reportService.templateToPdf = jest.fn().mockResolvedValue(fakePdfBuffer);
+
+    const result = await service.report();
+
+    expect(fs.readFileSync).toHaveBeenCalledWith(
+      'fake/path/teacher-report.hbs',
+      'utf-8',
+    );
+    expect(service['teacherPdfData']).toHaveBeenCalled();
+    expect(reportService.templateToPdf).toHaveBeenCalledWith(
+      fakeTemplate,
+      fakePdfData,
+    );
+    expect(result).toEqual({
+      filename: 'teachers-report.pdf',
+      mimeType: 'application/pdf',
+      file: fakePdfBuffer,
+    });
   });
 });
