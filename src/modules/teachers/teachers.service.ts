@@ -3,6 +3,7 @@ import * as path from 'node:path';
 
 import {
   BadRequestException,
+  ConflictException,
   forwardRef,
   Inject,
   Injectable,
@@ -304,7 +305,9 @@ export class TeachersService {
     ]);
 
     if (classes.length > 0) {
-      throw new BadRequestException('Teacher is registered in active classes');
+      throw new ConflictException(
+        `Cannot deactivate teacher with id ${id} because it has associated classes.`,
+      );
     }
 
     await this.setStatus(teacher, false);

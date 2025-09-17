@@ -4,7 +4,11 @@ import * as path from 'path';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model, Types } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { TeachersService } from './teachers.service';
 import { Teachers } from './schemas/teachers.schema';
@@ -68,7 +72,7 @@ describe('TeachersService', () => {
         {
           provide: ClassesService,
           useValue: {
-            findByTeacher: jest.fn(),
+            findBy: jest.fn(),
             teachersClasses: jest.fn(),
           },
         },
@@ -211,7 +215,7 @@ describe('TeachersService', () => {
       },
     ];
 
-    classesService.findByTeacher = jest.fn().mockResolvedValue(classes);
+    classesService.findBy = jest.fn().mockResolvedValue(classes);
 
     const result = await service.monthlyWorkload(teacherId, month, year);
 
@@ -223,7 +227,7 @@ describe('TeachersService', () => {
     const month = 9;
     const year = 2025;
 
-    classesService.findByTeacher = jest.fn().mockResolvedValue([]);
+    classesService.findBy = jest.fn().mockResolvedValue([]);
 
     const result = await service.monthlyWorkload(teacherId, month, year);
 
@@ -549,7 +553,7 @@ describe('TeachersService', () => {
     updateTeacher.modalities.forEach(() => {
       validateFieldsService.isActive = jest.fn().mockImplementation(() => {});
     });
-    classesService.findByTeacher = jest.fn().mockResolvedValue(teacherClasses);
+    classesService.findBy = jest.fn().mockResolvedValue(teacherClasses);
     mockTeacherModel.findByIdAndUpdate.mockResolvedValue(teacherUpdates);
 
     const result = await service.update(teacherUpdates);
@@ -573,7 +577,7 @@ describe('TeachersService', () => {
     expect(validateFieldsService.isActive).toHaveBeenCalledTimes(
       updateTeacher.modalities.length,
     );
-    expect(classesService.findByTeacher).toHaveBeenCalledWith(teacher.id, [
+    expect(classesService.findBy).toHaveBeenCalledWith('teacher', teacher.id, [
       'modality',
     ]);
     expect(model.findByIdAndUpdate).toHaveBeenCalledWith(
@@ -628,7 +632,7 @@ describe('TeachersService', () => {
     updateTeacher.modalities.forEach(() => {
       validateFieldsService.isActive = jest.fn().mockImplementation(() => {});
     });
-    classesService.findByTeacher = jest.fn().mockResolvedValue(teacherClasses);
+    classesService.findBy = jest.fn().mockResolvedValue(teacherClasses);
 
     await expect(service.update(teacherUpdates)).rejects.toThrow(
       new BadRequestException(
@@ -653,7 +657,7 @@ describe('TeachersService', () => {
     expect(validateFieldsService.isActive).toHaveBeenCalledTimes(
       updateTeacher.modalities.length,
     );
-    expect(classesService.findByTeacher).toHaveBeenCalledWith(teacher.id, [
+    expect(classesService.findBy).toHaveBeenCalledWith('teacher', teacher.id, [
       'modality',
     ]);
     expect(model.findByIdAndUpdate).toHaveBeenCalledTimes(0);
@@ -683,7 +687,7 @@ describe('TeachersService', () => {
     expect(teacher.save).toHaveBeenCalled();
   });
 
-  it('should deactivate teachet successfully', async () => {
+  it('should deactivate teacher successfully', async () => {
     const id = new Types.ObjectId();
 
     const teacher = {
@@ -692,18 +696,18 @@ describe('TeachersService', () => {
     } as TeacherDocument;
 
     service.findById = jest.fn().mockResolvedValue(teacher);
-    classesService.findByTeacher = jest.fn().mockResolvedValue([]);
+    classesService.findBy = jest.fn().mockResolvedValue([]);
     service.setStatus = jest.fn().mockImplementation(() => {});
 
     await service.deactivate(teacher.id);
     expect(service.findById).toHaveBeenCalledWith(teacher.id, ['id', 'status']);
-    expect(classesService.findByTeacher).toHaveBeenCalledWith(teacher.id, [
+    expect(classesService.findBy).toHaveBeenCalledWith('teacher', teacher.id, [
       'id',
     ]);
     expect(service.setStatus).toHaveBeenCalledWith(teacher, false);
   });
 
-  it('should deactivate teachet successfully', async () => {
+  it('should throw ConflictExecption if teacher has associated classes', async () => {
     const id = new Types.ObjectId();
 
     const teacher = {
@@ -712,16 +716,18 @@ describe('TeachersService', () => {
     } as TeacherDocument;
 
     service.findById = jest.fn().mockResolvedValue(teacher);
-    classesService.findByTeacher = jest
+    classesService.findBy = jest
       .fn()
       .mockResolvedValue([{ id: new Types.ObjectId() }]);
     service.setStatus = jest.fn();
 
     await expect(service.deactivate(teacher.id)).rejects.toThrow(
-      new BadRequestException('Teacher is registered in active classes'),
+      new ConflictException(
+        `Cannot deactivate teacher with id ${id} because it has associated classes.`,
+      ),
     );
     expect(service.findById).toHaveBeenCalledWith(teacher.id, ['id', 'status']);
-    expect(classesService.findByTeacher).toHaveBeenCalledWith(teacher.id, [
+    expect(classesService.findBy).toHaveBeenCalledWith('teacher', teacher.id, [
       'id',
     ]);
     expect(service.setStatus).toHaveBeenCalledTimes(0);
@@ -818,5 +824,47 @@ describe('TeachersService', () => {
       mimeType: 'application/pdf',
       file: fakePdfBuffer,
     });
+  });
+
+  it('should find teachers by modality', async () => {
+    const modalityId = new Types.ObjectId('64f1b2a3c4d5e6f7890abc15');
+    const fields = [];
+    const projection = Object.fromEntries(fields.map((key) => [key, 1]));
+
+    const teachers = [
+      {
+        _id: modalityId,
+        name: 'Test',
+        cpf: '12345678910',
+        email: 'test@gmail.com',
+        hourPrice: 5,
+        description: 'Unit tests with jest',
+        modalities: [
+          {
+            name: 'Judô',
+            description: 'Modalidade Judô',
+          },
+          {
+            name: 'Jiu-Jitsu',
+            description: 'Modalidade Jiu-Jitsu',
+          },
+        ],
+        image: Buffer.from('new-fake-image'),
+      },
+    ];
+
+    mockTeacherModel.find.mockReturnThis();
+    mockTeacherModel.exec.mockResolvedValue(teachers);
+
+    const result = await service.findByModality(modalityId, fields);
+
+    expect(result).toEqual(teachers);
+    expect(model.find).toHaveBeenCalledWith(
+      {
+        modalities: modalityId,
+        status: true,
+      },
+      projection,
+    );
   });
 });
