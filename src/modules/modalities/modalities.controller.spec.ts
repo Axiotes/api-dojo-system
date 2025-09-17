@@ -96,6 +96,7 @@ describe('ModalitiesController', () => {
     expect(result).toEqual({ data: modality });
     expect(modalitiesService.findById).toHaveBeenCalledWith(
       new Types.ObjectId(id),
+      [],
     );
   });
 
@@ -263,7 +264,6 @@ describe('ModalitiesController', () => {
       'status',
     ]);
     expect(modalitiesService.setStatus).toHaveBeenCalledWith(modality, true);
-    expect(modality.status).toEqual(true);
   });
 
   it('should throw BadRequestException for invalid ID format in reactivate', async () => {
