@@ -13,10 +13,10 @@ import { ClassesModule } from '@ds-modules/classes/classes.module';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'Teachers', schema: TeachersSchema }]),
-    forwardRef(() => ClassesModule),
-    ModalitiesModule,
     ServicesModule,
     PipesModule,
+    forwardRef(() => ClassesModule),
+    forwardRef(() => ModalitiesModule),
   ],
   controllers: [TeachersController],
   providers: [TeachersService],

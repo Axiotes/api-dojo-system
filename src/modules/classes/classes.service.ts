@@ -23,8 +23,9 @@ export class ClassesService {
     @InjectModel(Classes.name) private classesModel: Model<Classes>,
     @InjectModel(ClassesHistory.name)
     private classesHistoryModel: Model<ClassesHistory>,
-    private readonly modalitiesService: ModalitiesService,
 
+    @Inject(forwardRef(() => ModalitiesService))
+    private readonly modalitiesService: ModalitiesService,
     @Inject(forwardRef(() => TeachersService))
     private readonly teachersService: TeachersService,
   ) {}
@@ -173,17 +174,18 @@ export class ClassesService {
     return classObj;
   }
 
-  public async findByTeacher<K extends keyof ClassDocument>(
-    id: Types.ObjectId,
+  public async findBy<K extends keyof ClassDocument>(
+    key: K,
+    value: ClassDocument[K],
     fields: K[],
   ): Promise<Pick<ClassDocument, K>[]> {
     const projection = Object.fromEntries(fields.map((key) => [key, 1]));
 
     const classes = await this.classesModel
-      .find({ teacher: id, status: true }, projection)
+      .find({ [key]: value, status: true }, projection)
       .exec();
 
-    return classes as Pick<ClassDocument, K>[];
+    return classes;
   }
 
   public async teachersClasses(

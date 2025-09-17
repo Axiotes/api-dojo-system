@@ -1,5 +1,7 @@
 import {
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,11 +12,20 @@ import { Modalities } from './schemas/modalities.schema';
 import { FindModalitiesDto } from './dtos/find-modalities.dto';
 
 import { ModalitiesDocument } from '@ds-types/documents/modalitie-document.type';
+import { PlansService } from '@ds-modules/plans/plans.service';
+import { TeachersService } from '@ds-modules/teachers/teachers.service';
+import { ClassesService } from '@ds-modules/classes/classes.service';
 
 @Injectable()
 export class ModalitiesService {
   constructor(
     @InjectModel(Modalities.name) private modalitiesModel: Model<Modalities>,
+    private readonly plansService: PlansService,
+
+    @Inject(forwardRef(() => ClassesService))
+    private readonly classesService: ClassesService,
+    @Inject(forwardRef(() => TeachersService))
+    private readonly teachersService: TeachersService,
   ) {}
 
   public async createModality(
@@ -88,5 +99,47 @@ export class ModalitiesService {
     return await this.modalitiesModel
       .findByIdAndUpdate(modality.id, modalityUpdates, { new: true })
       .exec();
+  }
+
+  public async deactivate(id: string): Promise<void> {
+    const modality = await this.findById(new Types.ObjectId(id));
+
+    const plans = await this.plansService.findByModality(modality.id, ['id']);
+
+    if (plans.length > 0) {
+      throw new ConflictException(
+        `Cannot deactivate modality with id ${id} because it has associated plans.`,
+      );
+    }
+
+    const teachers = await this.teachersService.findByModality(modality.id, [
+      'id',
+    ]);
+
+    if (teachers.length > 0) {
+      throw new ConflictException(
+        `Cannot deactivate modality with id ${id} because it has associated teachers.`,
+      );
+    }
+
+    const classes = await this.classesService.findBy('modality', modality.id, [
+      'id',
+    ]);
+
+    if (classes.length > 0) {
+      throw new ConflictException(
+        `Cannot deactivate modality with id ${id} because it has associated classes.`,
+      );
+    }
+
+    this.setStatus(modality, false);
+  }
+
+  public async setStatus(
+    modality: ModalitiesDocument,
+    status: boolean,
+  ): Promise<void> {
+    modality.status = status;
+    await modality.save();
   }
 }

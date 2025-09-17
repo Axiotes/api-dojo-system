@@ -220,4 +220,33 @@ export class ModalitiesController {
       data: updatedModality,
     };
   }
+
+  @ApiOperation({
+    summary: 'Desativar modalidade',
+    description: `Apenas usuários com token JWT e cargos "admin" podem utilizar este endpoint.
+      Ao ser desativado, não poderá ser vinculado a nenhuma turma, plano ou professor,
+      logo, deverá ser desvinculado de todos eles antes de ser inativado.`,
+  })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
+  @Patch('deactivate/:id')
+  public async deactivate(
+    @Param('id') id: string,
+  ): Promise<ApiResponse<string>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    await this.modalitiesService.deactivate(id);
+
+    return {
+      data: 'Modality successfully deactivate',
+    };
+  }
 }

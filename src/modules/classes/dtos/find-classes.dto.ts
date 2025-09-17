@@ -72,7 +72,7 @@ export class FindClassesDto {
   @IsNotEmpty()
   @IsString()
   @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
-    message: 'start must be in HH:MM format',
+    message: 'startHour must be in HH:MM format',
   })
   @Validate(HourParamConstraint)
   startHour: string;
@@ -85,7 +85,7 @@ export class FindClassesDto {
   @IsNotEmpty()
   @IsString()
   @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
-    message: 'end must be in HH:MM format',
+    message: 'endHour must be in HH:MM format',
   })
   @Validate(HourParamConstraint)
   endHour: string;
