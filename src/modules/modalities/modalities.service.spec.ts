@@ -7,9 +7,15 @@ import { Modalities } from './schemas/modalities.schema';
 import { ModalitiesService } from './modalities.service';
 
 import { ModalitiesDocument } from '@ds-types/documents/modalitie-document.type';
+import { PlansService } from '@ds-modules/plans/plans.service';
+import { ClassesService } from '@ds-modules/classes/classes.service';
+import { TeachersService } from '@ds-modules/teachers/teachers.service';
 
 describe('ModalitiesService', () => {
   let service: ModalitiesService;
+  let plansService: PlansService;
+  let classesService: ClassesService;
+  let teachersService: TeachersService;
   let model: Model<ModalitiesDocument>;
 
   const mockModalitiesModel = {
@@ -34,10 +40,31 @@ describe('ModalitiesService', () => {
           provide: getModelToken(Modalities.name),
           useValue: mockModalitiesModel,
         },
+        {
+          provide: PlansService,
+          useValue: {
+            findByModality: jest.fn(),
+          },
+        },
+        {
+          provide: TeachersService,
+          useValue: {
+            findByModality: jest.fn(),
+          },
+        },
+        {
+          provide: ClassesService,
+          useValue: {
+            findBy: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<ModalitiesService>(ModalitiesService);
+    plansService = module.get<PlansService>(PlansService);
+    classesService = module.get<ClassesService>(ClassesService);
+    teachersService = module.get<TeachersService>(TeachersService);
     model = module.get<Model<ModalitiesDocument>>(
       getModelToken(Modalities.name),
     );
@@ -96,26 +123,30 @@ describe('ModalitiesService', () => {
       description: 'Unit tests with jest',
       image: Buffer.from('fake-image'),
     };
+    const fields = [];
+    const projection = Object.fromEntries(fields.map((key) => [key, 1]));
 
     mockModalitiesModel.findById.mockReturnThis();
     mockModalitiesModel.exec.mockResolvedValue(modality);
 
-    const result = await service.findById(id);
+    const result = await service.findById(id, []);
 
     expect(result).toEqual(modality);
-    expect(model.findById).toHaveBeenCalledWith(id);
+    expect(model.findById).toHaveBeenCalledWith(id, projection);
   });
 
   it('should throw a NotFoundException if modality is not found', async () => {
     const id = new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a');
+    const fields = [];
+    const projection = Object.fromEntries(fields.map((key) => [key, 1]));
 
     mockModalitiesModel.findById.mockReturnThis();
     mockModalitiesModel.exec.mockResolvedValue(null);
 
-    await expect(service.findById(id)).rejects.toThrow(
+    await expect(service.findById(id, [])).rejects.toThrow(
       new NotFoundException(`Modality with id ${id} not found`),
     );
-    expect(model.findById).toHaveBeenCalledWith(id);
+    expect(model.findById).toHaveBeenCalledWith(id, projection);
   });
 
   it('should find all modalities with pagination', async () => {
@@ -221,5 +252,163 @@ describe('ModalitiesService', () => {
     );
     expect(model.findOne).toHaveBeenCalledWith({ name: updateModality.name });
     expect(model.findByIdAndUpdate).toHaveBeenCalledTimes(0);
+  });
+
+  it('should set modality status true', async () => {
+    const modality = {
+      status: false,
+      save: jest.fn(),
+    } as unknown as ModalitiesDocument;
+
+    await service.setStatus(modality, true);
+
+    expect(modality.status).toBe(true);
+    expect(modality.save).toHaveBeenCalled();
+  });
+
+  it('should set modality status false', async () => {
+    const modality = {
+      status: true,
+      save: jest.fn(),
+    } as unknown as ModalitiesDocument;
+
+    await service.setStatus(modality, false);
+
+    expect(modality.status).toBe(false);
+    expect(modality.save).toHaveBeenCalled();
+  });
+
+  it('should deactivate a modality successfully', async () => {
+    const modalityId = '60c72b2f9b1d8c001c8e4e1a';
+    const modality = {
+      id: new Types.ObjectId(modalityId),
+      status: true,
+    };
+
+    service.findById = jest.fn().mockResolvedValue(modality);
+    plansService.findByModality = jest.fn().mockResolvedValue([]);
+    teachersService.findByModality = jest.fn().mockResolvedValue([]);
+    classesService.findBy = jest.fn().mockResolvedValue([]);
+    service.setStatus = jest.fn().mockImplementation(() => {});
+
+    await service.deactivate(modalityId);
+
+    expect(service.findById).toHaveBeenCalledWith(modality.id, [
+      'id',
+      'status',
+    ]);
+    expect(plansService.findByModality).toHaveBeenCalledWith(modality.id, [
+      'id',
+    ]);
+    expect(teachersService.findByModality).toHaveBeenCalledWith(modality.id, [
+      'id',
+    ]);
+    expect(classesService.findBy).toHaveBeenCalledWith(
+      'modality',
+      modality.id,
+      ['id'],
+    );
+    expect(service.setStatus).toHaveBeenCalledWith(modality, false);
+  });
+
+  it('should throw ConflictException if modality has associated plans', async () => {
+    const modalityId = '60c72b2f9b1d8c001c8e4e1a';
+    const modality = {
+      id: new Types.ObjectId(modalityId),
+      status: true,
+    };
+    const plans = [
+      {
+        id: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a'),
+      },
+    ];
+
+    service.findById = jest.fn().mockResolvedValue(modality);
+    plansService.findByModality = jest.fn().mockResolvedValue(plans);
+    service.setStatus = jest.fn();
+
+    await expect(service.deactivate(modalityId)).rejects.toThrow(
+      new ConflictException(
+        `Cannot deactivate modality with id ${modalityId} because it has associated plans.`,
+      ),
+    );
+    expect(service.findById).toHaveBeenCalledWith(modality.id, [
+      'id',
+      'status',
+    ]);
+    expect(teachersService.findByModality).toHaveBeenCalledTimes(0);
+    expect(classesService.findBy).toHaveBeenCalledTimes(0);
+    expect(service.setStatus).toHaveBeenCalledTimes(0);
+  });
+
+  it('should throw ConflictException if modality has associated teachers', async () => {
+    const modalityId = '60c72b2f9b1d8c001c8e4e1a';
+    const modality = {
+      id: new Types.ObjectId(modalityId),
+      status: true,
+    };
+    const teachers = [
+      {
+        id: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a'),
+      },
+    ];
+
+    service.findById = jest.fn().mockResolvedValue(modality);
+    plansService.findByModality = jest.fn().mockResolvedValue([]);
+    teachersService.findByModality = jest.fn().mockResolvedValue(teachers);
+    service.setStatus = jest.fn();
+
+    await expect(service.deactivate(modalityId)).rejects.toThrow(
+      new ConflictException(
+        `Cannot deactivate modality with id ${modalityId} because it has associated teachers.`,
+      ),
+    );
+    expect(service.findById).toHaveBeenCalledWith(modality.id, [
+      'id',
+      'status',
+    ]);
+    expect(plansService.findByModality).toHaveBeenCalledWith(modality.id, [
+      'id',
+    ]);
+    expect(classesService.findBy).toHaveBeenCalledTimes(0);
+    expect(service.setStatus).toHaveBeenCalledTimes(0);
+  });
+
+  it('should throw ConflictException if modality has associated classes', async () => {
+    const modalityId = '60c72b2f9b1d8c001c8e4e1a';
+    const modality = {
+      id: new Types.ObjectId(modalityId),
+      status: true,
+    };
+    const classes = [
+      {
+        id: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a'),
+      },
+    ];
+
+    service.findById = jest.fn().mockResolvedValue(modality);
+    plansService.findByModality = jest.fn().mockResolvedValue([]);
+    teachersService.findByModality = jest.fn().mockResolvedValue([]);
+    classesService.findBy = jest.fn().mockResolvedValue(classes);
+    service.setStatus = jest.fn();
+
+    await expect(service.deactivate(modalityId)).rejects.toThrow(
+      new ConflictException(
+        `Cannot deactivate modality with id ${modalityId} because it has associated classes.`,
+      ),
+    );
+    expect(service.findById).toHaveBeenCalledWith(modality.id, [
+      'id',
+      'status',
+    ]);
+    expect(plansService.findByModality).toHaveBeenCalledWith(modality.id, [
+      'id',
+    ]);
+    expect(classesService.findBy).toHaveBeenCalledWith(
+      'modality',
+      modality.id,
+      ['id'],
+    );
+    expect(service.setStatus).toHaveBeenCalledTimes(0);
   });
 });
