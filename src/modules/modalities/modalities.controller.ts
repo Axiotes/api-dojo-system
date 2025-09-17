@@ -272,15 +272,15 @@ export class ModalitiesController {
       throw new BadRequestException('Invalid id format');
     }
 
-    const teacher = await this.modalitiesService.findById(
+    const modality = await this.modalitiesService.findById(
       new Types.ObjectId(id),
       ['status'],
     );
 
-    await this.modalitiesService.setStatus(teacher, true);
+    await this.modalitiesService.setStatus(modality, true);
 
     return {
-      data: 'Teacher successfully reactivate',
+      data: 'Modality successfully reactivate',
     };
   }
 }

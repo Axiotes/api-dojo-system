@@ -26,6 +26,8 @@ describe('ModalitiesController', () => {
             createModality: jest.fn(),
             findById: jest.fn(),
             update: jest.fn(),
+            setStatus: jest.fn(),
+            deactivated: jest.fn(),
           },
         },
         {
@@ -214,6 +216,60 @@ describe('ModalitiesController', () => {
     const invalidId = '1234';
 
     await expect(controller.update(invalidId)).rejects.toThrow(
+      new BadRequestException('Invalid id format'),
+    );
+    expect(reduceImagePipe.transform).toHaveBeenCalledTimes(0);
+    expect(modalitiesService.update).toHaveBeenCalledTimes(0);
+  });
+
+  it('should deactivate modality successfully', async () => {
+    const id = '60c72b2f9b1d8c001c8e4e1a';
+
+    modalitiesService.deactivate = jest.fn().mockImplementation(() => {});
+
+    const result = await controller.deactivate(id);
+
+    expect(result).toEqual({
+      data: 'Modality successfully deactivate',
+    });
+  });
+
+  it('should throw BadRequestException for invalid ID format in deactivate', async () => {
+    const invalidId = '1234';
+
+    await expect(controller.deactivate(invalidId)).rejects.toThrow(
+      new BadRequestException('Invalid id format'),
+    );
+    expect(reduceImagePipe.transform).toHaveBeenCalledTimes(0);
+    expect(modalitiesService.update).toHaveBeenCalledTimes(0);
+  });
+
+  it('should reactivate modality successfully', async () => {
+    const id = '60c72b2f9b1d8c001c8e4e1a';
+    const modality = {
+      id: new Types.ObjectId(id),
+      status: false,
+    } as ModalitiesDocument;
+
+    modalitiesService.findById = jest.fn().mockResolvedValue(modality);
+    modalitiesService.setStatus = jest.fn().mockImplementation(() => {});
+
+    const result = await controller.reactivate(id);
+
+    expect(result).toEqual({
+      data: 'Modality successfully reactivate',
+    });
+    expect(modalitiesService.findById).toHaveBeenCalledWith(modality.id, [
+      'status',
+    ]);
+    expect(modalitiesService.setStatus).toHaveBeenCalledWith(modality, true);
+    expect(modality.status).toEqual(true);
+  });
+
+  it('should throw BadRequestException for invalid ID format in reactivate', async () => {
+    const invalidId = '1234';
+
+    await expect(controller.reactivate(invalidId)).rejects.toThrow(
       new BadRequestException('Invalid id format'),
     );
     expect(reduceImagePipe.transform).toHaveBeenCalledTimes(0);
