@@ -52,7 +52,7 @@ export class ModalitiesService {
   ): Promise<ModalitiesDocument> {
     const projection = Object.fromEntries(fields.map((key) => [key, 1]));
 
-    const modality = await this.modalitiesModel.findById(id).exec();
+    const modality = await this.modalitiesModel.findById(id, projection).exec();
 
     if (!modality) {
       throw new NotFoundException(`Modality with id ${id} not found`);
