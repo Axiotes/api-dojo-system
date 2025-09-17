@@ -119,6 +119,7 @@ export class ModalitiesController {
 
     const modality = await this.modalitiesService.findById(
       new Types.ObjectId(id),
+      [],
     );
 
     return {
@@ -247,6 +248,39 @@ export class ModalitiesController {
 
     return {
       data: 'Modality successfully deactivate',
+    };
+  }
+
+  @ApiOperation({
+    summary: 'Reativar professor',
+    description:
+      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+  })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
+  @Patch('reactivate/:id')
+  public async reactivate(
+    @Param('id') id: string,
+  ): Promise<ApiResponse<string>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    const teacher = await this.modalitiesService.findById(
+      new Types.ObjectId(id),
+      ['status'],
+    );
+
+    await this.modalitiesService.setStatus(teacher, true);
+
+    return {
+      data: 'Teacher successfully reactivate',
     };
   }
 }

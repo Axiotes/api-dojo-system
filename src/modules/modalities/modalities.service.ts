@@ -46,7 +46,12 @@ export class ModalitiesService {
     return await this.modalitiesModel.create(newModality);
   }
 
-  public async findById(id: Types.ObjectId): Promise<ModalitiesDocument> {
+  public async findById<K extends keyof ModalitiesDocument>(
+    id: Types.ObjectId,
+    fields: K[],
+  ): Promise<ModalitiesDocument> {
+    const projection = Object.fromEntries(fields.map((key) => [key, 1]));
+
     const modality = await this.modalitiesModel.findById(id).exec();
 
     if (!modality) {
@@ -74,7 +79,10 @@ export class ModalitiesService {
   public async update(
     updateModality: Partial<ModalitiesDocument>,
   ): Promise<ModalitiesDocument> {
-    const modality = await this.findById(updateModality._id as Types.ObjectId);
+    const modality = await this.findById(
+      updateModality._id as Types.ObjectId,
+      [],
+    );
 
     if (updateModality.name && updateModality.name != modality.name) {
       const nameExist = await this.modalitiesModel
@@ -102,7 +110,10 @@ export class ModalitiesService {
   }
 
   public async deactivate(id: string): Promise<void> {
-    const modality = await this.findById(new Types.ObjectId(id));
+    const modality = await this.findById(new Types.ObjectId(id), [
+      'id',
+      'status',
+    ]);
 
     const plans = await this.plansService.findByModality(modality.id, ['id']);
 
