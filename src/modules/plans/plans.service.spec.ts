@@ -225,4 +225,31 @@ describe('PlansService', () => {
     expect(mockPlansModel.skip).toHaveBeenCalledWith(queryParams.skip);
     expect(mockPlansModel.limit).toHaveBeenCalledWith(queryParams.limit);
   });
+
+  it('should find plans by modality', async () => {
+    const modalityId = new Types.ObjectId('60c72b2f9b1d8c001c8e4e2b');
+    const fields = [];
+    const projection = Object.fromEntries(fields.map((key) => [key, 1]));
+
+    const plans = [
+      {
+        _id: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a'),
+        period: Period.MONTHLY,
+        periodQuantity: 1,
+        value: 50,
+        modality: modalityId,
+      },
+    ];
+
+    mockPlansModel.find.mockReturnThis();
+    mockPlansModel.exec.mockResolvedValue(plans);
+
+    const result = await service.findByModality(modalityId, fields);
+
+    expect(result).toEqual(plans);
+    expect(model.find).toHaveBeenCalledWith(
+      { modality: modalityId, status: true },
+      projection,
+    );
+  });
 });

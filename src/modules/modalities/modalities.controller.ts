@@ -119,6 +119,7 @@ export class ModalitiesController {
 
     const modality = await this.modalitiesService.findById(
       new Types.ObjectId(id),
+      [],
     );
 
     return {
@@ -218,6 +219,68 @@ export class ModalitiesController {
 
     return {
       data: updatedModality,
+    };
+  }
+
+  @ApiOperation({
+    summary: 'Desativar modalidade',
+    description: `Apenas usuários com token JWT e cargos "admin" podem utilizar este endpoint.
+      Ao ser desativado, não poderá ser vinculado a nenhuma turma, plano ou professor,
+      logo, deverá ser desvinculado de todos eles antes de ser inativado.`,
+  })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
+  @Patch('deactivate/:id')
+  public async deactivate(
+    @Param('id') id: string,
+  ): Promise<ApiResponse<string>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    await this.modalitiesService.deactivate(id);
+
+    return {
+      data: 'Modality successfully deactivate',
+    };
+  }
+
+  @ApiOperation({
+    summary: 'Reativar professor',
+    description:
+      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+  })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles('admin')
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
+  @Patch('reactivate/:id')
+  public async reactivate(
+    @Param('id') id: string,
+  ): Promise<ApiResponse<string>> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id format');
+    }
+
+    const modality = await this.modalitiesService.findById(
+      new Types.ObjectId(id),
+      ['status'],
+    );
+
+    await this.modalitiesService.setStatus(modality, true);
+
+    return {
+      data: 'Modality successfully reactivate',
     };
   }
 }

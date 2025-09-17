@@ -3,6 +3,7 @@ import * as path from 'node:path';
 
 import {
   BadRequestException,
+  ConflictException,
   forwardRef,
   Inject,
   Injectable,
@@ -176,7 +177,7 @@ export class TeachersService {
     month: number,
     year: number,
   ): Promise<number> {
-    const classes = await this.classesService.findByTeacher(teacherId, [
+    const classes = await this.classesService.findBy('teacher', teacherId, [
       'hour',
       'weekDays',
     ]);
@@ -256,7 +257,8 @@ export class TeachersService {
         );
         await Promise.all(modalitiesPromise);
 
-        const teacherClasses = await this.classesService.findByTeacher(
+        const teacherClasses = await this.classesService.findBy(
+          'teacher',
           teacher.id,
           ['modality'],
         );
@@ -298,10 +300,14 @@ export class TeachersService {
       'status',
     ]);
 
-    const classes = await this.classesService.findByTeacher(teacher.id, ['id']);
+    const classes = await this.classesService.findBy('teacher', teacher.id, [
+      'id',
+    ]);
 
     if (classes.length > 0) {
-      throw new BadRequestException('Teacher is registered in active classes');
+      throw new ConflictException(
+        `Cannot deactivate teacher with id ${id} because it has associated classes.`,
+      );
     }
 
     await this.setStatus(teacher, false);
@@ -358,6 +364,19 @@ export class TeachersService {
       mimeType: 'application/pdf',
       file: pdfBuffer,
     };
+  }
+
+  public async findByModality<K extends keyof TeacherDocument>(
+    modalityId: Types.ObjectId,
+    fields: K[],
+  ): Promise<TeacherDocument[]> {
+    const projection = Object.fromEntries(fields.map((key) => [key, 1]));
+
+    const teachers = await this.teachersModel
+      .find({ modalities: modalityId, status: true }, projection)
+      .exec();
+
+    return teachers;
   }
 
   private async teacherPdfData(): Promise<TeachersPdf> {

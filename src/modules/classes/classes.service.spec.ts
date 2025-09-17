@@ -81,7 +81,7 @@ describe('ClassesService', () => {
     expect(service).toBeDefined();
   });
 
-  it('shoud create a class successfully', async () => {
+  it('should create a class successfully', async () => {
     const newClass = {
       modality: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a'),
       teacher: new Types.ObjectId('60c72b2f9b1d8c001c8e4e2b'),
@@ -150,12 +150,19 @@ describe('ClassesService', () => {
         image: teacher.image,
       },
     });
-    expect(modalitiesService.findById).toHaveBeenCalledWith(newClass.modality);
-    expect(teachersService.findById).toHaveBeenCalledWith(newClass.teacher, []);
+    expect(modalitiesService.findById).toHaveBeenCalledWith(newClass.modality, [
+      '_id',
+      'name',
+      'status',
+    ]);
+    expect(teachersService.findById).toHaveBeenCalledWith(newClass.teacher, [
+      'status',
+      'name',
+    ]);
     expect(classesModel.create).toHaveBeenCalledWith(newClass);
   });
 
-  it('shoud throw BadRequestException if modality is disabled', async () => {
+  it('should throw BadRequestException if modality is disabled', async () => {
     const newClass = {
       modality: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a'),
       teacher: new Types.ObjectId('60c72b2f9b1d8c001c8e4e2b'),
@@ -194,12 +201,19 @@ describe('ClassesService', () => {
         `Modality with id ${newClass.modality} is disabled`,
       ),
     );
-    expect(modalitiesService.findById).toHaveBeenCalledWith(newClass.modality);
-    expect(teachersService.findById).toHaveBeenCalledWith(newClass.teacher, []);
+    expect(modalitiesService.findById).toHaveBeenCalledWith(newClass.modality, [
+      '_id',
+      'name',
+      'status',
+    ]);
+    expect(teachersService.findById).toHaveBeenCalledWith(newClass.teacher, [
+      'status',
+      'name',
+    ]);
     expect(classesModel.create).toHaveBeenCalledTimes(0);
   });
 
-  it('shoud throw BadRequestException if teacher is disabled', async () => {
+  it('should throw BadRequestException if teacher is disabled', async () => {
     const newClass = {
       modality: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a'),
       teacher: new Types.ObjectId('60c72b2f9b1d8c001c8e4e2b'),
@@ -238,12 +252,19 @@ describe('ClassesService', () => {
         `Teacher with id ${newClass.modality} is disabled`,
       ),
     );
-    expect(modalitiesService.findById).toHaveBeenCalledWith(newClass.modality);
-    expect(teachersService.findById).toHaveBeenCalledWith(newClass.teacher, []);
+    expect(modalitiesService.findById).toHaveBeenCalledWith(newClass.modality, [
+      '_id',
+      'name',
+      'status',
+    ]);
+    expect(teachersService.findById).toHaveBeenCalledWith(newClass.teacher, [
+      'status',
+      'name',
+    ]);
     expect(classesModel.create).toHaveBeenCalledTimes(0);
   });
 
-  it('shoud throw BadRequestException if teacher does not have the modality', async () => {
+  it('should throw BadRequestException if teacher does not have the modality', async () => {
     const newClass = {
       modality: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a'),
       teacher: new Types.ObjectId('60c72b2f9b1d8c001c8e4e2b'),
@@ -282,8 +303,15 @@ describe('ClassesService', () => {
         `Teacher ${teacher.name} does not have ${modality.name} modality`,
       ),
     );
-    expect(modalitiesService.findById).toHaveBeenCalledWith(newClass.modality);
-    expect(teachersService.findById).toHaveBeenCalledWith(newClass.teacher, []);
+    expect(modalitiesService.findById).toHaveBeenCalledWith(newClass.modality, [
+      '_id',
+      'name',
+      'status',
+    ]);
+    expect(teachersService.findById).toHaveBeenCalledWith(newClass.teacher, [
+      'status',
+      'name',
+    ]);
     expect(classesModel.create).toHaveBeenCalledTimes(0);
   });
 
@@ -413,55 +441,6 @@ describe('ClassesService', () => {
       new NotFoundException(`Class with id ${id} not found`),
     );
     expect(classesModel.findById).toHaveBeenCalledWith(id);
-  });
-
-  it('should find all classses with pagination and filter', async () => {
-    const queryParams: FindClassesDto = {
-      skip: 0,
-      limit: 5,
-      status: true,
-      modality: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a'),
-      startHour: '17:00',
-      endHour: '18:00',
-      minAge: 4,
-      maxAge: 8,
-      weekDays: [WeekDays.MONDAY],
-    };
-    const classes: Partial<ClassDocument>[] = [
-      {
-        _id: new Types.ObjectId('60c72b2f9b1d8c001c8e4e2b'),
-        modality: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1b'),
-        teacher: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1c'),
-        hour: {
-          start: '17:00',
-          end: '18:00',
-        },
-        age: {
-          min: 4,
-          max: 8,
-        },
-        maxAthletes: 15,
-        weekDays: [WeekDays.MONDAY, WeekDays.WEDNESDAY],
-        image: Buffer.from('fake-image'),
-        athletes: [
-          new Types.ObjectId('64f1b2a3c4d5e6f7890abc12'),
-          new Types.ObjectId('64f1b2a3c4d5e6f7890abc23'),
-        ],
-      },
-    ];
-
-    mockModel.find.mockReturnThis();
-    mockModel.skip.mockReturnThis();
-    mockModel.limit.mockReturnThis();
-    mockModel.exec.mockResolvedValue(classes);
-
-    const result = await service.findAll(queryParams);
-
-    expect(result).toEqual(classes);
-    expect(result.length).toBe(classes.length);
-    expect(classesModel.find).toHaveBeenCalled();
-    expect(mockModel.skip).toHaveBeenCalledWith(queryParams.skip);
-    expect(mockModel.limit).toHaveBeenCalledWith(queryParams.limit);
   });
 
   it('should format class document without admin role', async () => {
@@ -616,5 +595,49 @@ describe('ClassesService', () => {
     ]);
     expect(result).toEqual(mockResult);
     expect(result.length).toBeLessThanOrEqual(limit);
+  });
+
+  it('should find by classes key', async () => {
+    const key = 'teacher';
+    const teacherId = new Types.ObjectId('60c72b2f9b1d8c001c8e4e1c');
+    const fields = [];
+    const projection = Object.fromEntries(fields.map((key) => [key, 1]));
+
+    const classes = [
+      {
+        _id: new Types.ObjectId('60c72b2f9b1d8c001c8e4e2b'),
+        modality: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1b'),
+        teacher: teacherId,
+        hour: {
+          start: '17:00',
+          end: '18:00',
+        },
+        age: {
+          min: 4,
+          max: 8,
+        },
+        maxAthletes: 15,
+        weekDays: [WeekDays.MONDAY, WeekDays.WEDNESDAY],
+        image: Buffer.from('fake-image'),
+        athletes: [
+          new Types.ObjectId('64f1b2a3c4d5e6f7890abc12'),
+          new Types.ObjectId('64f1b2a3c4d5e6f7890abc23'),
+        ],
+      },
+    ];
+
+    mockModel.find.mockReturnThis();
+    mockModel.exec.mockResolvedValue(classes);
+
+    const result = await service.findBy(key, teacherId, fields);
+
+    expect(result).toEqual(classes);
+    expect(classesModel.find).toHaveBeenCalledWith(
+      {
+        [key]: teacherId,
+        status: true,
+      },
+      projection,
+    );
   });
 });

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import { Plans } from './schemas/plans.schema';
 import { PlanDto } from './dtos/plan.dto';
@@ -49,5 +49,18 @@ export class PlansService {
     }
 
     return await query.exec();
+  }
+
+  public async findByModality<K extends keyof PlanDocument>(
+    modalityId: Types.ObjectId,
+    fields: K[],
+  ): Promise<PlanDocument[]> {
+    const projection = Object.fromEntries(fields.map((key) => [key, 1]));
+
+    const plan = await this.plansModel
+      .find({ modality: modalityId, status: true }, projection)
+      .exec();
+
+    return plan;
   }
 }
