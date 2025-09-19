@@ -10,22 +10,31 @@ import { Athletes } from './schemas/athletes.schema';
 import { AthleteDto } from './dtos/athlete.dto';
 import { ResponsibleDto } from './dtos/responsible.dto';
 
-import { ClassesService } from '@ds-modules/classes/classes.service';
-import { PlansService } from '@ds-modules/plans/plans.service';
 import { ValidateFieldsService } from '@ds-services/validate-fields/validate-fields.service';
 import { ClassDocument } from '@ds-types/documents/class-document.type';
 import { PlanDocument } from '@ds-types/documents/plan-document';
 import { Age } from '@ds-types/age.type';
 import { calculateAge } from '@ds-common/helpers/calculate-age.helper';
+import { Role } from '@ds-types/role.type';
 
 @Injectable()
 export class AthletesService {
   constructor(
     @InjectModel(Athletes.name) private athletesModel: Model<Athletes>,
-    private readonly classesService: ClassesService,
-    private readonly plansService: PlansService,
     private readonly validadeFieldsService: ValidateFieldsService,
   ) {}
+
+  public createAthlete(athleteDto: AthleteDto, role?: Role) {
+    if (role === 'admin') {
+      return this.createByAdmin(athleteDto);
+    }
+
+    return this.createByUser(athleteDto);
+  }
+
+  private createByAdmin(athleteDto: AthleteDto) {}
+
+  private createByUser(athleteDto: AthleteDto) {}
 
   private async validateClassPlan(
     classes: ClassDocument,

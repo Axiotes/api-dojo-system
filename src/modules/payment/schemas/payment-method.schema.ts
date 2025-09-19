@@ -19,7 +19,4 @@ export class PaymentMethod {
 
   @Prop({ required: [true, 'A payment method must have a expiration date'] })
   expirationDate: string;
-
-  @Prop({ required: [true, 'A payment method must have a CVV'] })
-  cvv: number;
 }

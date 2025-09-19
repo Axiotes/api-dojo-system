@@ -15,5 +15,13 @@ export class AthletesController {
   public async createAthlete(
     @Body() athleteDto: AthleteDto,
     @Req() req: Request,
-  ) {}
+  ) {
+    const role = req['user']?.role;
+
+    const athlete = this.athletesService.createAthlete(athleteDto, role);
+
+    return {
+      data: athlete,
+    };
+  }
 }

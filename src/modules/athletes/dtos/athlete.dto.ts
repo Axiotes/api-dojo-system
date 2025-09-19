@@ -13,6 +13,8 @@ import { Types } from 'mongoose';
 
 import { ResponsibleDto } from './responsible.dto';
 
+import { PaymentMethodDto } from '@ds-modules/payment/dtos/payment-method.dto';
+
 export class AthleteDto {
   @IsNotEmpty()
   @IsString()
@@ -43,4 +45,8 @@ export class AthleteDto {
   @ValidateNested()
   @Type(() => ResponsibleDto)
   responsible?: ResponsibleDto;
+
+  @ValidateNested()
+  @Type(() => PaymentMethodDto)
+  paymentMethod: PaymentMethodDto;
 }
