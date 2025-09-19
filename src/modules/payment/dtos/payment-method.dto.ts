@@ -7,13 +7,16 @@ export class PaymentMethodDto {
   cardType: CardType;
 
   @IsString()
-  cardholderName: string;
+  cardHolderName: string;
 
   @IsString()
   cardNumber: string;
 
   @IsString()
-  expirationDate: string;
+  expirationMonth: string;
+
+  @IsString()
+  expirationYear: string;
 
   @IsString()
   cvv: string;

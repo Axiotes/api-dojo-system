@@ -17,6 +17,9 @@ export class PaymentMethod {
   @Prop({ required: [true, 'A payment method must have a number'] })
   cardNumber: string;
 
-  @Prop({ required: [true, 'A payment method must have a expiration date'] })
-  expirationDate: string;
+  @Prop({ required: [true, 'A payment method must have a expiration month'] })
+  expirationMonth: string;
+
+  @Prop({ required: [true, 'A payment method must have a expiration year'] })
+  expirationYear: string;
 }

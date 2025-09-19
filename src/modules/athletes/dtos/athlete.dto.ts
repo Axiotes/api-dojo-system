@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import {
   IsDate,
   IsEmail,
+  IsEnum,
   IsMongoId,
   IsNotEmpty,
   IsOptional,
@@ -13,7 +14,7 @@ import { Types } from 'mongoose';
 
 import { ResponsibleDto } from './responsible.dto';
 
-import { PaymentMethodDto } from '@ds-modules/payment/dtos/payment-method.dto';
+import { PaymentMode } from '@ds-enums/payment-mode.enum';
 
 export class AthleteDto {
   @IsNotEmpty()
@@ -42,11 +43,15 @@ export class AthleteDto {
   @IsString()
   password?: string;
 
+  @IsOptional()
   @ValidateNested()
   @Type(() => ResponsibleDto)
   responsible?: ResponsibleDto;
 
-  @ValidateNested()
-  @Type(() => PaymentMethodDto)
-  paymentMethod: PaymentMethodDto;
+  @IsEnum(PaymentMode)
+  paymentMode: PaymentMode;
+
+  @IsOptional()
+  @IsString()
+  cardToken?: string;
 }
