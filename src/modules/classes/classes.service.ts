@@ -1,5 +1,5 @@
 import {
-  BadRequestException,
+  ConflictException,
   forwardRef,
   Inject,
   Injectable,
@@ -41,13 +41,13 @@ export class ClassesService {
     ]);
 
     if (!modality.status) {
-      throw new BadRequestException(
+      throw new ConflictException(
         `Modality with id ${newClass.modality} is disabled`,
       );
     }
 
     if (!teacher.status) {
-      throw new BadRequestException(
+      throw new ConflictException(
         `Teacher with id ${newClass.modality} is disabled`,
       );
     }
@@ -58,7 +58,7 @@ export class ClassesService {
     );
 
     if (!modalityMatch) {
-      throw new BadRequestException(
+      throw new ConflictException(
         `Teacher ${teacher.name} does not have ${modality.name} modality`,
       );
     }
@@ -79,8 +79,13 @@ export class ClassesService {
     return classDoc;
   }
 
-  public async findById(id: Types.ObjectId): Promise<ClassDocument> {
-    const classDoc = await this.classesModel.findById(id).exec();
+  public async findById<K extends keyof ClassDocument>(
+    id: Types.ObjectId,
+    fields: K[],
+  ): Promise<ClassDocument> {
+    const projection = Object.fromEntries(fields.map((key) => [key, 1]));
+
+    const classDoc = await this.classesModel.findById(id, projection).exec();
 
     if (!classDoc) {
       throw new NotFoundException(`Class with id ${id} not found`);

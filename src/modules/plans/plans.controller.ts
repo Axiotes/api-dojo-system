@@ -68,7 +68,7 @@ export class PlansController {
       throw new BadRequestException('Invalid id format');
     }
 
-    const plan = await this.plansService.findById(id);
+    const plan = await this.plansService.findById(new Types.ObjectId(id), []);
 
     return {
       data: plan,

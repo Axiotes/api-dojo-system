@@ -24,8 +24,13 @@ export class PlansService {
     return await this.plansModel.findById(newPlan._id).exec();
   }
 
-  public async findById(id: string): Promise<PlanDocument> {
-    const plan = await this.plansModel.findById(id).exec();
+  public async findById<K extends keyof PlanDocument>(
+    id: Types.ObjectId,
+    fields: K[],
+  ): Promise<PlanDocument> {
+    const projection = Object.fromEntries(fields.map((key) => [key, 1]));
+
+    const plan = await this.plansModel.findById(id, projection).exec();
 
     if (!plan) {
       throw new NotFoundException(`Plan with id ${id} not found`);

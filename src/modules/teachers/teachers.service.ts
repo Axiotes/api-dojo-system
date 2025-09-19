@@ -2,7 +2,6 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 import {
-  BadRequestException,
   ConflictException,
   forwardRef,
   Inject,
@@ -269,7 +268,7 @@ export class TeachersService {
           );
 
           if (!modalityMatch) {
-            throw new BadRequestException(
+            throw new ConflictException(
               `Teacher ${teacher.name} must have the ${classDoc.modality} modality to match his class registration`,
             );
           }

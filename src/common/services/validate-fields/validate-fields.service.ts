@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -34,14 +33,16 @@ export class ValidateFieldsService {
   public async isActive(modelName: string, id: Types.ObjectId): Promise<void> {
     const model = this.connection.model(modelName);
 
-    const document = await model.findById(id).lean<{ status: boolean }>();
+    const document = await model
+      .findById(id, { status: 1 })
+      .lean<{ status: boolean }>();
 
     if (!document) {
       throw new NotFoundException(`${modelName} with id ${id} not found`);
     }
 
     if (!document.status) {
-      throw new BadRequestException(`${modelName} with id ${id} is disabled`);
+      throw new ConflictException(`${modelName} with id ${id} is disabled`);
     }
   }
 }
