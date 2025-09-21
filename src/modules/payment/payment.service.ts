@@ -2,12 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import MercadoPagoConfig, { Payment } from 'mercadopago';
+import { Payment, MercadoPagoConfig } from 'mercadopago';
 import { PaymentResponse } from 'mercadopago/dist/clients/payment/commonTypes';
 
 import { Payments } from './schemas/payments.schema';
 
 import { PaymentPix } from '@ds-types/payment-pix.type';
+import { PayCardData } from '@ds-types/pay-card-data.type';
 
 @Injectable()
 export class PaymentService {
@@ -22,20 +23,15 @@ export class PaymentService {
     this.payment = new Payment(client);
   }
 
-  public async payWithCard(
-    cardToken: string,
-    payerEmail: string,
-    amount: number,
-    installments = 1,
-  ): Promise<PaymentResponse> {
+  public async payWithCard(data: PayCardData): Promise<PaymentResponse> {
     const paymentData = {
-      transaction_amount: amount,
-      token: cardToken,
+      transaction_amount: data.amount,
+      token: data.cardToken,
       description: 'Payment test - Dojo System',
-      installments,
+      installments: data.installments ?? 1,
       payment_method_id: 'visa',
       payer: {
-        email: payerEmail,
+        email: data.payerEmail,
       },
     };
 
@@ -61,8 +57,7 @@ export class PaymentService {
     return {
       paymentId: response.id,
       status: response.status,
-      qrCodeBase64:
-        response.point_of_interaction?.transaction_data?.qr_code_base64,
+      qrCodeBase64: `data:image/png;base64,${response.point_of_interaction?.transaction_data?.qr_code_base64}`,
     };
   }
 }

@@ -18,7 +18,7 @@ export class AthletesController {
   ) {
     const role = req['user']?.role;
 
-    const athlete = this.athletesService.createAthlete(athleteDto, role);
+    const athlete = await this.athletesService.createAthlete(athleteDto, role);
 
     return {
       data: athlete,

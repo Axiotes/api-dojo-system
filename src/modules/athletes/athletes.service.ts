@@ -1,10 +1,13 @@
 import {
   BadRequestException,
   ConflictException,
+  HttpException,
   Injectable,
+  InternalServerErrorException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
+import { PaymentResponse } from 'mercadopago/dist/clients/payment/commonTypes';
 
 import { Athletes } from './schemas/athletes.schema';
 import { AthleteDto } from './dtos/athlete.dto';
@@ -16,25 +19,128 @@ import { PlanDocument } from '@ds-types/documents/plan-document';
 import { Age } from '@ds-types/age.type';
 import { calculateAge } from '@ds-common/helpers/calculate-age.helper';
 import { Role } from '@ds-types/role.type';
+import { ClassesService } from '@ds-modules/classes/classes.service';
+import { PlansService } from '@ds-modules/plans/plans.service';
+import { maskCardNumber } from '@ds-common/helpers/mask-card-number.helper';
+import { PaymentMode } from '@ds-enums/payment-mode.enum';
+import { PaymentService } from '@ds-modules/payment/payment.service';
+import { AthleteDocument } from '@ds-types/documents/athlete-document.type';
+import { PaymentPix } from '@ds-types/payment-pix.type';
 
 @Injectable()
 export class AthletesService {
   constructor(
+    @InjectConnection() private readonly connection: Connection,
     @InjectModel(Athletes.name) private athletesModel: Model<Athletes>,
     private readonly validadeFieldsService: ValidateFieldsService,
+    private readonly classesService: ClassesService,
+    private readonly plansService: PlansService,
+    private readonly paymentService: PaymentService,
   ) {}
 
-  public createAthlete(athleteDto: AthleteDto, role?: Role) {
+  public async createAthlete(athleteDto: AthleteDto, role?: Role) {
     if (role === 'admin') {
-      return this.createByAdmin(athleteDto);
+      return await this.createByAdmin(athleteDto);
     }
 
-    return this.createByUser(athleteDto);
+    return await this.createByUser(athleteDto);
   }
 
-  private createByAdmin(athleteDto: AthleteDto) {}
+  private async createByAdmin(athleteDto: AthleteDto): Promise<void> {
+    console.log(athleteDto);
+  }
 
-  private createByUser(athleteDto: AthleteDto) {}
+  private async createByUser(athleteDto: AthleteDto): Promise<{
+    athlete: AthleteDocument;
+    payment: PaymentResponse | PaymentPix;
+  }> {
+    const [classes, plan] = await Promise.all([
+      this.classesService.findById(athleteDto.classes, [
+        'id',
+        'modality',
+        'age',
+      ]),
+      this.plansService.findById(athleteDto.plan, ['id', 'modality', 'value']),
+    ]);
+
+    await this.validateClassPlan(classes, plan);
+    await this.validateAthlete(athleteDto, classes.age);
+
+    const session = await this.connection.startSession();
+    session.startTransaction();
+
+    try {
+      const athlete = new this.athletesModel({
+        ...athleteDto,
+        responsibles: [athleteDto.responsible],
+        paymentMethod: athleteDto.paymentMethod
+          ? {
+              ...athleteDto.paymentMethod,
+              cardNumber: maskCardNumber(athleteDto.paymentMethod.cardNumber),
+            }
+          : undefined,
+      });
+
+      if (athleteDto.paymentMode === PaymentMode.PERSONALLY) {
+        throw new BadRequestException(
+          `Payment method for a common user must be ${PaymentMode.CARD} or ${PaymentMode.PIX}`,
+        );
+      }
+
+      const athleteAge = calculateAge(athleteDto.birthDate);
+      const payerEmail =
+        athleteAge < 18 ? athleteDto.responsible.email : athleteDto.email;
+
+      if (athleteDto.paymentMode === PaymentMode.PIX) {
+        const payment = await this.paymentService.payWithPix(
+          plan.value,
+          payerEmail,
+        );
+        await athlete.save({ session });
+
+        await session.commitTransaction();
+        return {
+          athlete,
+          payment,
+        };
+      }
+
+      if (!athleteDto.paymentMethod) {
+        throw new BadRequestException(
+          'Payment method information must be provided',
+        );
+      }
+
+      const payment = await this.paymentService.payWithCard({
+        cardToken: athleteDto.paymentMethod.cardToken,
+        payerEmail,
+        amount: plan.value,
+        installments: 1,
+        cardNumber: athleteDto.paymentMethod.cardNumber,
+      });
+      await athlete.save({ session });
+
+      await session.commitTransaction();
+      return {
+        athlete,
+        payment,
+      };
+    } catch (error) {
+      await session.abortTransaction();
+
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      console.log(error);
+
+      throw new InternalServerErrorException(
+        'Error processing payment, please try again',
+      );
+    } finally {
+      session.endSession();
+    }
+  }
 
   private async validateClassPlan(
     classes: ClassDocument,
@@ -43,9 +149,12 @@ export class AthletesService {
     await this.validadeFieldsService.isActive('Classes', classes.id);
     await this.validadeFieldsService.isActive('Plans', plan.id);
 
-    if (classes.modality !== plan.modality) {
+    const planModalityId = plan.modality._id.toString();
+    const classModalityId = classes.modality.toString();
+
+    if (classModalityId !== planModalityId) {
       throw new ConflictException(
-        `"Class modality '${classes.modality}' is not compatible with plan modality '${plan.modality}'`,
+        `"Class modality '${classModalityId}' is not compatible with plan modality '${planModalityId}'`,
       );
     }
   }

@@ -8,6 +8,8 @@ import {
   IsOptional,
   IsString,
   Length,
+  Matches,
+  MinLength,
   ValidateNested,
 } from 'class-validator';
 import { Types } from 'mongoose';
@@ -15,6 +17,7 @@ import { Types } from 'mongoose';
 import { ResponsibleDto } from './responsible.dto';
 
 import { PaymentMode } from '@ds-enums/payment-mode.enum';
+import { PaymentMethodDto } from '@ds-modules/payment/dtos/payment-method.dto';
 
 export class AthleteDto {
   @IsNotEmpty()
@@ -39,6 +42,14 @@ export class AthleteDto {
   @IsEmail()
   email?: string;
 
+  @MinLength(8)
+  @Matches(/(?=.*[A-Z])/, {
+    message: 'password should contain at least 1 uppercase character',
+  })
+  @Matches(/(?=.*[a-z])/, {
+    message: 'password must contain at least one lowercase letter',
+  })
+  @Matches(/(?=.*\d)/, { message: 'password must contain at least one number' })
   @IsOptional()
   @IsString()
   password?: string;
@@ -52,6 +63,7 @@ export class AthleteDto {
   paymentMode: PaymentMode;
 
   @IsOptional()
-  @IsString()
-  cardToken?: string;
+  @ValidateNested()
+  @Type(() => PaymentMethodDto)
+  paymentMethod?: PaymentMethodDto;
 }

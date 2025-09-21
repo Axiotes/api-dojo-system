@@ -12,7 +12,7 @@ export class PaymentMethod {
   cardType: CardType;
 
   @Prop({ required: [true, 'A payment method must have a cardholder name'] })
-  cardholderName: string;
+  cardHolderName: string;
 
   @Prop({ required: [true, 'A payment method must have a number'] })
   cardNumber: string;
@@ -22,4 +22,7 @@ export class PaymentMethod {
 
   @Prop({ required: [true, 'A payment method must have a expiration year'] })
   expirationYear: string;
+
+  @Prop({ required: [true, 'A payment method must have a expiration year'] })
+  cardToken: string;
 }
