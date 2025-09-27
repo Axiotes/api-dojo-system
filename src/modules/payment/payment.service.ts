@@ -57,6 +57,7 @@ export class PaymentService {
     return {
       paymentId: response.id,
       status: response.status,
+      qrCode: response.point_of_interaction?.transaction_data?.qr_code,
       qrCodeBase64: `data:image/png;base64,${response.point_of_interaction?.transaction_data?.qr_code_base64}`,
     };
   }
