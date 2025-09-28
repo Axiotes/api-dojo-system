@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
-import { PaymentResponse } from 'mercadopago/dist/clients/payment/commonTypes';
 
 import { Athletes } from './schemas/athletes.schema';
 import { AthleteDto } from './dtos/athlete.dto';
@@ -26,6 +25,7 @@ import { PaymentMode } from '@ds-enums/payment-mode.enum';
 import { PaymentService } from '@ds-modules/payment/payment.service';
 import { AthleteDocument } from '@ds-types/documents/athlete-document.type';
 import { PaymentPix } from '@ds-types/payment-pix.type';
+import { PaymentDocument } from '@ds-types/documents/payment-document.type';
 
 @Injectable()
 export class AthletesService {
@@ -52,7 +52,7 @@ export class AthletesService {
 
   private async createByUser(athleteDto: AthleteDto): Promise<{
     athlete: AthleteDocument;
-    payment: PaymentResponse | PaymentPix;
+    payment: PaymentDocument | PaymentPix;
   }> {
     const [classes, plan] = await Promise.all([
       this.classesService.findById(athleteDto.classes, [
@@ -92,10 +92,13 @@ export class AthletesService {
         athleteAge < 18 ? athleteDto.responsible.email : athleteDto.email;
 
       if (athleteDto.paymentMode === PaymentMode.PIX) {
-        const payment = await this.paymentService.payWithPix(
-          plan.value,
+        const payment = await this.paymentService.payWithPix({
           payerEmail,
-        );
+          athleteId: athlete.id,
+          planId: plan.id,
+          amount: plan.value,
+          mode: athleteDto.paymentMode,
+        });
         await athlete.save({ session });
 
         await session.commitTransaction();
@@ -117,6 +120,10 @@ export class AthletesService {
         amount: plan.value,
         installments: 1,
         cardNumber: athleteDto.paymentMethod.cardNumber,
+        athleteId: athlete.id,
+        planId: plan.id,
+        mode: athleteDto.paymentMode,
+        methodId: athleteDto.paymentMethod.methodId,
       });
       await athlete.save({ session });
 
@@ -171,9 +178,11 @@ export class AthletesService {
       athleteAge < classAge.min ||
       (classAge.max && athleteAge > classAge.max)
     ) {
-      throw new ConflictException(
-        `Athlete age (${athleteAge}) does not meet the class age range (${classAge.min} - ${classAge.max})`,
-      );
+      const errorMessage = classAge.max
+        ? `Athlete age (${athleteAge}) does not meet the class age range (${classAge.min} - ${classAge.max})`
+        : `Athlete age (${athleteAge}) does not meet the class minimum age (${classAge.min})`;
+
+      throw new ConflictException(errorMessage);
     }
 
     if (athleteAge < 18) {

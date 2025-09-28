@@ -34,7 +34,7 @@ export class Athletes {
   @Prop({ required: false, type: String })
   graduation: string;
 
-  @Prop({ required: false, type: String })
+  @Prop({ required: false, select: false, type: String })
   password: string;
 
   @Prop({ type: [Responsible], required: false })

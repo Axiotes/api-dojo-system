@@ -14,9 +14,12 @@ export class PaymentMethodDto {
   cardHolderName: string;
 
   @IsString()
-  @Transform(({ value }) => value.replace(/\s+/g, '')) // remove todos os espaços
+  @Transform(({ value }) => value.replace(/\s+/g, ''))
   @Matches(/^\d+$/, { message: 'cardNumber must contain only numbers' })
   cardNumber: string;
+
+  @IsString()
+  methodId: string;
 
   @IsString()
   expirationMonth: string;

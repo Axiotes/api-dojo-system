@@ -3,12 +3,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { Payment, MercadoPagoConfig } from 'mercadopago';
-import { PaymentResponse } from 'mercadopago/dist/clients/payment/commonTypes';
 
 import { Payments } from './schemas/payments.schema';
 
 import { PaymentPix } from '@ds-types/payment-pix.type';
 import { PayCardData } from '@ds-types/pay-card-data.type';
+import { PaymentDocument } from '@ds-types/documents/payment-document.type';
+import { PayPixData } from '@ds-types/pay-pix-data.type';
 
 @Injectable()
 export class PaymentService {
@@ -23,13 +24,12 @@ export class PaymentService {
     this.payment = new Payment(client);
   }
 
-  public async payWithCard(data: PayCardData): Promise<PaymentResponse> {
+  public async payWithCard(data: PayCardData): Promise<PaymentDocument> {
     const paymentData = {
       transaction_amount: data.amount,
       token: data.cardToken,
-      description: 'Payment test - Dojo System',
       installments: data.installments ?? 1,
-      payment_method_id: 'visa',
+      payment_method_id: data.methodId,
       payer: {
         email: data.payerEmail,
       },
@@ -37,26 +37,46 @@ export class PaymentService {
 
     const response = await this.payment.create({ body: paymentData });
 
-    return response;
+    const payment = await this.paymentsModel.create({
+      athlete: data.athleteId,
+      mode: data.mode,
+      methodId: response.payment_method_id,
+      paymentIdMP: response.id,
+      status: response.status,
+      date: new Date().toLocaleString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+      }),
+      plan: data.planId,
+    });
+
+    return payment;
   }
 
-  public async payWithPix(
-    amount: number,
-    payerEmail: string,
-  ): Promise<PaymentPix> {
+  public async payWithPix(data: PayPixData): Promise<PaymentPix> {
     const paymentData = {
-      transaction_amount: amount,
+      transaction_amount: data.amount,
       payment_method_id: 'pix',
       payer: {
-        email: payerEmail,
+        email: data.payerEmail,
       },
     };
 
     const response = await this.payment.create({ body: paymentData });
 
-    return {
-      paymentId: response.id,
+    const payment = await this.paymentsModel.create({
+      athlete: data.athleteId,
+      mode: data.mode,
+      methodId: response.payment_method_id,
+      paymentIdMP: response.id,
       status: response.status,
+      date: new Date().toLocaleString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+      }),
+      plan: data.planId,
+    });
+
+    return {
+      ...payment,
       qrCode: response.point_of_interaction?.transaction_data?.qr_code,
       qrCodeBase64: `data:image/png;base64,${response.point_of_interaction?.transaction_data?.qr_code_base64}`,
     };
