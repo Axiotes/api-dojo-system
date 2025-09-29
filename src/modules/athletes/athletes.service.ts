@@ -38,16 +38,49 @@ export class AthletesService {
     private readonly paymentService: PaymentService,
   ) {}
 
-  public async createAthlete(athleteDto: AthleteDto, role?: Role) {
+  public async createAthlete(
+    athleteDto: AthleteDto,
+    role?: Role,
+  ): Promise<{
+    athlete: AthleteDocument;
+    payment?: PaymentDocument | PaymentPix;
+  }> {
     if (role === 'admin') {
-      return await this.createByAdmin(athleteDto);
+      const athlete = await this.createByAdmin(athleteDto);
+
+      return { athlete };
     }
 
     return await this.createByUser(athleteDto);
   }
 
-  private async createByAdmin(athleteDto: AthleteDto): Promise<void> {
-    console.log(athleteDto);
+  private async createByAdmin(
+    athleteDto: AthleteDto,
+  ): Promise<AthleteDocument> {
+    const [classes, plan] = await Promise.all([
+      this.classesService.findById(athleteDto.classes, [
+        'id',
+        'modality',
+        'age',
+      ]),
+      this.plansService.findById(athleteDto.plan, ['id', 'modality', 'value']),
+    ]);
+
+    await this.validateClassPlan(classes, plan);
+    await this.validateAthlete(athleteDto, classes.age);
+
+    const athlete = await this.athletesModel.create({
+      ...athleteDto,
+      responsibles: [athleteDto.responsible],
+      paymentMethod: athleteDto.paymentMethod
+        ? {
+            ...athleteDto.paymentMethod,
+            cardNumber: maskCardNumber(athleteDto.paymentMethod.cardNumber),
+          }
+        : undefined,
+    });
+
+    return athlete;
   }
 
   private async createByUser(athleteDto: AthleteDto): Promise<{
