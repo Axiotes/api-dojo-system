@@ -26,6 +26,7 @@ import { PaymentService } from '@ds-modules/payment/payment.service';
 import { AthleteDocument } from '@ds-types/documents/athlete-document.type';
 import { PaymentPix } from '@ds-types/payment-pix.type';
 import { PaymentDocument } from '@ds-types/documents/payment-document.type';
+import { EmailService } from '@ds-services/email/email.service';
 
 @Injectable()
 export class AthletesService {
@@ -36,6 +37,7 @@ export class AthletesService {
     private readonly classesService: ClassesService,
     private readonly plansService: PlansService,
     private readonly paymentService: PaymentService,
+    private readonly emailService: EmailService,
   ) {}
 
   public async createAthlete(
