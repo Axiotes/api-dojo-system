@@ -30,7 +30,7 @@ export class EmailService {
     return transporter;
   }
 
-  public async multipleEmail(email: MultipleEmail): Promise<void> {
+  public async multipleEmail<T>(email: MultipleEmail<T>): Promise<void> {
     const { recipients, subject, template, context } = email;
 
     const transporter = this.emailTransport();
