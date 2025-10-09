@@ -60,6 +60,12 @@ export class AthletesService {
   private async createByAdmin(
     athleteDto: AthleteDto,
   ): Promise<AthleteDocument> {
+    if (athleteDto.paymentMode !== PaymentMode.PERSONALLY) {
+      throw new BadRequestException(
+        `registration through an admin must be ${PaymentMode.PERSONALLY}`,
+      );
+    }
+
     const [classes, plan] = await Promise.all([
       this.classesService.findById(athleteDto.classes, [
         'id',
@@ -142,6 +148,8 @@ export class AthletesService {
       const athleteAge = calculateAge(athleteDto.birthDate);
       const payerEmail =
         athleteAge < 18 ? athleteDto.responsible.email : athleteDto.email;
+      const name =
+        athleteAge < 18 ? athleteDto.responsible.name : athleteDto.name;
 
       if (athleteDto.paymentMode === PaymentMode.PIX) {
         const payment = await this.paymentService.payWithPix({
@@ -150,6 +158,14 @@ export class AthletesService {
           planId: plan.id,
           amount: plan.value,
           mode: athleteDto.paymentMode,
+        });
+        await this.emailService.singleEmail<EmailDefinePassword>({
+          recipient: payerEmail,
+          subject: `Bem-vindo(a) à Dojo System!`,
+          template: 'welcome',
+          context: {
+            firstName: name.split(' ')[0],
+          },
         });
         await athlete.save({ session });
 
@@ -177,6 +193,14 @@ export class AthletesService {
         mode: athleteDto.paymentMode,
         methodId: athleteDto.paymentMethod.methodId,
       });
+      await this.emailService.singleEmail<EmailDefinePassword>({
+        recipient: payerEmail,
+        subject: `Bem-vindo(a) à Dojo System!`,
+        template: 'welcome',
+        context: {
+          firstName: name.split(' ')[0],
+        },
+      });
       await athlete.save({ session });
 
       await session.commitTransaction();
@@ -190,8 +214,6 @@ export class AthletesService {
       if (error instanceof HttpException) {
         throw error;
       }
-
-      console.log(error);
 
       throw new InternalServerErrorException(
         'Error processing payment, please try again',

@@ -76,7 +76,7 @@ export class PaymentService {
     });
 
     return {
-      ...payment,
+      ...payment.toObject(),
       qrCode: response.point_of_interaction?.transaction_data?.qr_code,
       qrCodeBase64: `data:image/png;base64,${response.point_of_interaction?.transaction_data?.qr_code_base64}`,
     };
