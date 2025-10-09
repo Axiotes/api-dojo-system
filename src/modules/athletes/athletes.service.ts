@@ -27,6 +27,7 @@ import { AthleteDocument } from '@ds-types/documents/athlete-document.type';
 import { PaymentPix } from '@ds-types/payment-pix.type';
 import { PaymentDocument } from '@ds-types/documents/payment-document.type';
 import { EmailService } from '@ds-services/email/email.service';
+import { EmailDefinePassword } from '@ds-types/email-define-password.type';
 
 @Injectable()
 export class AthletesService {
@@ -70,6 +71,22 @@ export class AthletesService {
 
     await this.validateClassPlan(classes, plan);
     await this.validateAthlete(athleteDto, classes.age);
+
+    const athleteAge = calculateAge(athleteDto.birthDate);
+    const email =
+      athleteAge < 18 ? athleteDto.responsible.email : athleteDto.email;
+    const name =
+      athleteAge < 18 ? athleteDto.responsible.name : athleteDto.name;
+
+    await this.emailService.singleEmail<EmailDefinePassword>({
+      recipient: email,
+      subject: `Bem-vindo(a) à Dojo System! Defina sua senha para acessar o portal do
+      aluno`,
+      template: 'define-password',
+      context: {
+        firstName: name.split(' ')[0],
+      },
+    });
 
     const athlete = await this.athletesModel.create({
       ...athleteDto,

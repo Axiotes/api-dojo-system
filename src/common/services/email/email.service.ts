@@ -52,7 +52,7 @@ export class EmailService {
     }
   }
 
-  public async sigleEmail<T>(email: SingleEmail<T>): Promise<void> {
+  public async singleEmail<T>(email: SingleEmail<T>): Promise<void> {
     const { recipient, subject, template, context } = email;
 
     const transporter = this.emailTransport();
