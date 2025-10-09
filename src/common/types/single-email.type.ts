@@ -1,5 +1,5 @@
 import { Email } from './email.type';
 
-export type SingleEmail = Email & {
+export type SingleEmail<T> = Email<T> & {
   recipient: string;
 };

@@ -1,5 +1,6 @@
-export type Email = {
+export type Email<T> = {
   subject: string;
-  html: string;
+  template: string;
+  context: T;
   text?: string;
 };

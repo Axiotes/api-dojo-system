@@ -1,13 +1,20 @@
+import * as fs from 'fs';
+import * as path from 'path';
+
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 
 import { SingleEmail } from '@ds-types/single-email.type';
 import { MultipleEmail } from '@ds-types/multiple-email.type';
+import { TemplateService } from '@ds-services/template/template.service';
 
 @Injectable()
 export class EmailService {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly templateService: TemplateService,
+  ) {}
 
   public emailTransport(): nodemailer.transporter {
     const transporter = nodemailer.createTransport({
@@ -24,9 +31,11 @@ export class EmailService {
   }
 
   public async multipleEmail(email: MultipleEmail): Promise<void> {
-    const { recipients, subject, html } = email;
+    const { recipients, subject, template, context } = email;
 
     const transporter = this.emailTransport();
+
+    const html = this.templateService.compileEmailTemplate(template, context);
 
     const options: nodemailer.SendMailOptions = {
       from: '"Dojo System" <project.dojo.system@gmail.com>',
@@ -43,16 +52,25 @@ export class EmailService {
     }
   }
 
-  public async sigleEmail(email: SingleEmail): Promise<void> {
-    const { recipient, subject, html } = email;
+  public async sigleEmail<T>(email: SingleEmail<T>): Promise<void> {
+    const { recipient, subject, template, context } = email;
 
     const transporter = this.emailTransport();
+    const html = this.templateService.compileEmailTemplate(template, context);
+    const logoPath = path.join(process.cwd(), 'src/assets/logo-white.png');
 
     const options: nodemailer.SendMailOptions = {
       from: '"Dojo System" <project.dojo.system@gmail.com>',
       to: recipient,
       subject,
       html,
+      attachments: [
+        {
+          filename: 'logo-white.png',
+          content: fs.readFileSync(logoPath),
+          cid: 'dojo-logo',
+        },
+      ],
     };
 
     try {

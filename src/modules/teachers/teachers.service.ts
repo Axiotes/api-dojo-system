@@ -412,7 +412,7 @@ export class TeachersService {
     return {
       header: {
         title: 'Relatório de Professores da academia',
-        logoPath: logoBase64(),
+        logoPath: logoBase64('black'),
         date: new Date().toLocaleDateString('pt-BR', {
           timeZone: 'America/Sao_Paulo',
         }),
