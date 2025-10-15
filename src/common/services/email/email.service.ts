@@ -38,8 +38,8 @@ export class EmailService {
     const html = this.templateService.compileEmailTemplate(template, context);
 
     const options: nodemailer.SendMailOptions = {
-      from: '"Dojo System" <project.dojo.system@gmail.com>',
-      to: 'project.dojo.system@gmail.com',
+      from: `"Dojo System" <${this.configService.get<string>('EMAIL_USER')}>`,
+      to: this.configService.get<string>('EMAIL_USER'),
       bcc: recipients,
       subject,
       html,
@@ -60,7 +60,7 @@ export class EmailService {
     const logoPath = path.join(process.cwd(), 'src/assets/logo-white.png');
 
     const options: nodemailer.SendMailOptions = {
-      from: '"Dojo System" <project.dojo.system@gmail.com>',
+      from: `"Dojo System" <${this.configService.get<string>('EMAIL_USER')}>`,
       to: recipient,
       subject,
       html,
