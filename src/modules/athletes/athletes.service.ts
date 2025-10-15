@@ -78,11 +78,7 @@ export class AthletesService {
     await this.validateClassPlan(classes, plan);
     await this.validateAthlete(athleteDto, classes.age);
 
-    const athleteAge = calculateAge(athleteDto.birthDate);
-    const email =
-      athleteAge < 18 ? athleteDto.responsible.email : athleteDto.email;
-    const name =
-      athleteAge < 18 ? athleteDto.responsible.name : athleteDto.name;
+    const { name, email } = this.resolveContactInfo(athleteDto);
 
     await this.emailService.singleEmail<EmailDefinePassword>({
       recipient: email,
@@ -145,22 +141,18 @@ export class AthletesService {
         );
       }
 
-      const athleteAge = calculateAge(athleteDto.birthDate);
-      const payerEmail =
-        athleteAge < 18 ? athleteDto.responsible.email : athleteDto.email;
-      const name =
-        athleteAge < 18 ? athleteDto.responsible.name : athleteDto.name;
+      const { name, email } = this.resolveContactInfo(athleteDto);
 
       if (athleteDto.paymentMode === PaymentMode.PIX) {
         const payment = await this.paymentService.payWithPix({
-          payerEmail,
+          payerEmail: email,
           athleteId: athlete.id,
           planId: plan.id,
           amount: plan.value,
           mode: athleteDto.paymentMode,
         });
         await this.emailService.singleEmail<EmailDefinePassword>({
-          recipient: payerEmail,
+          recipient: email,
           subject: `Bem-vindo(a) à Dojo System!`,
           template: 'welcome',
           context: {
@@ -184,7 +176,7 @@ export class AthletesService {
 
       const payment = await this.paymentService.payWithCard({
         cardToken: athleteDto.paymentMethod.cardToken,
-        payerEmail,
+        payerEmail: email,
         amount: plan.value,
         installments: 1,
         cardNumber: athleteDto.paymentMethod.cardNumber,
@@ -194,7 +186,7 @@ export class AthletesService {
         methodId: athleteDto.paymentMethod.methodId,
       });
       await this.emailService.singleEmail<EmailDefinePassword>({
-        recipient: payerEmail,
+        recipient: email,
         subject: `Bem-vindo(a) à Dojo System!`,
         template: 'welcome',
         context: {
@@ -308,5 +300,25 @@ export class AthletesService {
         `Responsible with ${field} ${value} already exists`,
       );
     }
+  }
+
+  private resolveContactInfo(athleteDto: AthleteDto): {
+    name: string;
+    email: string;
+  } {
+    const athleteAge = calculateAge(athleteDto.birthDate);
+
+    let email = athleteDto.email;
+    let name = athleteDto.name;
+
+    if (athleteAge < 18) {
+      email = athleteDto.responsible.email;
+      name = athleteDto.responsible.name;
+    }
+
+    return {
+      name,
+      email,
+    };
   }
 }
