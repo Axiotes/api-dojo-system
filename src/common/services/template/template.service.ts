@@ -4,6 +4,8 @@ import * as path from 'path';
 import * as Handlebars from 'handlebars';
 import { Injectable } from '@nestjs/common';
 
+import { TemplateType } from '@ds-enums/template-type.enum';
+
 @Injectable()
 export class TemplateService {
   public compileEmailTemplate<T>(templateName: string, data: T): string {
@@ -13,7 +15,7 @@ export class TemplateService {
       `${templateName}.hbs`,
     );
 
-    this.registerPartials('emails');
+    this.registerPartials(TemplateType.EMAIL);
 
     const templateString = fs.readFileSync(templatePath, 'utf-8');
     const template = Handlebars.compile(templateString, { noEscape: true });
@@ -21,10 +23,10 @@ export class TemplateService {
     return template(data);
   }
 
-  private registerPartials(type: 'emails' | 'pdfs'): void {
+  private registerPartials(type: TemplateType): void {
     const partialsPath = path.join(
       process.cwd(),
-      `src/templates/${type}/partials`,
+      `src/templates/${type.toLocaleLowerCase()}/partials`,
     );
 
     if (!fs.existsSync(partialsPath)) return;
