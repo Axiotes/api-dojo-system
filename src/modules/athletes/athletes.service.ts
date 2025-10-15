@@ -28,6 +28,7 @@ import { PaymentPix } from '@ds-types/payment-pix.type';
 import { PaymentDocument } from '@ds-types/documents/payment-document.type';
 import { EmailService } from '@ds-services/email/email.service';
 import { EmailDefinePassword } from '@ds-types/email-define-password.type';
+import { IdentifierFields } from '@ds-enums/identifier-fields.enum';
 
 @Injectable()
 export class AthletesService {
@@ -282,16 +283,22 @@ export class AthletesService {
       throw new BadRequestException('Responsible must be over 18 years old');
     }
 
-    await this.checkExistingResponsible('cpf', responsibleDto.cpf);
-    await this.checkExistingResponsible('email', responsibleDto.email);
+    await this.checkExistingResponsible(
+      IdentifierFields.CPF,
+      responsibleDto.cpf,
+    );
+    await this.checkExistingResponsible(
+      IdentifierFields.EMAIL,
+      responsibleDto.email,
+    );
   }
 
   private async checkExistingResponsible(
-    field: 'cpf' | 'email',
+    field: IdentifierFields,
     value: string,
   ): Promise<void> {
     const exists = await this.athletesModel.findOne(
-      { [`responsibles.${field}`]: value },
+      { [`responsibles.${field.toLocaleLowerCase()}`]: value },
       { [field]: 1 },
     );
 
