@@ -109,6 +109,12 @@ export class AthletesService {
     athlete: AthleteDocument;
     payment: PaymentDocument | PaymentPix;
   }> {
+    if (athleteDto.paymentMode === PaymentMode.PERSONALLY) {
+      throw new BadRequestException(
+        `Payment method for a common user must be ${PaymentMode.CARD} or ${PaymentMode.PIX}`,
+      );
+    }
+
     const [classes, plan] = await Promise.all([
       this.classesService.findById(athleteDto.classes, [
         'id',
@@ -139,12 +145,6 @@ export class AthletesService {
             ]
           : undefined,
       });
-
-      if (athleteDto.paymentMode === PaymentMode.PERSONALLY) {
-        throw new BadRequestException(
-          `Payment method for a common user must be ${PaymentMode.CARD} or ${PaymentMode.PIX}`,
-        );
-      }
 
       const { name, email } = this.resolveContactInfo(athleteDto);
 

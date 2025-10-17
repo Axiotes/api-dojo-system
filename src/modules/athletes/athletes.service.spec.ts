@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Connection, Model, Types } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
+import { BadRequestException, ConflictException } from '@nestjs/common';
 
 import { AthletesService } from './athletes.service';
 import { Athletes } from './schemas/athletes.schema';
@@ -21,6 +22,7 @@ import { PaymentDocument } from '@ds-types/documents/payment-document.type';
 import { CardType } from '@ds-enums/card-type.enum';
 import { maskCardNumber } from '@ds-common/helpers/mask-card-number.helper';
 import { PaymentMethod } from '@ds-modules/payment/schemas/payment-method.schema';
+import { calculateAge } from '@ds-common/helpers/calculate-age.helper';
 
 describe('AthletesService', () => {
   let service: AthletesService;
@@ -854,5 +856,431 @@ describe('AthletesService', () => {
         firstName: athleteDto.responsible.name.split(' ')[0],
       },
     });
+  });
+
+  it('should throw BadRequestException if the payment mode is not personally when an admin creates an athlete', async () => {
+    const role = 'admin';
+    const athleteDtoPix = {
+      paymentMode: PaymentMode.PIX,
+    } as AthleteDto;
+    const athleteDtoCard = {
+      paymentMode: PaymentMode.CARD,
+    } as AthleteDto;
+
+    await expect(service.createAthlete(athleteDtoPix, role)).rejects.toThrow(
+      new BadRequestException(
+        `Registration through an admin must be ${PaymentMode.PERSONALLY}`,
+      ),
+    );
+    await expect(service.createAthlete(athleteDtoCard, role)).rejects.toThrow(
+      new BadRequestException(
+        `Registration through an admin must be ${PaymentMode.PERSONALLY}`,
+      ),
+    );
+  });
+
+  it('should throw BadRequestException if the payment mode is not card or pix when a user creates an athlete', async () => {
+    const role = undefined;
+    const athleteDto = {
+      paymentMode: PaymentMode.PERSONALLY,
+    } as AthleteDto;
+
+    await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
+      new BadRequestException(
+        `Payment method for a common user must be ${PaymentMode.CARD} or ${PaymentMode.PIX}`,
+      ),
+    );
+  });
+
+  it('should throw ConflictException if the class modality is not compatible with the plan modality when an admin creates an athlete', async () => {
+    const role = 'admin';
+    const athleteDto = {
+      plan: new Types.ObjectId('68ab8644201ea1a63f8cb22e'),
+      classes: new Types.ObjectId('68b4acbe14a396b9de66a803'),
+      paymentMode: PaymentMode.PERSONALLY,
+    } as AthleteDto;
+    const classes = {
+      id: athleteDto.classes,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb44f'),
+      age: {
+        min: 18,
+      },
+    } as ClassDocument;
+    const plan = {
+      id: athleteDto.plan,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      value: 100,
+    } as PlanDocument;
+
+    classesService.findById = jest.fn().mockResolvedValue(classes);
+    plansService.findById = jest.fn().mockResolvedValue(plan);
+
+    await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
+      new ConflictException(
+        `"Class modality '${classes.modality}' is not compatible with plan modality '${plan.modality}'`,
+      ),
+    );
+  });
+
+  it('should throw ConflictException if the class modality is not compatible with the plan modality when a user creates an athlete', async () => {
+    const role = undefined;
+    const athleteDto = {
+      plan: new Types.ObjectId('68ab8644201ea1a63f8cb22e'),
+      classes: new Types.ObjectId('68b4acbe14a396b9de66a803'),
+      paymentMode: PaymentMode.PIX,
+    } as AthleteDto;
+    const classes = {
+      id: athleteDto.classes,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb44f'),
+      age: {
+        min: 18,
+      },
+    } as ClassDocument;
+    const plan = {
+      id: athleteDto.plan,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      value: 100,
+    } as PlanDocument;
+
+    classesService.findById = jest.fn().mockResolvedValue(classes);
+    plansService.findById = jest.fn().mockResolvedValue(plan);
+
+    await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
+      new ConflictException(
+        `"Class modality '${classes.modality}' is not compatible with plan modality '${plan.modality}'`,
+      ),
+    );
+  });
+
+  it("should throw ConflictException if the athlete's age is outside the class's age range when an admin creates an athlete", async () => {
+    const role = 'admin';
+    const athleteDto = {
+      plan: new Types.ObjectId('68ab8644201ea1a63f8cb22e'),
+      classes: new Types.ObjectId('68b4acbe14a396b9de66a803'),
+      paymentMode: PaymentMode.PERSONALLY,
+      dateBirth: new Date('2018-02-04'),
+    } as AthleteDto;
+    const classes = {
+      id: athleteDto.classes,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      age: {
+        min: 4,
+        max: 6,
+      },
+    } as ClassDocument;
+    const plan = {
+      id: athleteDto.plan,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      value: 100,
+    } as PlanDocument;
+
+    classesService.findById = jest.fn().mockResolvedValue(classes);
+    plansService.findById = jest.fn().mockResolvedValue(plan);
+
+    validateFieldsService.validateCpf = jest.fn().mockImplementation(() => {});
+
+    const athleteAge = calculateAge(athleteDto.dateBirth);
+
+    await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
+      new ConflictException(
+        `Athlete age (${athleteAge}) does not meet the class age range (${classes.age.min} - ${classes.age.max})`,
+      ),
+    );
+  });
+
+  it("should throw ConflictException if the athlete's age is outside the class's age range when a user creates an athlete", async () => {
+    const role = undefined;
+    const athleteDto = {
+      plan: new Types.ObjectId('68ab8644201ea1a63f8cb22e'),
+      classes: new Types.ObjectId('68b4acbe14a396b9de66a803'),
+      paymentMode: PaymentMode.PIX,
+      dateBirth: new Date('2018-02-04'),
+    } as AthleteDto;
+    const classes = {
+      id: athleteDto.classes,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      age: {
+        min: 4,
+        max: 6,
+      },
+    } as ClassDocument;
+    const plan = {
+      id: athleteDto.plan,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      value: 100,
+    } as PlanDocument;
+
+    classesService.findById = jest.fn().mockResolvedValue(classes);
+    plansService.findById = jest.fn().mockResolvedValue(plan);
+
+    validateFieldsService.validateCpf = jest.fn().mockImplementation(() => {});
+
+    const athleteAge = calculateAge(athleteDto.dateBirth);
+
+    await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
+      new ConflictException(
+        `Athlete age (${athleteAge}) does not meet the class age range (${classes.age.min} - ${classes.age.max})`,
+      ),
+    );
+  });
+
+  it('should throw BadRequestException if an adult athlete does not provide an email when an admin creates an athlete', async () => {
+    const role = 'admin';
+    const athleteDto: AthleteDto = {
+      name: 'Test',
+      cpf: '42153505240',
+      dateBirth: new Date('1978-04-22'),
+      plan: new Types.ObjectId('68ab8644201ea1a63f8cb22e'),
+      classes: new Types.ObjectId('68b4acbe14a396b9de66a803'),
+      email: undefined,
+      paymentMode: PaymentMode.PERSONALLY,
+    };
+    const classes = {
+      id: athleteDto.classes,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      age: {
+        min: 18,
+      },
+    } as ClassDocument;
+    const plan = {
+      id: athleteDto.plan,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      value: 100,
+    } as PlanDocument;
+
+    classesService.findById = jest.fn().mockResolvedValue(classes);
+    plansService.findById = jest.fn().mockResolvedValue(plan);
+
+    validateFieldsService.validateCpf = jest.fn().mockImplementation(() => {});
+
+    await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
+      new BadRequestException(
+        'Email is required for athletes over 18 years old',
+      ),
+    );
+  });
+
+  it('should throw BadRequestException if an adult athlete does not provide an email when a user creates an athlete', async () => {
+    const role = undefined;
+    const athleteDto: AthleteDto = {
+      name: 'Test',
+      cpf: '42153505240',
+      dateBirth: new Date('1978-04-22'),
+      plan: new Types.ObjectId('68ab8644201ea1a63f8cb22e'),
+      classes: new Types.ObjectId('68b4acbe14a396b9de66a803'),
+      email: undefined,
+      paymentMode: PaymentMode.PIX,
+    };
+    const classes = {
+      id: athleteDto.classes,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      age: {
+        min: 18,
+      },
+    } as ClassDocument;
+    const plan = {
+      id: athleteDto.plan,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      value: 100,
+    } as PlanDocument;
+
+    classesService.findById = jest.fn().mockResolvedValue(classes);
+    plansService.findById = jest.fn().mockResolvedValue(plan);
+
+    validateFieldsService.validateCpf = jest.fn().mockImplementation(() => {});
+
+    await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
+      new BadRequestException(
+        'Email is required for athletes over 18 years old',
+      ),
+    );
+  });
+
+  it('should throw BadRequestException if a minor athlete does not have a responsible person when an admin creates an athlete', async () => {
+    const role = 'admin';
+    const athleteDto: AthleteDto = {
+      name: 'Test',
+      cpf: '42153505240',
+      dateBirth: new Date('2020-04-22'),
+      plan: new Types.ObjectId('68ab8644201ea1a63f8cb22e'),
+      classes: new Types.ObjectId('68b4acbe14a396b9de66a803'),
+      responsible: undefined,
+      paymentMode: PaymentMode.PERSONALLY,
+    };
+    const classes = {
+      id: athleteDto.classes,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      age: {
+        min: 4,
+        max: 8,
+      },
+    } as ClassDocument;
+    const plan = {
+      id: athleteDto.plan,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      value: 100,
+    } as PlanDocument;
+
+    classesService.findById = jest.fn().mockResolvedValue(classes);
+    plansService.findById = jest.fn().mockResolvedValue(plan);
+
+    validateFieldsService.validateCpf = jest.fn().mockImplementation(() => {});
+
+    await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
+      new BadRequestException(
+        'Responsible is required for athletes under 18 years old',
+      ),
+    );
+  });
+
+  it('should throw BadRequestException if a minor athlete does not have a responsible person when a user creates an athlete', async () => {
+    const role = undefined;
+    const athleteDto: AthleteDto = {
+      name: 'Test',
+      cpf: '42153505240',
+      dateBirth: new Date('2020-04-22'),
+      plan: new Types.ObjectId('68ab8644201ea1a63f8cb22e'),
+      classes: new Types.ObjectId('68b4acbe14a396b9de66a803'),
+      responsible: undefined,
+      paymentMode: PaymentMode.PIX,
+    };
+    const classes = {
+      id: athleteDto.classes,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      age: {
+        min: 4,
+        max: 8,
+      },
+    } as ClassDocument;
+    const plan = {
+      id: athleteDto.plan,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      value: 100,
+    } as PlanDocument;
+
+    classesService.findById = jest.fn().mockResolvedValue(classes);
+    plansService.findById = jest.fn().mockResolvedValue(plan);
+
+    validateFieldsService.validateCpf = jest.fn().mockImplementation(() => {});
+
+    await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
+      new BadRequestException(
+        'Responsible is required for athletes under 18 years old',
+      ),
+    );
+  });
+
+  it('should throw BadRequestException if a minor athlete has a minor responsible when an admin creates an athlete', async () => {
+    const role = 'admin';
+    const athleteDto: AthleteDto = {
+      name: 'Test',
+      cpf: '42153505240',
+      dateBirth: new Date('2020-04-22'),
+      plan: new Types.ObjectId('68ab8644201ea1a63f8cb22e'),
+      classes: new Types.ObjectId('68b4acbe14a396b9de66a803'),
+      responsible: {
+        dateBirth: new Date('2018-04-22'),
+      } as Responsible,
+      paymentMode: PaymentMode.PERSONALLY,
+    };
+    const classes = {
+      id: athleteDto.classes,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      age: {
+        min: 4,
+        max: 8,
+      },
+    } as ClassDocument;
+    const plan = {
+      id: athleteDto.plan,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      value: 100,
+    } as PlanDocument;
+
+    classesService.findById = jest.fn().mockResolvedValue(classes);
+    plansService.findById = jest.fn().mockResolvedValue(plan);
+
+    validateFieldsService.validateCpf = jest.fn().mockImplementation(() => {});
+
+    await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
+      new BadRequestException('Responsible must be over 18 years old'),
+    );
+  });
+
+  it('should throw BadRequestException if a minor athlete has a minor responsible when a user creates an athlete', async () => {
+    const role = undefined;
+    const athleteDto: AthleteDto = {
+      name: 'Test',
+      cpf: '42153505240',
+      dateBirth: new Date('2020-04-22'),
+      plan: new Types.ObjectId('68ab8644201ea1a63f8cb22e'),
+      classes: new Types.ObjectId('68b4acbe14a396b9de66a803'),
+      responsible: {
+        dateBirth: new Date('2018-04-22'),
+      } as Responsible,
+      paymentMode: PaymentMode.PIX,
+    };
+    const classes = {
+      id: athleteDto.classes,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      age: {
+        min: 4,
+        max: 8,
+      },
+    } as ClassDocument;
+    const plan = {
+      id: athleteDto.plan,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      value: 100,
+    } as PlanDocument;
+
+    classesService.findById = jest.fn().mockResolvedValue(classes);
+    plansService.findById = jest.fn().mockResolvedValue(plan);
+
+    validateFieldsService.validateCpf = jest.fn().mockImplementation(() => {});
+
+    await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
+      new BadRequestException('Responsible must be over 18 years old'),
+    );
+  });
+
+  it('should throw BadRequestException if a user tries to create an athlete using a card but without providing card information', async () => {
+    const role = undefined;
+    const athleteDto: AthleteDto = {
+      name: 'Test',
+      cpf: '42153505240',
+      dateBirth: new Date('1978-04-22'),
+      plan: new Types.ObjectId('68ab8644201ea1a63f8cb22e'),
+      classes: new Types.ObjectId('68b4acbe14a396b9de66a803'),
+      email: 'unit.test.dj@gmail.com',
+      paymentMode: PaymentMode.CARD,
+      paymentMethod: undefined,
+    };
+    const classes = {
+      id: athleteDto.classes,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      age: {
+        min: 18,
+      },
+    } as ClassDocument;
+    const plan = {
+      id: athleteDto.plan,
+      modality: new Types.ObjectId('68ab8644201ea1a63f8cb33e'),
+      value: 100,
+    } as PlanDocument;
+
+    classesService.findById = jest.fn().mockResolvedValue(classes);
+    plansService.findById = jest.fn().mockResolvedValue(plan);
+
+    validateFieldsService.isActive = jest.fn().mockImplementation(() => {});
+
+    validateFieldsService.validateCpf = jest.fn().mockImplementation(() => {});
+    validateFieldsService.validateEmail = jest
+      .fn()
+      .mockImplementation(() => {});
+
+    await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
+      new BadRequestException('Payment method information must be provided'),
+    );
   });
 });
