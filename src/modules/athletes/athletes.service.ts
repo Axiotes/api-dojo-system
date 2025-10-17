@@ -35,7 +35,7 @@ export class AthletesService {
   constructor(
     @InjectConnection() private readonly connection: Connection,
     @InjectModel(Athletes.name) private athletesModel: Model<Athletes>,
-    private readonly validadeFieldsService: ValidateFieldsService,
+    private readonly validateFieldsService: ValidateFieldsService,
     private readonly classesService: ClassesService,
     private readonly plansService: PlansService,
     private readonly paymentService: PaymentService,
@@ -63,7 +63,7 @@ export class AthletesService {
   ): Promise<AthleteDocument> {
     if (athleteDto.paymentMode !== PaymentMode.PERSONALLY) {
       throw new BadRequestException(
-        `registration through an admin must be ${PaymentMode.PERSONALLY}`,
+        `Registration through an admin must be ${PaymentMode.PERSONALLY}`,
       );
     }
 
@@ -81,16 +81,6 @@ export class AthletesService {
 
     const { name, email } = this.resolveContactInfo(athleteDto);
 
-    await this.emailService.singleEmail<EmailDefinePassword>({
-      recipient: email,
-      subject: `Bem-vindo(a) à Dojo System! Defina sua senha para acessar o portal do
-      aluno`,
-      template: 'define-password',
-      context: {
-        firstName: name.split(' ')[0],
-      },
-    });
-
     const athlete = await this.athletesModel.create({
       ...athleteDto,
       responsibles: [athleteDto.responsible],
@@ -100,6 +90,16 @@ export class AthletesService {
             cardNumber: maskCardNumber(athleteDto.paymentMethod.cardNumber),
           }
         : undefined,
+    });
+
+    await this.emailService.singleEmail<EmailDefinePassword>({
+      recipient: email,
+      subject: `Bem-vindo(a) à Dojo System! Defina sua senha para acessar o portal do
+      aluno`,
+      template: 'define-password',
+      context: {
+        firstName: name.split(' ')[0],
+      },
     });
 
     return athlete;
@@ -125,14 +125,18 @@ export class AthletesService {
     session.startTransaction();
 
     try {
+      const { classes, paymentMode, ...athleteData } = athleteDto;
+
       const athlete = new this.athletesModel({
-        ...athleteDto,
+        ...athleteData,
         responsibles: [athleteDto.responsible],
         paymentMethod: athleteDto.paymentMethod
-          ? {
-              ...athleteDto.paymentMethod,
-              cardNumber: maskCardNumber(athleteDto.paymentMethod.cardNumber),
-            }
+          ? [
+              {
+                ...athleteDto.paymentMethod,
+                cardNumber: maskCardNumber(athleteDto.paymentMethod.cardNumber),
+              },
+            ]
           : undefined,
       });
 
@@ -220,8 +224,8 @@ export class AthletesService {
     classes: ClassDocument,
     plan: PlanDocument,
   ): Promise<void> {
-    await this.validadeFieldsService.isActive('Classes', classes.id);
-    await this.validadeFieldsService.isActive('Plans', plan.id);
+    await this.validateFieldsService.isActive('Classes', classes.id);
+    await this.validateFieldsService.isActive('Plans', plan.id);
 
     const planModalityId = plan.modality._id.toString();
     const classModalityId = classes.modality.toString();
@@ -237,9 +241,9 @@ export class AthletesService {
     athleteDto: AthleteDto,
     classAge: Age,
   ): Promise<void> {
-    await this.validadeFieldsService.validateCpf('Athletes', athleteDto.cpf);
+    await this.validateFieldsService.validateCpf('Athletes', athleteDto.cpf);
 
-    const athleteAge = calculateAge(athleteDto.birthDate);
+    const athleteAge = calculateAge(athleteDto.dateBirth);
 
     if (
       athleteAge < classAge.min ||
@@ -262,7 +266,7 @@ export class AthletesService {
       );
     }
 
-    await this.validadeFieldsService.validateEmail(
+    await this.validateFieldsService.validateEmail(
       'Athletes',
       athleteDto.email,
     );
@@ -277,7 +281,7 @@ export class AthletesService {
       );
     }
 
-    const responsibleAge = calculateAge(responsibleDto.birthDate);
+    const responsibleAge = calculateAge(responsibleDto.dateBirth);
 
     if (responsibleAge < 18) {
       throw new BadRequestException('Responsible must be over 18 years old');
@@ -297,9 +301,11 @@ export class AthletesService {
     field: IdentifierFields,
     value: string,
   ): Promise<void> {
+    const lowerCaseField = field.toLocaleLowerCase();
+
     const exists = await this.athletesModel.findOne(
-      { [`responsibles.${field.toLocaleLowerCase()}`]: value },
-      { [field]: 1 },
+      { [`responsibles.${lowerCaseField}`]: value },
+      { [lowerCaseField]: 1 },
     );
 
     if (exists) {
@@ -313,7 +319,7 @@ export class AthletesService {
     name: string;
     email: string;
   } {
-    const athleteAge = calculateAge(athleteDto.birthDate);
+    const athleteAge = calculateAge(athleteDto.dateBirth);
 
     let email = athleteDto.email;
     let name = athleteDto.name;

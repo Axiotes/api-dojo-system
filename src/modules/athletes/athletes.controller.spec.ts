@@ -42,7 +42,7 @@ describe('AthletesController', () => {
     const athleteDto: AthleteDto = {
       name: 'Test',
       cpf: '42153505240',
-      birthDate: new Date('1978-04-22'),
+      dateBirth: new Date('1978-04-22'),
       plan: new Types.ObjectId('68ab8644201ea1a63f8cb22e'),
       classes: new Types.ObjectId('68b4acbe14a396b9de66a803'),
       email: 'unit.test.dj@gmail.com',
@@ -52,7 +52,7 @@ describe('AthletesController', () => {
       _id: new Types.ObjectId(),
       name: athleteDto.name,
       cpf: athleteDto.cpf,
-      birthDate: athleteDto.birthDate,
+      dateBirth: athleteDto.dateBirth,
       plan: athleteDto.plan,
       responsibles: [],
     } as AthleteDocument;
@@ -78,7 +78,7 @@ describe('AthletesController', () => {
     const athleteDto: AthleteDto = {
       name: 'Test',
       cpf: '42153505240',
-      birthDate: new Date('1978-04-22'),
+      dateBirth: new Date('1978-04-22'),
       plan: new Types.ObjectId('68ab8644201ea1a63f8cb22e'),
       classes: new Types.ObjectId('68b4acbe14a396b9de66a803'),
       email: 'unit.test.dj@gmail.com',
@@ -88,7 +88,7 @@ describe('AthletesController', () => {
       id: new Types.ObjectId(),
       name: athleteDto.name,
       cpf: athleteDto.cpf,
-      birthDate: athleteDto.birthDate,
+      dateBirth: athleteDto.dateBirth,
       plan: athleteDto.plan,
       responsibles: [],
     } as AthleteDocument;

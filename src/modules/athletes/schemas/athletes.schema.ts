@@ -29,7 +29,7 @@ export class Athletes {
   email?: string;
 
   @Prop({ required: [true, 'An athlete must have a birth date'], type: Date })
-  birthDate: Date;
+  dateBirth: Date;
 
   @Prop({ required: false, type: String })
   graduation: string;

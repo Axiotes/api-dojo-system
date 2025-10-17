@@ -15,5 +15,5 @@ export class ResponsibleDto {
 
   @Type(() => Date)
   @IsDate({ message: 'Date of birth must be in YYYY-MM-DD format' })
-  birthDate: Date;
+  dateBirth: Date;
 }
