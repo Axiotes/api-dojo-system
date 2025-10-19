@@ -88,7 +88,7 @@ export class ClassesService {
     const classDoc = await this.classesModel.findById(id, projection).exec();
 
     if (!classDoc) {
-      throw new NotFoundException(`Class with id ${id} not found`);
+      throw new NotFoundException(`Class not found`);
     }
 
     return classDoc;
