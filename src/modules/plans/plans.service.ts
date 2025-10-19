@@ -33,7 +33,7 @@ export class PlansService {
     const plan = await this.plansModel.findById(id, projection).exec();
 
     if (!plan) {
-      throw new NotFoundException(`Plan with id ${id} not found`);
+      throw new NotFoundException(`Plan not found`);
     }
 
     return plan;
