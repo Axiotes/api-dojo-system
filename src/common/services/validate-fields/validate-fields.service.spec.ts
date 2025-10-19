@@ -102,7 +102,9 @@ describe('ValidateFieldsService', () => {
     ).resolves.toBeUndefined();
 
     expect(connection.model).toHaveBeenCalledWith('User');
-    expect(modelMock.findById).toHaveBeenCalledWith(document._id);
+    expect(modelMock.findById).toHaveBeenCalledWith(document._id, {
+      status: 1,
+    });
   });
 
   it('should throw NotFoundException if document is not found', async () => {
@@ -116,7 +118,7 @@ describe('ValidateFieldsService', () => {
     );
 
     expect(connection.model).toHaveBeenCalledWith('User');
-    expect(modelMock.findById).toHaveBeenCalledWith(id);
+    expect(modelMock.findById).toHaveBeenCalledWith(id, { status: 1 });
   });
 
   it('should throw BadRequestException if document is disable', async () => {
@@ -133,6 +135,8 @@ describe('ValidateFieldsService', () => {
     );
 
     expect(connection.model).toHaveBeenCalledWith('User');
-    expect(modelMock.findById).toHaveBeenCalledWith(document._id);
+    expect(modelMock.findById).toHaveBeenCalledWith(document._id, {
+      status: 1,
+    });
   });
 });
