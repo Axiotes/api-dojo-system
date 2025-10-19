@@ -168,7 +168,7 @@ describe('ClassesController', () => {
     expect(result).toEqual({
       data: formatedClass,
     });
-    expect(classesService.findById).toHaveBeenCalledWith(classDoc._id);
+    expect(classesService.findById).toHaveBeenCalledWith(classDoc._id, []);
     expect(classesService.formatClassByRole).toHaveBeenCalledWith(
       classDoc,
       mockReq.user.role,
@@ -224,7 +224,7 @@ describe('ClassesController', () => {
     expect(result).toEqual({
       data: formatedClass,
     });
-    expect(classesService.findById).toHaveBeenCalledWith(classDoc._id);
+    expect(classesService.findById).toHaveBeenCalledWith(classDoc._id, []);
     expect(classesService.formatClassByRole).toHaveBeenCalledWith(
       classDoc,
       mockReq.user.role,
