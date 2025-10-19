@@ -10,6 +10,6 @@ export type PayCardData = {
   amount: number;
   installments?: number;
   cardNumber: string;
-  mode: PaymentMode;
+  mode: PaymentMode.CARD;
   methodId: string;
 };

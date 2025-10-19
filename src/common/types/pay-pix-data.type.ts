@@ -7,5 +7,5 @@ export type PayPixData = {
   athleteId: Types.ObjectId;
   planId: Types.ObjectId;
   amount: number;
-  mode: PaymentMode;
+  mode: PaymentMode.PIX;
 };
