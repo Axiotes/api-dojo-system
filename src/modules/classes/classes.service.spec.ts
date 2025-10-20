@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model, Types } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 
 import { ClassesService } from './classes.service';
 import { Classes } from './schemas/classes.schema';
@@ -14,11 +14,16 @@ import { TeachersService } from '@ds-modules/teachers/teachers.service';
 import { WeekDays } from '@ds-enums/week-days.enum';
 import { ModalitiesDocument } from '@ds-types/documents/modalitie-document.type';
 import { TeacherDocument } from '@ds-types/documents/teacher-document.type';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 describe('ClassesService', () => {
   let service: ClassesService;
   let modalitiesService: ModalitiesService;
   let teachersService: TeachersService;
+  let translateService: TranslateService;
   let classesModel: Model<ClassDocument>;
   // let classesHistoryModel: Model<ClassHistoryDocument>;
 
@@ -61,12 +66,19 @@ describe('ClassesService', () => {
             findById: jest.fn(),
           },
         },
+        {
+          provide: TranslateService,
+          useValue: {
+            translate: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<ClassesService>(ClassesService);
     modalitiesService = module.get<ModalitiesService>(ModalitiesService);
     teachersService = module.get<TeachersService>(TeachersService);
+    translateService = module.get<TranslateService>(TranslateService);
     classesModel = module.get<Model<ClassDocument>>(
       getModelToken(Classes.name),
     );
@@ -197,8 +209,15 @@ describe('ClassesService', () => {
     teachersService.findById = jest.fn().mockResolvedValue(teacher);
 
     await expect(service.createClass(newClass)).rejects.toThrow(
-      new BadRequestException(
-        `Modality with id ${newClass.modality} is disabled`,
+      new ConflictException(
+        await translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.CLASSES,
+            message: Message.MODALITY_DISABLE,
+          },
+          { args: { modalityId: newClass.modality.toString() } },
+        ),
       ),
     );
     expect(modalitiesService.findById).toHaveBeenCalledWith(newClass.modality, [
@@ -248,8 +267,15 @@ describe('ClassesService', () => {
     teachersService.findById = jest.fn().mockResolvedValue(teacher);
 
     await expect(service.createClass(newClass)).rejects.toThrow(
-      new BadRequestException(
-        `Teacher with id ${newClass.modality} is disabled`,
+      new ConflictException(
+        await translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.CLASSES,
+            message: Message.TEACHER_DISABLE,
+          },
+          { args: { teacherId: newClass.teacher.toString() } },
+        ),
       ),
     );
     expect(modalitiesService.findById).toHaveBeenCalledWith(newClass.modality, [
@@ -299,8 +325,15 @@ describe('ClassesService', () => {
     teachersService.findById = jest.fn().mockResolvedValue(teacher);
 
     await expect(service.createClass(newClass)).rejects.toThrow(
-      new BadRequestException(
-        `Teacher ${teacher.name} does not have ${modality.name} modality`,
+      new ConflictException(
+        await translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.CLASSES,
+            message: Message.INCOMPATIBLE_MODALITY,
+          },
+          { args: { teacherName: teacher.name, modalityName: modality.name } },
+        ),
       ),
     );
     expect(modalitiesService.findById).toHaveBeenCalledWith(newClass.modality, [
@@ -351,7 +384,13 @@ describe('ClassesService', () => {
     mockModel.exec.mockResolvedValue(null);
 
     await expect(service.findById(id, [])).rejects.toThrow(
-      new NotFoundException(`Class not found`),
+      new NotFoundException(
+        await translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.CLASSES,
+          message: Message.NOT_FOUND,
+        }),
+      ),
     );
     expect(classesModel.findById).toHaveBeenCalledWith(id, {});
   });
@@ -400,18 +439,6 @@ describe('ClassesService', () => {
     expect(classesModel.find).toHaveBeenCalled();
     expect(mockModel.skip).toHaveBeenCalledWith(queryParams.skip);
     expect(mockModel.limit).toHaveBeenCalledWith(queryParams.limit);
-  });
-
-  it('should throw a NotFoundException if class is not found', async () => {
-    const id = new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a');
-
-    mockModel.findById.mockReturnThis();
-    mockModel.exec.mockResolvedValue(null);
-
-    await expect(service.findById(id, [])).rejects.toThrow(
-      new NotFoundException(`Class not found`),
-    );
-    expect(classesModel.findById).toHaveBeenCalledWith(id, {});
   });
 
   it('should format class document without admin role', async () => {
