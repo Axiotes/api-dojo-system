@@ -36,7 +36,7 @@ import { PipesModule } from '@ds-common/pipes/pipes.module';
     I18nModule.forRoot({
       fallbackLanguage: 'en',
       loaderOptions: {
-        path: path.join(__dirname, '/'),
+        path: path.join(__dirname, '/i18n'),
         watch: true,
       },
       resolvers: [
