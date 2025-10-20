@@ -1,6 +1,9 @@
+import * as path from 'node:path';
+
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -29,6 +32,17 @@ import { PipesModule } from '@ds-common/pipes/pipes.module';
       useFactory: (config: ConfigService) => ({
         uri: config.get<string>('MONGODB_URI'),
       }),
+    }),
+    I18nModule.forRoot({
+      fallbackLanguage: 'en',
+      loaderOptions: {
+        path: path.join(__dirname, '/'),
+        watch: true,
+      },
+      resolvers: [
+        { use: QueryResolver, options: ['lang'] },
+        AcceptLanguageResolver,
+      ],
     }),
 
     ServicesModule,
