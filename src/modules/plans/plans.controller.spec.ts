@@ -69,7 +69,7 @@ describe('PlansController', () => {
   it('should find a plan by ID successfully', async () => {
     const id = '60c72b2f9b1d8c001c8e4e1a';
     const plan = {
-      _id: '60c72b2f9b1d8c001c8e4e1a',
+      _id: new Types.ObjectId(id),
       period: Period.MONTHLY,
       periodQuantity: 1,
       value: 50,
@@ -87,7 +87,10 @@ describe('PlansController', () => {
     const result = await controller.findById(id);
 
     expect(result).toEqual({ data: plan });
-    expect(plansService.findById).toHaveBeenCalledWith(id);
+    expect(plansService.findById).toHaveBeenCalledWith(
+      new Types.ObjectId(id),
+      [],
+    );
   });
 
   it('should throw BadRequestException for invalid ID format in findByID', async () => {

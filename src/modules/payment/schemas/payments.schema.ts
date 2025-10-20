@@ -22,10 +22,28 @@ export class Payments {
   mode: PaymentMode;
 
   @Prop({
-    required: [true, 'A payment must have a date'],
-    type: Date,
+    required: [true, 'A payment must have a method id'],
+    type: String,
   })
-  date: Date;
+  methodId: string;
+
+  @Prop({
+    required: [true, 'A payment must have a payment ID in Mercado Pago'],
+    type: String,
+  })
+  paymentIdMP: string;
+
+  @Prop({
+    required: [true, 'A payment must have a status'],
+    type: String,
+  })
+  status: string;
+
+  @Prop({
+    required: [true, 'A payment must have a date'],
+    type: String,
+  })
+  date: string;
 
   @Prop({
     required: [true, 'A payment must have a plan'],

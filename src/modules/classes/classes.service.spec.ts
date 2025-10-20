@@ -338,10 +338,10 @@ describe('ClassesService', () => {
     mockModel.findById.mockReturnThis();
     mockModel.exec.mockResolvedValue(classDoc);
 
-    const result = await service.findById(id);
+    const result = await service.findById(id, []);
 
     expect(result).toEqual(classDoc);
-    expect(classesModel.findById).toHaveBeenCalledWith(id);
+    expect(classesModel.findById).toHaveBeenCalledWith(id, {});
   });
 
   it('should throw a NotFoundException if class is not found', async () => {
@@ -350,10 +350,10 @@ describe('ClassesService', () => {
     mockModel.findById.mockReturnThis();
     mockModel.exec.mockResolvedValue(null);
 
-    await expect(service.findById(id)).rejects.toThrow(
-      new NotFoundException(`Class with id ${id} not found`),
+    await expect(service.findById(id, [])).rejects.toThrow(
+      new NotFoundException(`Class not found`),
     );
-    expect(classesModel.findById).toHaveBeenCalledWith(id);
+    expect(classesModel.findById).toHaveBeenCalledWith(id, {});
   });
 
   it('should find all classses with pagination and filter', async () => {
@@ -402,45 +402,16 @@ describe('ClassesService', () => {
     expect(mockModel.limit).toHaveBeenCalledWith(queryParams.limit);
   });
 
-  it('should find a class by ID succesfully', async () => {
-    const id = new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a');
-    const classDoc: Partial<ClassDocument> = {
-      _id: id,
-      modality: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1b'),
-      teacher: new Types.ObjectId('60c72b2f9b1d8c001c8e4e1c'),
-      hour: {
-        start: '17:00',
-        end: '18:00',
-      },
-      age: {
-        min: 4,
-        max: 8,
-      },
-      maxAthletes: 15,
-      weekDays: [WeekDays.MONDAY, WeekDays.WEDNESDAY],
-      image: Buffer.from('fake-image'),
-      athletes: [],
-    };
-
-    mockModel.findById.mockReturnThis();
-    mockModel.exec.mockResolvedValue(classDoc);
-
-    const result = await service.findById(id);
-
-    expect(result).toEqual(classDoc);
-    expect(classesModel.findById).toHaveBeenCalledWith(id);
-  });
-
   it('should throw a NotFoundException if class is not found', async () => {
     const id = new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a');
 
     mockModel.findById.mockReturnThis();
     mockModel.exec.mockResolvedValue(null);
 
-    await expect(service.findById(id)).rejects.toThrow(
-      new NotFoundException(`Class with id ${id} not found`),
+    await expect(service.findById(id, [])).rejects.toThrow(
+      new NotFoundException(`Class not found`),
     );
-    expect(classesModel.findById).toHaveBeenCalledWith(id);
+    expect(classesModel.findById).toHaveBeenCalledWith(id, {});
   });
 
   it('should format class document without admin role', async () => {

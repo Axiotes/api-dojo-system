@@ -187,7 +187,10 @@ export class ClassesController {
       throw new BadRequestException('Invalid id format');
     }
 
-    const classDoc = await this.classesService.findById(new Types.ObjectId(id));
+    const classDoc = await this.classesService.findById(
+      new Types.ObjectId(id),
+      [],
+    );
     const role = req['user']?.role;
 
     return {

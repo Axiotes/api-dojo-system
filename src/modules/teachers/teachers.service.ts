@@ -2,7 +2,6 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 import {
-  BadRequestException,
   ConflictException,
   forwardRef,
   Inject,
@@ -269,7 +268,7 @@ export class TeachersService {
           );
 
           if (!modalityMatch) {
-            throw new BadRequestException(
+            throw new ConflictException(
               `Teacher ${teacher.name} must have the ${classDoc.modality} modality to match his class registration`,
             );
           }
@@ -413,7 +412,7 @@ export class TeachersService {
     return {
       header: {
         title: 'Relatório de Professores da academia',
-        logoPath: logoBase64(),
+        logoPath: logoBase64('black'),
         date: new Date().toLocaleDateString('pt-BR', {
           timeZone: 'America/Sao_Paulo',
         }),

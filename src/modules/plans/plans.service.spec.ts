@@ -127,7 +127,7 @@ describe('PlansService', () => {
   });
 
   it('should find a plan by id successfully', async () => {
-    const id = '60c72b2f9b1d8c001c8e4e1a';
+    const id = new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a');
     const plan = {
       _id: id,
       period: Period.MONTHLY,
@@ -145,22 +145,22 @@ describe('PlansService', () => {
     mockPlansModel.findById.mockReturnThis();
     mockPlansModel.exec.mockResolvedValue(plan);
 
-    const result = await service.findById(id);
+    const result = await service.findById(id, []);
 
     expect(result).toEqual(plan);
-    expect(model.findById).toHaveBeenCalledWith(id);
+    expect(model.findById).toHaveBeenCalledWith(id, {});
   });
 
   it('should throw a NotFoundException if plan is not found', async () => {
-    const id = '60c72b2f9b1d8c001c8e4e1a';
+    const id = new Types.ObjectId('60c72b2f9b1d8c001c8e4e1a');
 
     mockPlansModel.findById.mockReturnThis();
     mockPlansModel.exec.mockResolvedValue(null);
 
-    await expect(service.findById(id)).rejects.toThrow(
-      new NotFoundException(`Plan with id ${id} not found`),
+    await expect(service.findById(id, [])).rejects.toThrow(
+      new NotFoundException(`Plan not found`),
     );
-    expect(model.findById).toHaveBeenCalledWith(id);
+    expect(model.findById).toHaveBeenCalledWith(id, {});
   });
 
   it('should find all plans with pagination', async () => {

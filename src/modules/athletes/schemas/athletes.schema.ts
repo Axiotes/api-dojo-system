@@ -28,10 +28,13 @@ export class Athletes {
   })
   email?: string;
 
-  @Prop({ required: [true, 'An athlete must have a date birth'], type: Date })
+  @Prop({ required: [true, 'An athlete must have a birth date'], type: Date })
   dateBirth: Date;
 
   @Prop({ required: false, type: String })
+  graduation: string;
+
+  @Prop({ required: false, select: false, type: String })
   password: string;
 
   @Prop({ type: [Responsible], required: false })
