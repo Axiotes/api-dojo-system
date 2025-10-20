@@ -34,6 +34,10 @@ import { ImageBase64Interceptor } from '@ds-common/interceptors/image-base64/ima
 import { RoleGuard } from '@ds-common/guards/role/role.guard';
 import { Roles } from '@ds-common/decorators/roles.decorator';
 import { OptionalJwtGuard } from '@ds-common/guards/optional-jwt/optional-jwt.guard';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 @UseInterceptors(ImageBase64Interceptor)
 @Controller('classes')
@@ -41,6 +45,7 @@ export class ClassesController {
   constructor(
     private readonly classesService: ClassesService,
     private readonly reduceImagePipe: ReduceImagePipe,
+    private readonly translateService: TranslateService,
   ) {}
 
   @ApiCookieAuth()
@@ -184,7 +189,13 @@ export class ClassesController {
     @Req() req: Request,
   ): Promise<ApiResponse<ClassDocument>> {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid id format');
+      throw new BadRequestException(
+        await this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.COMMON,
+          message: Message.INVALID_ID,
+        }),
+      );
     }
 
     const classDoc = await this.classesService.findById(

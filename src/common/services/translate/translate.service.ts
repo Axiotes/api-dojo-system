@@ -12,13 +12,13 @@ export class TranslateService {
 
   public async translate(
     key: { i18nFile: I18nFiles; module: ModuleName; message: Message },
-    options?: { lang?: Languages; args?: Record<string, string>[] },
+    options?: { lang?: Languages; args?: Record<string, string> },
   ): Promise<string> {
     const messageKey = `${key.i18nFile.toLocaleLowerCase()}.${key.module}.${key.message}`;
 
-    if (!options) options = { lang: 'pt-BR' };
-    if (!options.lang) options.lang = 'pt-BR';
+    const lang = options?.lang ?? 'pt-BR';
+    const args = options?.args ?? {};
 
-    return await this.i18n.translate(messageKey, options);
+    return await this.i18n.translate(messageKey, { lang, args });
   }
 }

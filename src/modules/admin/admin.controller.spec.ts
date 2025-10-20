@@ -89,7 +89,7 @@ describe('AdminController', () => {
       new BadRequestException(
         await translateService.translate({
           i18nFile: I18nFiles.ERRORS,
-          module: ModuleName.ADMIN,
+          module: ModuleName.COMMON,
           message: Message.INVALID_ID,
         }),
       ),
@@ -172,7 +172,7 @@ describe('AdminController', () => {
       new BadRequestException(
         await translateService.translate({
           i18nFile: I18nFiles.ERRORS,
-          module: ModuleName.ADMIN,
+          module: ModuleName.COMMON,
           message: Message.INVALID_ID,
         }),
       ),
@@ -187,7 +187,7 @@ describe('AdminController', () => {
       new BadRequestException(
         await translateService.translate({
           i18nFile: I18nFiles.ERRORS,
-          module: ModuleName.ADMIN,
+          module: ModuleName.COMMON,
           message: Message.INVALID_ID,
         }),
       ),
