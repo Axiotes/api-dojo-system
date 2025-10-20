@@ -10,10 +10,15 @@ import { FindAdminDto } from './dtos/find-admin.dto';
 import { UpdateAdminDto } from './dtos/update-admin.dto';
 
 import { AdminDocument } from '@ds-types/documents/admin';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 describe('AdminController', () => {
   let controller: AdminController;
   let adminService: AdminService;
+  let translateService: TranslateService;
 
   const mockResponse = {
     cookie: jest.fn(),
@@ -34,11 +39,13 @@ describe('AdminController', () => {
             updateAdmin: jest.fn(),
           },
         },
+        { provide: TranslateService, useValue: { translate: jest.fn() } },
       ],
     }).compile();
 
     controller = module.get<AdminController>(AdminController);
     adminService = module.get<AdminService>(AdminService);
+    translateService = module.get<TranslateService>(TranslateService);
   });
 
   it('should be defined', () => {
@@ -79,7 +86,13 @@ describe('AdminController', () => {
     const invalidId = '1234';
 
     await expect(controller.findById(invalidId)).rejects.toThrow(
-      new BadRequestException('Invalid id format'),
+      new BadRequestException(
+        await translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ADMIN,
+          message: Message.INVALID_ID,
+        }),
+      ),
     );
     expect(adminService.findById).toHaveBeenCalledTimes(0);
   });
@@ -156,7 +169,13 @@ describe('AdminController', () => {
     const invalidId = '1234';
 
     await expect(controller.inactive(invalidId)).rejects.toThrow(
-      new BadRequestException('Invalid id format'),
+      new BadRequestException(
+        await translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ADMIN,
+          message: Message.INVALID_ID,
+        }),
+      ),
     );
     expect(adminService.setStatus).toHaveBeenCalledTimes(0);
   });
@@ -165,7 +184,13 @@ describe('AdminController', () => {
     const invalidId = '1234';
 
     await expect(controller.reactivate(invalidId)).rejects.toThrow(
-      new BadRequestException('Invalid id format'),
+      new BadRequestException(
+        await translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ADMIN,
+          message: Message.INVALID_ID,
+        }),
+      ),
     );
     expect(adminService.setStatus).toHaveBeenCalledTimes(0);
   });

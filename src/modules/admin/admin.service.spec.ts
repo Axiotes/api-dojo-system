@@ -14,10 +14,15 @@ import { UpdateAdminDto } from './dtos/update-admin.dto';
 import { AdminDocument } from '@ds-types/documents/admin';
 import { AuthModule } from '@ds-modules/auth/auth.module';
 import { ValidateFieldsService } from '@ds-services/validate-fields/validate-fields.service';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 describe('AdminService', () => {
   let service: AdminService;
   let validateFieldService: ValidateFieldsService;
+  let translateService: TranslateService;
   let model: Model<AdminDocument>;
 
   const mockAdminModel = {
@@ -51,6 +56,7 @@ describe('AdminService', () => {
             validateEmail: jest.fn(),
           },
         },
+        { provide: TranslateService, useValue: { translate: jest.fn() } },
         {
           provide: getModelToken(Admin.name),
           useValue: mockAdminModel,
@@ -71,6 +77,7 @@ describe('AdminService', () => {
     validateFieldService = module.get<ValidateFieldsService>(
       ValidateFieldsService,
     );
+    translateService = module.get<TranslateService>(TranslateService);
     model = module.get<Model<AdminDocument>>(getModelToken(Admin.name));
 
     jest.clearAllMocks();
@@ -141,7 +148,13 @@ describe('AdminService', () => {
     mockAdminModel.exec.mockResolvedValue(null);
 
     await expect(service.findById(adminId)).rejects.toThrow(
-      new NotFoundException('Admin not found'),
+      new NotFoundException(
+        await translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ADMIN,
+          message: Message.NOT_FOUND,
+        }),
+      ),
     );
     expect(model.findById).toHaveBeenCalledWith(adminId);
   });
@@ -207,7 +220,13 @@ describe('AdminService', () => {
     mockAdminModel.exec.mockResolvedValue(null);
 
     await expect(service.login(loginDto)).rejects.toThrow(
-      new NotFoundException('Invalid email or password'),
+      new NotFoundException(
+        await translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ADMIN,
+          message: Message.INVALID_EMAIL_PASSWORD,
+        }),
+      ),
     );
     expect(model.findOne).toHaveBeenCalledWith({
       email: loginDto.email,
@@ -232,7 +251,13 @@ describe('AdminService', () => {
     mockAdminModel.exec.mockResolvedValue(admin);
 
     await expect(service.login(loginDto)).rejects.toThrow(
-      new NotFoundException('Invalid email or password'),
+      new NotFoundException(
+        await translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ADMIN,
+          message: Message.INVALID_EMAIL_PASSWORD,
+        }),
+      ),
     );
     expect(model.findOne).toHaveBeenCalledWith({
       email: loginDto.email,
@@ -288,7 +313,13 @@ describe('AdminService', () => {
     mockAdminModel.exec.mockResolvedValue(null);
 
     await expect(service.setStatus(adminId, false)).rejects.toThrow(
-      new NotFoundException('Admin not found'),
+      new NotFoundException(
+        await translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ADMIN,
+          message: Message.NOT_FOUND,
+        }),
+      ),
     );
     expect(model.findById).toHaveBeenCalledWith(adminId);
   });
@@ -368,7 +399,13 @@ describe('AdminService', () => {
     mockAdminModel.exec.mockResolvedValueOnce(existingAdmin);
 
     await expect(service.updateAdmin(updateDto)).rejects.toThrow(
-      new ConflictException('An admin with this email already exists'),
+      new ConflictException(
+        await translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ADMIN,
+          message: Message.EMAIL_EXISTS,
+        }),
+      ),
     );
     expect(model.findOne).toHaveBeenCalledWith({
       email: updateDto.email,
