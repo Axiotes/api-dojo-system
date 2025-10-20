@@ -1,5 +1,8 @@
 {
   "ADMIN": {
-    "NOT_FOUND": "Administrador não encontrado"
+    "NOT_FOUND": "Administrador não encontrado",
+    "EMAIL_EXISTS": "Já existe um administrador com este email",
+    "INVALID_EMAIL_PASSWORD": "Email ou senha inválidos",
+    "INVALID_ID": "Formato de ID inválido"
   }
 }

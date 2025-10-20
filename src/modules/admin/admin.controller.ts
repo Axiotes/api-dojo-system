@@ -26,10 +26,17 @@ import { ApiResponse } from '@ds-types/api-response.type';
 import { AdminDocument } from '@ds-types/documents/admin';
 import { RoleGuard } from '@ds-common/guards/role/role.guard';
 import { Roles } from '@ds-common/decorators/roles.decorator';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 @Controller('admin')
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(
+    private readonly adminService: AdminService,
+    private readonly translateService: TranslateService,
+  ) {}
 
   @ApiCookieAuth()
   @ApiOperation({
@@ -105,7 +112,13 @@ export class AdminController {
     @Param('id') id: string,
   ): Promise<ApiResponse<AdminDocument>> {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid id format');
+      throw new BadRequestException(
+        await this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ADMIN,
+          message: Message.INVALID_ID,
+        }),
+      );
     }
 
     const admin = await this.adminService.findById(id);
@@ -162,7 +175,13 @@ export class AdminController {
   @Patch('inactive/:id')
   public async inactive(@Param('id') id: string): Promise<ApiResponse<string>> {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid id format');
+      throw new BadRequestException(
+        await this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ADMIN,
+          message: Message.INVALID_ID,
+        }),
+      );
     }
 
     await this.adminService.setStatus(id, false);
@@ -191,7 +210,13 @@ export class AdminController {
     @Param('id') id: string,
   ): Promise<ApiResponse<string>> {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid id format');
+      throw new BadRequestException(
+        await this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ADMIN,
+          message: Message.INVALID_ID,
+        }),
+      );
     }
 
     await this.adminService.setStatus(id, true);

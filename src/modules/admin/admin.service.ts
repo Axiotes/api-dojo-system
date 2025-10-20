@@ -23,8 +23,6 @@ import { Message } from '@ds-enums/message.enum';
 
 @Injectable()
 export class AdminService {
-  private readonly errorMessage: string = 'errors.ADMIN';
-
   constructor(
     @InjectModel(Admin.name) private adminModel: Model<Admin>,
     private jwtService: JwtService,
@@ -78,7 +76,13 @@ export class AdminService {
     const admin = await this.adminModel.findById(id).exec();
 
     if (!admin) {
-      throw new NotFoundException('Admin not found');
+      throw new NotFoundException(
+        await this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ADMIN,
+          message: Message.NOT_FOUND,
+        }),
+      );
     }
 
     admin.status = status;
@@ -97,7 +101,13 @@ export class AdminService {
         .exec();
 
       if (emailExists) {
-        throw new ConflictException('An admin with this email already exists');
+        throw new ConflictException(
+          await this.translateService.translate({
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.ADMIN,
+            message: Message.EMAIL_EXISTS,
+          }),
+        );
       }
     }
 
@@ -123,13 +133,25 @@ export class AdminService {
       .exec();
 
     if (!admin) {
-      throw new NotFoundException('Invalid email or password');
+      throw new NotFoundException(
+        await this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ADMIN,
+          message: Message.INVALID_EMAIL_PASSWORD,
+        }),
+      );
     }
 
     const passwordMatch = bcrypt.compareSync(loginDto.password, admin.password);
 
     if (!passwordMatch) {
-      throw new NotFoundException('Invalid email or password');
+      throw new NotFoundException(
+        await this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ADMIN,
+          message: Message.INVALID_EMAIL_PASSWORD,
+        }),
+      );
     }
 
     return admin;
