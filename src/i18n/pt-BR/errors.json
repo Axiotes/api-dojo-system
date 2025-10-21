@@ -13,6 +13,13 @@
   "COMMON": {
     "INVALID_ID": "Formato de ID inválido",
     "IS_EMAIL": "O campo email deve ser um endereço de email válido",
-    "IS_STRING": "O campo {field} deve ser uma string"
+    "IS_STRING": "O campo {property} deve ser um texto válido",
+    "PASSWORD_UPPERCASE": "A senha deve conter pelo menos uma letra maiúscula",
+    "PASSWORD_LOWERCASE": "A senha deve conter pelo menos uma letra minúscula",
+    "PASSWORD_NUMBER": "A senha deve conter pelo menos um número",
+    "PASSWORD_MIN_LENGTH": "A senha deve ter pelo menos {min} caracteres",
+    "IS_NUMBER": "O campo {property} deve ser um número válido",
+    "MIN_NUMBER": "O campo {property} deve ser no mínimo {min}",
+    "IS_BOOLEAN": "O campo {property} deve ser verdadeiro ou falso"
   }
 }

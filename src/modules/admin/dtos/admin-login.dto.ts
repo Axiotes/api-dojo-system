@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class AdminLoginDto {
@@ -14,10 +14,11 @@ export class AdminLoginDto {
     description: 'Senha do administrador',
     example: 'StrongPassword123',
   })
+  @IsNotEmpty({
+    message: i18nValidationMessage('errors.COMMON.IS_STRING'),
+  })
   @IsString({
-    message: i18nValidationMessage('errors.COMMON.IS_STRING', {
-      field: 'senha',
-    }),
+    message: i18nValidationMessage('errors.COMMON.IS_STRING'),
   })
   password: string;
 }

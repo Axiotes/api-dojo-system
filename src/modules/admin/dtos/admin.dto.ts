@@ -1,19 +1,31 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, Matches, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  Matches,
+  MinLength,
+} from 'class-validator';
+import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class AdminDto {
   @ApiProperty({
     description: 'Nome do administrador',
     example: 'Nome Completo',
   })
-  @IsString()
+  @IsNotEmpty({
+    message: i18nValidationMessage('errors.COMMON.IS_STRING'),
+  })
+  @IsString({
+    message: i18nValidationMessage('errors.COMMON.IS_STRING'),
+  })
   name: string;
 
   @ApiProperty({
     description: 'Email do administrador',
     example: 'email@gmail.com',
   })
-  @IsEmail()
+  @IsEmail({}, { message: i18nValidationMessage('errors.COMMON.IS_EMAIL') })
   email: string;
 
   @ApiProperty({
@@ -23,13 +35,19 @@ export class AdminDto {
     example: 'StrongPassword123',
   })
   @IsString()
-  @MinLength(8)
+  @MinLength(8, {
+    message: i18nValidationMessage('errors.COMMON.PASSWORD_MIN_LENGTH', {
+      min: 8,
+    }),
+  })
   @Matches(/(?=.*[A-Z])/, {
-    message: 'password should contain at least 1 uppercase character',
+    message: i18nValidationMessage('errors.COMMON.PASSWORD_UPPERCASE'),
   })
   @Matches(/(?=.*[a-z])/, {
-    message: 'password must contain at least one lowercase letter',
+    message: i18nValidationMessage('errors.COMMON.PASSWORD_LOWERCASE'),
   })
-  @Matches(/(?=.*\d)/, { message: 'password must contain at least one number' })
+  @Matches(/(?=.*\d)/, {
+    message: i18nValidationMessage('errors.COMMON.PASSWORD_NUMBER'),
+  })
   password: string;
 }
