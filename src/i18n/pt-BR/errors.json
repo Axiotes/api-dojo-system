@@ -11,6 +11,8 @@
     "INCOMPATIBLE_MODALITY": "O professor {teacherName} não possui a modalidade {modalityName}"
   },
   "COMMON": {
-    "INVALID_ID": "Formato de ID inválido"
+    "INVALID_ID": "Formato de ID inválido",
+    "IS_EMAIL": "O campo email deve ser um endereço de email válido",
+    "IS_STRING": "O campo {field} deve ser uma string"
   }
 }
