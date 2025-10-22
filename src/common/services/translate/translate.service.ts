@@ -10,15 +10,15 @@ import { Languages } from '@ds-types/languages.type';
 export class TranslateService {
   constructor(private readonly i18n: I18nService) {}
 
-  public async translate(
+  public translate(
     key: { i18nFile: I18nFiles; module: ModuleName; message: Message },
     options?: { lang?: Languages; args?: Record<string, string> },
-  ): Promise<string> {
+  ): string {
     const messageKey = `${key.i18nFile.toLocaleLowerCase()}.${key.module}.${key.message}`;
 
     const lang = options?.lang ?? 'pt-BR';
     const args = options?.args ?? {};
 
-    return await this.i18n.translate(messageKey, { lang, args });
+    return this.i18n.translate(messageKey, { lang, args });
   }
 }

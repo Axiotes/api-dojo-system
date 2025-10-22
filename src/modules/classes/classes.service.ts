@@ -48,7 +48,7 @@ export class ClassesService {
 
     if (!modality.status) {
       throw new ConflictException(
-        await this.translateService.translate(
+        this.translateService.translate(
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.CLASSES,
@@ -61,7 +61,7 @@ export class ClassesService {
 
     if (!teacher.status) {
       throw new ConflictException(
-        await this.translateService.translate(
+        this.translateService.translate(
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.CLASSES,
@@ -79,7 +79,7 @@ export class ClassesService {
 
     if (!modalityMatch) {
       throw new ConflictException(
-        await this.translateService.translate(
+        this.translateService.translate(
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.CLASSES,
@@ -116,7 +116,7 @@ export class ClassesService {
 
     if (!classDoc) {
       throw new NotFoundException(
-        await this.translateService.translate({
+        this.translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.CLASSES,
           message: Message.NOT_FOUND,

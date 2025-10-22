@@ -16,6 +16,7 @@ import { ClassesModule } from './modules/classes/classes.module';
 import { VisitsModule } from './modules/visits/visits.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { ValidatorsModule } from './common/validators/validators.module';
 
 import { AdminModule } from '@ds-modules/admin/admin.module';
 import { PipesModule } from '@ds-common/pipes/pipes.module';
@@ -66,6 +67,8 @@ import { PipesModule } from '@ds-common/pipes/pipes.module';
     AuthModule,
 
     PipesModule,
+
+    ValidatorsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

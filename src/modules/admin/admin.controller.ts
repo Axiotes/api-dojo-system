@@ -113,7 +113,7 @@ export class AdminController {
   ): Promise<ApiResponse<AdminDocument>> {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException(
-        await this.translateService.translate(
+        this.translateService.translate(
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.COMMON,
@@ -179,7 +179,7 @@ export class AdminController {
   public async inactive(@Param('id') id: string): Promise<ApiResponse<string>> {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException(
-        await this.translateService.translate(
+        this.translateService.translate(
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.COMMON,
@@ -217,7 +217,7 @@ export class AdminController {
   ): Promise<ApiResponse<string>> {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException(
-        await this.translateService.translate(
+        this.translateService.translate(
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.COMMON,

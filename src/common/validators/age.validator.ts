@@ -3,13 +3,16 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { I18nService } from 'nestjs-i18n';
 
 import { ClassDto } from '@ds-modules/classes/dtos/class.dto';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 @ValidatorConstraint({ async: false })
 export class AgeConstraint implements ValidatorConstraintInterface {
-  constructor(private readonly i18n: I18nService) {}
+  constructor(private readonly translateService: TranslateService) {}
 
   public validate(maxAge: number, args: ValidationArguments): boolean {
     const obj = args.object as ClassDto;
@@ -24,8 +27,15 @@ export class AgeConstraint implements ValidatorConstraintInterface {
   defaultMessage(args: ValidationArguments): string {
     const obj = args.object as ClassDto;
 
-    return this.i18n.translate('errors.COMMON.AGE_CONSTRAINT', {
-      args: { minAge: obj.minAge, maxAge: obj.maxAge },
-    });
+    return this.translateService.translate(
+      {
+        i18nFile: I18nFiles.ERRORS,
+        module: ModuleName.COMMON,
+        message: Message.AGE_CONSTRAINT,
+      },
+      {
+        args: { minAge: obj.minAge.toString(), maxAge: obj.maxAge.toString() },
+      },
+    );
   }
 }

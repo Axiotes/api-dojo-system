@@ -41,7 +41,7 @@ export class AdminService {
 
     if (!admin) {
       throw new NotFoundException(
-        await this.translateService.translate({
+        this.translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ADMIN,
           message: Message.NOT_FOUND,
@@ -77,7 +77,7 @@ export class AdminService {
 
     if (!admin) {
       throw new NotFoundException(
-        await this.translateService.translate({
+        this.translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ADMIN,
           message: Message.NOT_FOUND,
@@ -102,7 +102,7 @@ export class AdminService {
 
       if (emailExists) {
         throw new ConflictException(
-          await this.translateService.translate({
+          this.translateService.translate({
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.ADMIN,
             message: Message.EMAIL_EXISTS,
@@ -134,7 +134,7 @@ export class AdminService {
 
     if (!admin) {
       throw new NotFoundException(
-        await this.translateService.translate({
+        this.translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ADMIN,
           message: Message.INVALID_EMAIL_PASSWORD,
@@ -146,7 +146,7 @@ export class AdminService {
 
     if (!passwordMatch) {
       throw new NotFoundException(
-        await this.translateService.translate({
+        this.translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ADMIN,
           message: Message.INVALID_EMAIL_PASSWORD,
