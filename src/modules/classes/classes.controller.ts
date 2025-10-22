@@ -190,11 +190,14 @@ export class ClassesController {
   ): Promise<ApiResponse<ClassDocument>> {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException(
-        await this.translateService.translate({
-          i18nFile: I18nFiles.ERRORS,
-          module: ModuleName.COMMON,
-          message: Message.INVALID_ID,
-        }),
+        await this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.COMMON,
+            message: Message.INVALID_ID,
+          },
+          { args: { property: 'id' } },
+        ),
       );
     }
 

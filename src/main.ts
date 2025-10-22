@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { I18nValidationExceptionFilter, I18nValidationPipe } from 'nestjs-i18n';
+import { useContainer } from 'class-validator';
 
 import { AppModule } from './app.module';
 
@@ -21,14 +22,14 @@ async function bootstrap(): Promise<void> {
   app.useGlobalFilters(
     new I18nValidationExceptionFilter({
       errorFormatter: (validationErrors): string[] => {
-        const messages = validationErrors.map((err) =>
-          Object.values(err.constraints).join(', '),
+        return validationErrors.flatMap((err) =>
+          Object.values(err.constraints),
         );
-        return messages;
       },
       errorHttpStatusCode: 400,
     }),
   );
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
   app.use(cookieParser());
 
   const logger = app.get(LoggerService);

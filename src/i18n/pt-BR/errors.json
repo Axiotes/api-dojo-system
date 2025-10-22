@@ -11,7 +11,7 @@
     "INCOMPATIBLE_MODALITY": "O professor {teacherName} não possui a modalidade {modalityName}"
   },
   "COMMON": {
-    "INVALID_ID": "Formato de ID inválido",
+    "INVALID_ID": "O campo {property} deve ser um ID válido do Mongo",
     "IS_EMAIL": "O campo email deve ser um endereço de email válido",
     "IS_STRING": "O campo {property} deve ser um texto válido",
     "PASSWORD_UPPERCASE": "A senha deve conter pelo menos uma letra maiúscula",
@@ -20,6 +20,11 @@
     "PASSWORD_MIN_LENGTH": "A senha deve ter pelo menos {min} caracteres",
     "IS_NUMBER": "O campo {property} deve ser um número válido",
     "MIN_NUMBER": "O campo {property} deve ser no mínimo {min}",
-    "IS_BOOLEAN": "O campo {property} deve ser verdadeiro ou falso"
+    "IS_BOOLEAN": "O campo {property} deve ser verdadeiro ou falso",
+    "MATCH_HOUR": "O campo {property} deve estar no formato HH:MM",
+    "IS_ARRAY": "O campo {property} deve ser um array",
+    "ARRAY_NOT_EMPTY": "O campo {property} não pode estar vazio",
+    "IS_ENUM": "O campo {property} deve ser um valor válido",
+    "AGE_CONSTRAINT": "A idade mínima ({minAge}) deve ser menor que a idade máxima ({maxAge})"
   }
 }

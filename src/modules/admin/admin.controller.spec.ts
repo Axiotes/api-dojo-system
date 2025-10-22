@@ -87,11 +87,14 @@ describe('AdminController', () => {
 
     await expect(controller.findById(invalidId)).rejects.toThrow(
       new BadRequestException(
-        await translateService.translate({
-          i18nFile: I18nFiles.ERRORS,
-          module: ModuleName.COMMON,
-          message: Message.INVALID_ID,
-        }),
+        await translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.COMMON,
+            message: Message.INVALID_ID,
+          },
+          { args: { property: 'id' } },
+        ),
       ),
     );
     expect(adminService.findById).toHaveBeenCalledTimes(0);
@@ -170,11 +173,14 @@ describe('AdminController', () => {
 
     await expect(controller.inactive(invalidId)).rejects.toThrow(
       new BadRequestException(
-        await translateService.translate({
-          i18nFile: I18nFiles.ERRORS,
-          module: ModuleName.COMMON,
-          message: Message.INVALID_ID,
-        }),
+        await translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.COMMON,
+            message: Message.INVALID_ID,
+          },
+          { args: { property: 'id' } },
+        ),
       ),
     );
     expect(adminService.setStatus).toHaveBeenCalledTimes(0);
@@ -185,11 +191,14 @@ describe('AdminController', () => {
 
     await expect(controller.reactivate(invalidId)).rejects.toThrow(
       new BadRequestException(
-        await translateService.translate({
-          i18nFile: I18nFiles.ERRORS,
-          module: ModuleName.COMMON,
-          message: Message.INVALID_ID,
-        }),
+        await translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.COMMON,
+            message: Message.INVALID_ID,
+          },
+          { args: { property: 'id' } },
+        ),
       ),
     );
     expect(adminService.setStatus).toHaveBeenCalledTimes(0);
