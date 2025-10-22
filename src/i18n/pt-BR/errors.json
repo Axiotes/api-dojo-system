@@ -25,6 +25,7 @@
     "IS_ARRAY": "O campo {property} deve ser um array",
     "ARRAY_NOT_EMPTY": "O campo {property} não pode estar vazio",
     "IS_ENUM": "O campo {property} deve ser um valor válido",
-    "AGE_CONSTRAINT": "A idade mínima ({minAge}) deve ser menor que a idade máxima ({maxAge})"
+    "AGE_CONSTRAINT": "A idade mínima ({minAge}) deve ser menor que a idade máxima ({maxAge})",
+    "HOUR_CONSTRAINT": "O horário de início ({startHour}) deve ser menor que o horário de término ({endHour})"
   }
 }
