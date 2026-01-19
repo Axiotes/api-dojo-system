@@ -14,6 +14,7 @@ import {
   Validate,
 } from 'class-validator';
 import { Types } from 'mongoose';
+import { i18nValidationMessage } from 'nestjs-i18n';
 
 import { HourParamConstraint } from '@ds-common/validators/hour-param.validator';
 import { AgeParamConstraint } from '@ds-common/validators/age-param.validator';
@@ -21,20 +22,24 @@ import { AgeParamConstraint } from '@ds-common/validators/age-param.validator';
 export class FindClassesDto {
   @ApiProperty({ description: 'Número de documentos que serão pulados' })
   @Transform(({ value }) => parseInt(value))
-  @IsNumber()
-  @Min(0)
+  @IsNumber({}, { message: i18nValidationMessage('errors.COMMON.IS_NUMBER') })
+  @Min(0, {
+    message: i18nValidationMessage('errors.COMMON.MIN_NUMBER', { min: 0 }),
+  })
   skip: number;
 
   @ApiProperty({ description: 'Número de documentos que serão retornados' })
   @Transform(({ value }) => parseInt(value))
-  @IsNumber()
-  @Min(1)
+  @IsNumber({}, { message: i18nValidationMessage('errors.COMMON.IS_NUMBER') })
+  @Min(1, {
+    message: i18nValidationMessage('errors.COMMON.MIN_NUMBER', { min: 1 }),
+  })
   limit: number;
 
   @ApiPropertyOptional({ description: 'Status da turma' })
   @IsOptional()
   @Transform(({ value }) => value === 'true')
-  @IsBoolean()
+  @IsBoolean({ message: i18nValidationMessage('errors.COMMON.IS_BOOLEAN') })
   status: boolean;
 
   @ApiPropertyOptional({
@@ -42,14 +47,16 @@ export class FindClassesDto {
     example: '64f1b2a3c4d5e6f7890abc12',
   })
   @IsOptional()
-  @IsMongoId()
+  @IsMongoId({ message: i18nValidationMessage('errors.COMMON.INVALID_ID') })
   modality: Types.ObjectId;
 
   @ApiPropertyOptional({ description: 'Idade mínima da turma', example: 8 })
   @IsOptional()
   @Transform(({ value }) => parseInt(value))
-  @IsNumber()
-  @Min(1)
+  @IsNumber({}, { message: i18nValidationMessage('errors.COMMON.IS_NUMBER') })
+  @Min(1, {
+    message: i18nValidationMessage('errors.COMMON.MIN_NUMBER', { min: 1 }),
+  })
   @Validate(AgeParamConstraint)
   minAge: number;
 
@@ -59,8 +66,10 @@ export class FindClassesDto {
   })
   @IsOptional()
   @Transform(({ value }) => parseInt(value))
-  @IsNumber()
-  @Min(1)
+  @IsNumber({}, { message: i18nValidationMessage('errors.COMMON.IS_NUMBER') })
+  @Min(1, {
+    message: i18nValidationMessage('errors.COMMON.MIN_NUMBER', { min: 1 }),
+  })
   @Validate(AgeParamConstraint)
   maxAge: number;
 
@@ -69,10 +78,14 @@ export class FindClassesDto {
     example: '17:00',
   })
   @IsOptional()
-  @IsNotEmpty()
-  @IsString()
+  @IsNotEmpty({
+    message: i18nValidationMessage('errors.COMMON.IS_STRING'),
+  })
+  @IsString({
+    message: i18nValidationMessage('errors.COMMON.IS_STRING'),
+  })
   @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
-    message: 'startHour must be in HH:MM format',
+    message: i18nValidationMessage('errors.COMMON.MATCH_HOUR'),
   })
   @Validate(HourParamConstraint)
   startHour: string;
@@ -82,10 +95,14 @@ export class FindClassesDto {
     example: '18:00',
   })
   @IsOptional()
-  @IsNotEmpty()
-  @IsString()
+  @IsNotEmpty({
+    message: i18nValidationMessage('errors.COMMON.IS_STRING'),
+  })
+  @IsString({
+    message: i18nValidationMessage('errors.COMMON.IS_STRING'),
+  })
   @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
-    message: 'endHour must be in HH:MM format',
+    message: i18nValidationMessage('errors.COMMON.MATCH_HOUR'),
   })
   @Validate(HourParamConstraint)
   endHour: string;
@@ -99,8 +116,10 @@ export class FindClassesDto {
   @Transform(({ value }) =>
     typeof value === 'string' ? value.split(',') : value,
   )
-  @IsArray()
-  @ArrayNotEmpty()
+  @IsArray({ message: i18nValidationMessage('errors.COMMON.IS_ARRAY') })
+  @ArrayNotEmpty({
+    message: i18nValidationMessage('errors.COMMON.ARRAY_NOT_EMPTY'),
+  })
   @IsString({ each: true })
   weekDays: string[];
 }
