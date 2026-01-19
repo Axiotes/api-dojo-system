@@ -33,6 +33,10 @@ import { ImageBase64Interceptor } from '@ds-common/interceptors/image-base64/ima
 import { UploadImage } from '@ds-common/decorators/upload-image.decorator';
 import { RoleGuard } from '@ds-common/guards/role/role.guard';
 import { Roles } from '@ds-common/decorators/roles.decorator';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 @Controller('modalities')
 @UseInterceptors(ImageBase64Interceptor)
@@ -40,6 +44,7 @@ export class ModalitiesController {
   constructor(
     private readonly modalitiesService: ModalitiesService,
     private readonly reduceImagePipe: ReduceImagePipe,
+    private readonly translateService: TranslateService,
   ) {}
 
   @ApiCookieAuth()
@@ -114,7 +119,16 @@ export class ModalitiesController {
     @Param('id') id: string,
   ): Promise<ApiResponse<ModalitiesDocument>> {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid id format');
+      throw new BadRequestException(
+        this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.COMMON,
+            message: Message.INVALID_ID,
+          },
+          { args: { property: 'id' } },
+        ),
+      );
     }
 
     const modality = await this.modalitiesService.findById(
@@ -198,7 +212,16 @@ export class ModalitiesController {
     @Body() updateDto?: UpdateModalityDto,
   ): Promise<ApiResponse<ModalitiesDocument>> {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid id format');
+      throw new BadRequestException(
+        this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.COMMON,
+            message: Message.INVALID_ID,
+          },
+          { args: { property: 'id' } },
+        ),
+      );
     }
 
     let modality: Partial<ModalitiesDocument> = {
@@ -241,13 +264,26 @@ export class ModalitiesController {
     @Param('id') id: string,
   ): Promise<ApiResponse<string>> {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid id format');
+      throw new BadRequestException(
+        this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.COMMON,
+            message: Message.INVALID_ID,
+          },
+          { args: { property: 'id' } },
+        ),
+      );
     }
 
     await this.modalitiesService.deactivate(id);
 
     return {
-      data: 'Modality successfully deactivate',
+      data: this.translateService.translate({
+        i18nFile: I18nFiles.ERRORS,
+        module: ModuleName.MODALITIES,
+        message: Message.DEACTIVATED,
+      }),
     };
   }
 
@@ -269,7 +305,16 @@ export class ModalitiesController {
     @Param('id') id: string,
   ): Promise<ApiResponse<string>> {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid id format');
+      throw new BadRequestException(
+        this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.COMMON,
+            message: Message.INVALID_ID,
+          },
+          { args: { property: 'id' } },
+        ),
+      );
     }
 
     const modality = await this.modalitiesService.findById(
@@ -280,7 +325,11 @@ export class ModalitiesController {
     await this.modalitiesService.setStatus(modality, true);
 
     return {
-      data: 'Modality successfully reactivate',
+      data: this.translateService.translate({
+        i18nFile: I18nFiles.ERRORS,
+        module: ModuleName.MODALITIES,
+        message: Message.REACTIVATED,
+      }),
     };
   }
 }

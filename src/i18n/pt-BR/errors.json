@@ -10,6 +10,16 @@
     "TEACHER_DISABLE": "O professor com id {teacherId} está desabilitado",
     "INCOMPATIBLE_MODALITY": "O professor {teacherName} não possui a modalidade {modalityName}"
   },
+  "MODALITIES": {
+    "NOT_FOUND": "Modalidade não encontrada",
+    "DEACTIVATED": "Modalidade desativada com sucesso",
+    "REACTIVATED": "Modalidade reativada com sucesso",
+    "NAME_EXISTS": "Já existe uma modalidade com o nome {name}",
+    "CANNOT_DEACTIVATE": "Não é possível desativar a modalidade, {cause}",
+    "CAUSE_PLAN": "pois ela está associada a planos ativos",
+    "CAUSE_CLASS": "pois ela está associada a turmas ativas",
+    "CAUSE_TEACHER": "pois ela está associada a professores ativos"
+  },
   "COMMON": {
     "INVALID_ID": "O campo {property} deve ser um ID válido do Mongo",
     "IS_EMAIL": "O campo email deve ser um endereço de email válido",
