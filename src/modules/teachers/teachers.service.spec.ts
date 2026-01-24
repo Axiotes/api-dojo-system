@@ -4,11 +4,7 @@ import * as path from 'path';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model, Types } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
-import {
-  BadRequestException,
-  ConflictException,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 
 import { TeachersService } from './teachers.service';
 import { Teachers } from './schemas/teachers.schema';
@@ -22,6 +18,10 @@ import { WeekDays } from '@ds-enums/week-days.enum';
 import { ReportService } from '@ds-services/report/report.service';
 import { PuppeteerService } from '@ds-services/puppeteer/puppeteer.service';
 import { TeachersPdf } from '@ds-types/teachers-pdf.type';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 jest.mock('puppeteer', () => ({
   launch: jest.fn().mockResolvedValue({
@@ -39,6 +39,7 @@ describe('TeachersService', () => {
   let validateFieldsService: ValidateFieldsService;
   let reportService: ReportService;
   let classesService: ClassesService;
+  let translateService: TranslateService;
 
   let model: Model<TeacherDocument>;
 
@@ -90,6 +91,12 @@ describe('TeachersService', () => {
           },
         },
         {
+          provide: TranslateService,
+          useValue: {
+            translate: jest.fn(),
+          },
+        },
+        {
           provide: getModelToken(Teachers.name),
           useValue: mockTeacherModel,
         },
@@ -102,6 +109,7 @@ describe('TeachersService', () => {
     );
     reportService = module.get<ReportService>(ReportService);
     classesService = module.get<ClassesService>(ClassesService);
+    translateService = module.get<TranslateService>(TranslateService);
     model = module.get<Model<TeacherDocument>>(getModelToken(Teachers.name));
 
     jest.clearAllMocks();
@@ -318,7 +326,13 @@ describe('TeachersService', () => {
     mockTeacherModel.exec.mockReturnValue(null);
 
     await expect(service.findById(id, [])).rejects.toThrow(
-      new NotFoundException(`Teacher with id ${id} not found`),
+      new NotFoundException(
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.TEACHERS,
+          message: Message.NOT_FOUND,
+        }),
+      ),
     );
     expect(model.findById).toHaveBeenCalledWith(id, {});
   });
@@ -587,7 +601,7 @@ describe('TeachersService', () => {
     );
   });
 
-  it("should throw BadRequestException if the teacher's modalities don't include its class modalities", async () => {
+  it("should throw ConflictException if the teacher's modalities don't include its class modalities", async () => {
     const id = new Types.ObjectId('64f1b2a3c4d5e6f7890abc1a');
     const teacher: Partial<TeacherDocument> = {
       id: id,
@@ -635,8 +649,15 @@ describe('TeachersService', () => {
     classesService.findBy = jest.fn().mockResolvedValue(teacherClasses);
 
     await expect(service.update(teacherUpdates)).rejects.toThrow(
-      new BadRequestException(
-        `Teacher ${teacher.name} must have the ${teacherClasses[0].modality} modality to match his class registration`,
+      new ConflictException(
+        translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.TEACHERS,
+            message: Message.COMPATIBLE_CLASS,
+          },
+          { args: { modality: teacherClasses[0].modality.toString() } },
+        ),
       ),
     );
     expect(service.findById).toHaveBeenCalledWith(teacher.id, []);
@@ -723,7 +744,11 @@ describe('TeachersService', () => {
 
     await expect(service.deactivate(teacher.id)).rejects.toThrow(
       new ConflictException(
-        `Cannot deactivate teacher with id ${id} because it has associated classes.`,
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.TEACHERS,
+          message: Message.CANNOT_DEACTIVATE,
+        }),
       ),
     );
     expect(service.findById).toHaveBeenCalledWith(teacher.id, ['id', 'status']);

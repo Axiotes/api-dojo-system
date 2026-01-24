@@ -24,7 +24,15 @@
     "CARD_NUMBER_ONLY_NUMBERS": "O número do cartão deve conter apenas números"
   },
   "PLANS": {
-    "NOT_FOUND":"Plano não encontrado"
+    "NOT_FOUND": "Plano não encontrado"
+  },
+  "TEACHERS": {
+    "NOT_FOUND": "Professor não encontrado",
+    "EMAIL_EXISTS": "Já existe um professor com este email",
+    "DEACTIVATED": "Professor desativado com sucesso",
+    "REACTIVATED": "Professor reativado com sucesso",
+    "COMPATIBLE_CLASS": "Professor deve ter a modalidade {modality} para corresponder a suas turmas ministradas",
+    "CANNOT_DEACTIVATE": "Não é possível desativar o professor, pois ele está associado a turmas ativas"
   },
   "COMMON": {
     "INVALID_ID": "O campo {property} deve ser um ID válido do Mongo",
@@ -34,8 +42,10 @@
     "PASSWORD_LOWERCASE": "A senha deve conter pelo menos uma letra minúscula",
     "PASSWORD_NUMBER": "A senha deve conter pelo menos um número",
     "PASSWORD_MIN_LENGTH": "A senha deve ter pelo menos {min} caracteres",
+    "CPF_LENGTH": "O CPF deve conter exatamente 11 caracteres",
     "IS_NUMBER": "O campo {property} deve ser um número válido",
     "MIN_NUMBER": "O campo {property} deve ser no mínimo {min}",
+    "MAX_NUMBER": "O campo {property} deve ser no máximo {max}",
     "IS_BOOLEAN": "O campo {property} deve ser verdadeiro ou falso",
     "MATCH_HOUR": "O campo {property} deve estar no formato HH:MM",
     "IS_ARRAY": "O campo {property} deve ser um array",
