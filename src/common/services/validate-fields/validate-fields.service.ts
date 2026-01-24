@@ -6,9 +6,17 @@ import {
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Types } from 'mongoose';
 
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { Message } from '@ds-enums/message.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { TranslateService } from '@ds-services/translate/translate.service';
+
 @Injectable()
 export class ValidateFieldsService {
-  constructor(@InjectConnection() private readonly connection: Connection) {}
+  constructor(
+    @InjectConnection() private readonly connection: Connection,
+    private readonly translateService: TranslateService,
+  ) {}
 
   public async validateEmail(modelName: string, email: string): Promise<void> {
     const model = this.connection.model(modelName);
@@ -16,7 +24,13 @@ export class ValidateFieldsService {
     const emailExists = await model.exists({ email });
 
     if (emailExists) {
-      throw new ConflictException(`Email ${email} already exists`);
+      throw new ConflictException(
+        this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.COMMON,
+          message: Message.EMAIL_EXISTS,
+        }),
+      );
     }
   }
 
@@ -26,11 +40,21 @@ export class ValidateFieldsService {
     const cpfExists = await model.exists({ cpf });
 
     if (cpfExists) {
-      throw new ConflictException(`CPF ${cpf} already exists`);
+      throw new ConflictException(
+        this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.COMMON,
+          message: Message.CPF_EXISTS,
+        }),
+      );
     }
   }
 
   public async isActive(modelName: string, id: Types.ObjectId): Promise<void> {
+    if (Object.values(ModuleName).includes(modelName as ModuleName)) {
+      throw new Error('Invalid model name');
+    }
+
     const model = this.connection.model(modelName);
 
     const document = await model
@@ -38,11 +62,45 @@ export class ValidateFieldsService {
       .lean<{ status: boolean }>();
 
     if (!document) {
-      throw new NotFoundException(`${modelName} with id ${id} not found`);
+      throw new NotFoundException(
+        this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.COMMON,
+            message: Message.NOT_FOUND,
+          },
+          {
+            args: {
+              moduleName: this.translateService.translate({
+                i18nFile: I18nFiles.ERRORS,
+                module: modelName.toUpperCase() as ModuleName,
+                message: Message.MODULE_NAME,
+              }),
+            },
+          },
+        ),
+      );
     }
 
     if (!document.status) {
-      throw new ConflictException(`${modelName} with id ${id} is disabled`);
+      throw new ConflictException(
+        this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.COMMON,
+            message: Message.IS_DISABLED,
+          },
+          {
+            args: {
+              moduleName: this.translateService.translate({
+                i18nFile: I18nFiles.ERRORS,
+                module: modelName.toUpperCase() as ModuleName,
+                message: Message.MODULE_NAME,
+              }),
+            },
+          },
+        ),
+      );
     }
   }
 }
