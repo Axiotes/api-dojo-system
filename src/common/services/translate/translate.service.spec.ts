@@ -5,7 +5,6 @@ import { TranslateService } from './translate.service';
 
 describe('TranslateService', () => {
   let service: TranslateService;
-  let i18nService: I18nService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -21,7 +20,6 @@ describe('TranslateService', () => {
     }).compile();
 
     service = module.get<TranslateService>(TranslateService);
-    i18nService = module.get<I18nService>(I18nService);
   });
 
   it('should be defined', () => {
