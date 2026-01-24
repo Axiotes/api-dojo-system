@@ -8,10 +8,15 @@ import { PlanDto } from './dtos/plan.dto';
 import { FindPlansDto } from './dtos/find-plans.dto';
 
 import { Period } from '@ds-enums/period.enum';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 describe('PlansController', () => {
   let controller: PlansController;
   let plansService: PlansService;
+  let translateService: TranslateService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -25,11 +30,18 @@ describe('PlansController', () => {
             findAll: jest.fn(),
           },
         },
+        {
+          provide: TranslateService,
+          useValue: {
+            translate: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     controller = module.get<PlansController>(PlansController);
     plansService = module.get<PlansService>(PlansService);
+    translateService = module.get<TranslateService>(TranslateService);
 
     jest.clearAllMocks();
   });
@@ -97,7 +109,13 @@ describe('PlansController', () => {
     const invalidId = '1234';
 
     await expect(controller.findById(invalidId)).rejects.toThrow(
-      new BadRequestException('Invalid id format'),
+      new BadRequestException(
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.COMMON,
+          message: Message.INVALID_ID,
+        }),
+      ),
     );
     expect(plansService.findById).toHaveBeenCalledTimes(0);
   });

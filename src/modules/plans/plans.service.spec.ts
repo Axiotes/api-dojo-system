@@ -11,11 +11,16 @@ import { FindPlansDto } from './dtos/find-plans.dto';
 import { PlanDocument } from '@ds-types/documents/plan-document';
 import { Period } from '@ds-enums/period.enum';
 import { ValidateFieldsService } from '@ds-services/validate-fields/validate-fields.service';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 describe('PlansService', () => {
   let service: PlansService;
   let validateFieldsService: ValidateFieldsService;
   let model: Model<PlanDocument>;
+  let translateService: TranslateService;
 
   const mockPlansModel = {
     findOne: jest.fn().mockReturnThis(),
@@ -45,6 +50,12 @@ describe('PlansService', () => {
           provide: getModelToken(Plans.name),
           useValue: mockPlansModel,
         },
+        {
+          provide: TranslateService,
+          useValue: {
+            translate: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -52,6 +63,7 @@ describe('PlansService', () => {
     validateFieldsService = module.get<ValidateFieldsService>(
       ValidateFieldsService,
     );
+    translateService = module.get<TranslateService>(TranslateService);
     model = module.get<Model<PlanDocument>>(getModelToken(Plans.name));
 
     jest.clearAllMocks();
@@ -158,7 +170,13 @@ describe('PlansService', () => {
     mockPlansModel.exec.mockResolvedValue(null);
 
     await expect(service.findById(id, [])).rejects.toThrow(
-      new NotFoundException(`Plan not found`),
+      new NotFoundException(
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.PLANS,
+          message: Message.NOT_FOUND,
+        }),
+      ),
     );
     expect(model.findById).toHaveBeenCalledWith(id, {});
   });

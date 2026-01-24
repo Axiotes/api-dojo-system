@@ -21,10 +21,17 @@ import { ApiResponse } from '@ds-types/api-response.type';
 import { PlanDocument } from '@ds-types/documents/plan-document';
 import { RoleGuard } from '@ds-common/guards/role/role.guard';
 import { Roles } from '@ds-common/decorators/roles.decorator';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
+import { TranslateService } from '@ds-services/translate/translate.service';
 
 @Controller('plans')
 export class PlansController {
-  constructor(private readonly plansService: PlansService) {}
+  constructor(
+    private readonly plansService: PlansService,
+    private readonly translateService: TranslateService,
+  ) {}
 
   @ApiCookieAuth()
   @ApiOperation({
@@ -65,7 +72,16 @@ export class PlansController {
     @Param('id') id: string,
   ): Promise<ApiResponse<PlanDocument>> {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid id format');
+      throw new BadRequestException(
+        this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.COMMON,
+            message: Message.INVALID_ID,
+          },
+          { args: { property: 'id' } },
+        ),
+      );
     }
 
     const plan = await this.plansService.findById(new Types.ObjectId(id), []);

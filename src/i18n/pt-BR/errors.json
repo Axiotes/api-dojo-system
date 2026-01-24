@@ -23,6 +23,9 @@
   "PAYMENT": {
     "CARD_NUMBER_ONLY_NUMBERS": "O número do cartão deve conter apenas números"
   },
+  "PLANS": {
+    "NOT_FOUND":"Plano não encontrado"
+  },
   "COMMON": {
     "INVALID_ID": "O campo {property} deve ser um ID válido do Mongo",
     "IS_EMAIL": "O campo email deve ser um endereço de email válido",
