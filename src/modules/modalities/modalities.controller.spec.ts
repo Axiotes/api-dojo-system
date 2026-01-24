@@ -10,11 +10,16 @@ import { UpdateModalityDto } from './dtos/update-modality.dto';
 
 import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe';
 import { ModalitiesDocument } from '@ds-types/documents/modalitie-document.type';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 describe('ModalitiesController', () => {
   let controller: ModalitiesController;
   let modalitiesService: jest.Mocked<ModalitiesService>;
   let reduceImagePipe: jest.Mocked<ReduceImagePipe>;
+  let translateService: TranslateService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -36,6 +41,12 @@ describe('ModalitiesController', () => {
             transform: jest.fn(),
           },
         },
+        {
+          provide: TranslateService,
+          useValue: {
+            translate: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -43,6 +54,7 @@ describe('ModalitiesController', () => {
     modalitiesService =
       module.get<jest.Mocked<ModalitiesService>>(ModalitiesService);
     reduceImagePipe = module.get<jest.Mocked<ReduceImagePipe>>(ReduceImagePipe);
+    translateService = module.get<TranslateService>(TranslateService);
 
     jest.clearAllMocks();
   });
@@ -104,7 +116,16 @@ describe('ModalitiesController', () => {
     const invalidId = '1234';
 
     await expect(controller.findById(invalidId)).rejects.toThrow(
-      new BadRequestException('Invalid id format'),
+      new BadRequestException(
+        translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.COMMON,
+            message: Message.INVALID_ID,
+          },
+          { args: { property: 'id' } },
+        ),
+      ),
     );
     expect(modalitiesService.findById).toHaveBeenCalledTimes(0);
   });
@@ -217,7 +238,16 @@ describe('ModalitiesController', () => {
     const invalidId = '1234';
 
     await expect(controller.update(invalidId)).rejects.toThrow(
-      new BadRequestException('Invalid id format'),
+      new BadRequestException(
+        translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.COMMON,
+            message: Message.INVALID_ID,
+          },
+          { args: { property: 'id' } },
+        ),
+      ),
     );
     expect(reduceImagePipe.transform).toHaveBeenCalledTimes(0);
     expect(modalitiesService.update).toHaveBeenCalledTimes(0);
@@ -231,7 +261,11 @@ describe('ModalitiesController', () => {
     const result = await controller.deactivate(id);
 
     expect(result).toEqual({
-      data: 'Modality successfully deactivate',
+      data: translateService.translate({
+        i18nFile: I18nFiles.ERRORS,
+        module: ModuleName.MODALITIES,
+        message: Message.DEACTIVATED,
+      }),
     });
   });
 
@@ -239,7 +273,16 @@ describe('ModalitiesController', () => {
     const invalidId = '1234';
 
     await expect(controller.deactivate(invalidId)).rejects.toThrow(
-      new BadRequestException('Invalid id format'),
+      new BadRequestException(
+        translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.COMMON,
+            message: Message.INVALID_ID,
+          },
+          { args: { property: 'id' } },
+        ),
+      ),
     );
     expect(reduceImagePipe.transform).toHaveBeenCalledTimes(0);
     expect(modalitiesService.update).toHaveBeenCalledTimes(0);
@@ -258,7 +301,11 @@ describe('ModalitiesController', () => {
     const result = await controller.reactivate(id);
 
     expect(result).toEqual({
-      data: 'Modality successfully reactivate',
+      data: translateService.translate({
+        i18nFile: I18nFiles.ERRORS,
+        module: ModuleName.MODALITIES,
+        message: Message.REACTIVATED,
+      }),
     });
     expect(modalitiesService.findById).toHaveBeenCalledWith(modality.id, [
       'status',
@@ -270,7 +317,16 @@ describe('ModalitiesController', () => {
     const invalidId = '1234';
 
     await expect(controller.reactivate(invalidId)).rejects.toThrow(
-      new BadRequestException('Invalid id format'),
+      new BadRequestException(
+        translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.COMMON,
+            message: Message.INVALID_ID,
+          },
+          { args: { property: 'id' } },
+        ),
+      ),
     );
     expect(reduceImagePipe.transform).toHaveBeenCalledTimes(0);
     expect(modalitiesService.update).toHaveBeenCalledTimes(0);

@@ -10,12 +10,17 @@ import { ModalitiesDocument } from '@ds-types/documents/modalitie-document.type'
 import { PlansService } from '@ds-modules/plans/plans.service';
 import { ClassesService } from '@ds-modules/classes/classes.service';
 import { TeachersService } from '@ds-modules/teachers/teachers.service';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 describe('ModalitiesService', () => {
   let service: ModalitiesService;
   let plansService: PlansService;
   let classesService: ClassesService;
   let teachersService: TeachersService;
+  let translateService: TranslateService;
   let model: Model<ModalitiesDocument>;
 
   const mockModalitiesModel = {
@@ -58,6 +63,12 @@ describe('ModalitiesService', () => {
             findBy: jest.fn(),
           },
         },
+        {
+          provide: TranslateService,
+          useValue: {
+            translate: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -65,6 +76,7 @@ describe('ModalitiesService', () => {
     plansService = module.get<PlansService>(PlansService);
     classesService = module.get<ClassesService>(ClassesService);
     teachersService = module.get<TeachersService>(TeachersService);
+    translateService = module.get<TranslateService>(TranslateService);
     model = module.get<Model<ModalitiesDocument>>(
       getModelToken(Modalities.name),
     );
@@ -106,7 +118,14 @@ describe('ModalitiesService', () => {
 
     await expect(service.createModality(modality)).rejects.toThrow(
       new ConflictException(
-        `Modality with name ${modality.name} already exists.`,
+        translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.MODALITIES,
+            message: Message.NAME_EXISTS,
+          },
+          { args: { name: modality.name } },
+        ),
       ),
     );
     expect(model.findOne).toHaveBeenCalledWith({
@@ -144,7 +163,13 @@ describe('ModalitiesService', () => {
     mockModalitiesModel.exec.mockResolvedValue(null);
 
     await expect(service.findById(id, [])).rejects.toThrow(
-      new NotFoundException(`Modality with id ${id} not found`),
+      new NotFoundException(
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.MODALITIES,
+          message: Message.NOT_FOUND,
+        }),
+      ),
     );
     expect(model.findById).toHaveBeenCalledWith(id, projection);
   });
@@ -247,7 +272,14 @@ describe('ModalitiesService', () => {
 
     await expect(service.update(updateModality)).rejects.toThrow(
       new ConflictException(
-        `Modality with name ${updateModality.name} already exists.`,
+        translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.MODALITIES,
+            message: Message.NAME_EXISTS,
+          },
+          { args: { name: updateModality.name } },
+        ),
       ),
     );
     expect(model.findOne).toHaveBeenCalledWith({ name: updateModality.name });
@@ -329,7 +361,22 @@ describe('ModalitiesService', () => {
 
     await expect(service.deactivate(modalityId)).rejects.toThrow(
       new ConflictException(
-        `Cannot deactivate modality with id ${modalityId} because it has associated plans.`,
+        translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.MODALITIES,
+            message: Message.CANNOT_DEACTIVATE,
+          },
+          {
+            args: {
+              cause: translateService.translate({
+                i18nFile: I18nFiles.ERRORS,
+                module: ModuleName.MODALITIES,
+                message: Message.CAUSE_PLAN,
+              }),
+            },
+          },
+        ),
       ),
     );
     expect(service.findById).toHaveBeenCalledWith(modality.id, [
@@ -360,7 +407,22 @@ describe('ModalitiesService', () => {
 
     await expect(service.deactivate(modalityId)).rejects.toThrow(
       new ConflictException(
-        `Cannot deactivate modality with id ${modalityId} because it has associated teachers.`,
+        translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.MODALITIES,
+            message: Message.CANNOT_DEACTIVATE,
+          },
+          {
+            args: {
+              cause: translateService.translate({
+                i18nFile: I18nFiles.ERRORS,
+                module: ModuleName.MODALITIES,
+                message: Message.CAUSE_TEACHER,
+              }),
+            },
+          },
+        ),
       ),
     );
     expect(service.findById).toHaveBeenCalledWith(modality.id, [
@@ -394,7 +456,22 @@ describe('ModalitiesService', () => {
 
     await expect(service.deactivate(modalityId)).rejects.toThrow(
       new ConflictException(
-        `Cannot deactivate modality with id ${modalityId} because it has associated classes.`,
+        translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.MODALITIES,
+            message: Message.CANNOT_DEACTIVATE,
+          },
+          {
+            args: {
+              cause: translateService.translate({
+                i18nFile: I18nFiles.ERRORS,
+                module: ModuleName.MODALITIES,
+                message: Message.CAUSE_CLASS,
+              }),
+            },
+          },
+        ),
       ),
     );
     expect(service.findById).toHaveBeenCalledWith(modality.id, [
