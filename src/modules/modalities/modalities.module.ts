@@ -9,6 +9,7 @@ import { PipesModule } from '@ds-common/pipes/pipes.module';
 import { PlansModule } from '@ds-modules/plans/plans.module';
 import { TeachersModule } from '@ds-modules/teachers/teachers.module';
 import { ClassesModule } from '@ds-modules/classes/classes.module';
+import { ServicesModule } from '@ds-services/services.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ClassesModule } from '@ds-modules/classes/classes.module';
     ]),
     PipesModule,
     PlansModule,
+    ServicesModule,
     forwardRef(() => TeachersModule),
     forwardRef(() => ClassesModule),
   ],

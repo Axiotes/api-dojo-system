@@ -16,6 +16,10 @@ import { ClassDocument } from '@ds-types/documents/class-document.type';
 import { ModalitiesService } from '@ds-modules/modalities/modalities.service';
 import { TeachersService } from '@ds-modules/teachers/teachers.service';
 import { Role } from '@ds-types/role.type';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 @Injectable()
 export class ClassesService {
@@ -28,6 +32,8 @@ export class ClassesService {
     private readonly modalitiesService: ModalitiesService,
     @Inject(forwardRef(() => TeachersService))
     private readonly teachersService: TeachersService,
+
+    private readonly translateService: TranslateService,
   ) {}
 
   public async createClass(newClass: ClassDocument): Promise<ClassDocument> {
@@ -42,13 +48,27 @@ export class ClassesService {
 
     if (!modality.status) {
       throw new ConflictException(
-        `Modality with id ${newClass.modality} is disabled`,
+        this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.CLASSES,
+            message: Message.MODALITY_DISABLE,
+          },
+          { args: { modalityId: newClass.modality.toString() } },
+        ),
       );
     }
 
     if (!teacher.status) {
       throw new ConflictException(
-        `Teacher with id ${newClass.modality} is disabled`,
+        this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.CLASSES,
+            message: Message.TEACHER_DISABLE,
+          },
+          { args: { teacherId: newClass.teacher.toString() } },
+        ),
       );
     }
 
@@ -59,7 +79,14 @@ export class ClassesService {
 
     if (!modalityMatch) {
       throw new ConflictException(
-        `Teacher ${teacher.name} does not have ${modality.name} modality`,
+        this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.CLASSES,
+            message: Message.INCOMPATIBLE_MODALITY,
+          },
+          { args: { teacherName: teacher.name, modalityName: modality.name } },
+        ),
       );
     }
 
@@ -88,7 +115,13 @@ export class ClassesService {
     const classDoc = await this.classesModel.findById(id, projection).exec();
 
     if (!classDoc) {
-      throw new NotFoundException(`Class not found`);
+      throw new NotFoundException(
+        this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.CLASSES,
+          message: Message.NOT_FOUND,
+        }),
+      );
     }
 
     return classDoc;

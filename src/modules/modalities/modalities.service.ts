@@ -15,6 +15,10 @@ import { ModalitiesDocument } from '@ds-types/documents/modalitie-document.type'
 import { PlansService } from '@ds-modules/plans/plans.service';
 import { TeachersService } from '@ds-modules/teachers/teachers.service';
 import { ClassesService } from '@ds-modules/classes/classes.service';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 @Injectable()
 export class ModalitiesService {
@@ -26,6 +30,8 @@ export class ModalitiesService {
     private readonly classesService: ClassesService,
     @Inject(forwardRef(() => TeachersService))
     private readonly teachersService: TeachersService,
+
+    private readonly translateService: TranslateService,
   ) {}
 
   public async createModality(
@@ -39,7 +45,14 @@ export class ModalitiesService {
 
     if (modality) {
       throw new ConflictException(
-        `Modality with name ${newModality.name} already exists.`,
+        this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.MODALITIES,
+            message: Message.NAME_EXISTS,
+          },
+          { args: { name: newModality.name } },
+        ),
       );
     }
 
@@ -55,7 +68,13 @@ export class ModalitiesService {
     const modality = await this.modalitiesModel.findById(id, projection).exec();
 
     if (!modality) {
-      throw new NotFoundException(`Modality with id ${id} not found`);
+      throw new NotFoundException(
+        this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.MODALITIES,
+          message: Message.NOT_FOUND,
+        }),
+      );
     }
 
     return modality;
@@ -93,7 +112,14 @@ export class ModalitiesService {
 
       if (nameExist) {
         throw new ConflictException(
-          `Modality with name ${updateModality.name} already exists.`,
+          this.translateService.translate(
+            {
+              i18nFile: I18nFiles.ERRORS,
+              module: ModuleName.MODALITIES,
+              message: Message.NAME_EXISTS,
+            },
+            { args: { name: updateModality.name } },
+          ),
         );
       }
     }
@@ -119,7 +145,22 @@ export class ModalitiesService {
 
     if (plans.length > 0) {
       throw new ConflictException(
-        `Cannot deactivate modality with id ${id} because it has associated plans.`,
+        this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.MODALITIES,
+            message: Message.CANNOT_DEACTIVATE,
+          },
+          {
+            args: {
+              cause: this.translateService.translate({
+                i18nFile: I18nFiles.ERRORS,
+                module: ModuleName.MODALITIES,
+                message: Message.CAUSE_PLAN,
+              }),
+            },
+          },
+        ),
       );
     }
 
@@ -129,7 +170,22 @@ export class ModalitiesService {
 
     if (teachers.length > 0) {
       throw new ConflictException(
-        `Cannot deactivate modality with id ${id} because it has associated teachers.`,
+        this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.MODALITIES,
+            message: Message.CANNOT_DEACTIVATE,
+          },
+          {
+            args: {
+              cause: this.translateService.translate({
+                i18nFile: I18nFiles.ERRORS,
+                module: ModuleName.MODALITIES,
+                message: Message.CAUSE_TEACHER,
+              }),
+            },
+          },
+        ),
       );
     }
 
@@ -139,7 +195,22 @@ export class ModalitiesService {
 
     if (classes.length > 0) {
       throw new ConflictException(
-        `Cannot deactivate modality with id ${id} because it has associated classes.`,
+        this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.MODALITIES,
+            message: Message.CANNOT_DEACTIVATE,
+          },
+          {
+            args: {
+              cause: this.translateService.translate({
+                i18nFile: I18nFiles.ERRORS,
+                module: ModuleName.MODALITIES,
+                message: Message.CAUSE_CLASS,
+              }),
+            },
+          },
+        ),
       );
     }
 

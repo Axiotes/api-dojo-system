@@ -11,6 +11,7 @@ import { ModalitiesModule } from '@ds-modules/modalities/modalities.module';
 import { TeachersModule } from '@ds-modules/teachers/teachers.module';
 import { PipesModule } from '@ds-common/pipes/pipes.module';
 import { PlansModule } from '@ds-modules/plans/plans.module';
+import { ValidatorsModule } from '@ds-common/validators/validators.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { PlansModule } from '@ds-modules/plans/plans.module';
     ServicesModule,
     PlansModule,
     PipesModule,
+    ValidatorsModule,
     forwardRef(() => TeachersModule),
     forwardRef(() => ModalitiesModule),
   ],

@@ -7,6 +7,7 @@ import { ReportService } from './report/report.service';
 import { PuppeteerService } from './puppeteer/puppeteer.service';
 import { EmailService } from './email/email.service';
 import { TemplateService } from './template/template.service';
+import { TranslateService } from './translate/translate.service';
 
 @Module({
   imports: [ConfigModule],
@@ -17,7 +18,13 @@ import { TemplateService } from './template/template.service';
     PuppeteerService,
     EmailService,
     TemplateService,
+    TranslateService,
   ],
-  exports: [ValidateFieldsService, ReportService, EmailService],
+  exports: [
+    ValidateFieldsService,
+    ReportService,
+    EmailService,
+    TranslateService,
+  ],
 })
 export class ServicesModule {}

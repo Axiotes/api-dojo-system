@@ -1,0 +1,66 @@
+{
+  "ADMIN": {
+    "MODULE_NAME": "Administrador",
+    "NOT_FOUND": "Administrador não encontrado",
+    "EMAIL_EXISTS": "Já existe um administrador com este email",
+    "INVALID_EMAIL_PASSWORD": "Email ou senha inválidos"
+  },
+  "CLASSES": {
+    "MODULE_NAME": "Turma",
+    "NOT_FOUND": "Turma não encontrada",
+    "MODALITY_DISABLE": "A modalidade com id {modalityId} está desabilitada",
+    "TEACHER_DISABLE": "O professor com id {teacherId} está desabilitado",
+    "INCOMPATIBLE_MODALITY": "O professor {teacherName} não possui a modalidade {modalityName}"
+  },
+  "MODALITIES": {
+    "MODULE_NAME": "Modalidade",
+    "NOT_FOUND": "Modalidade não encontrada",
+    "DEACTIVATED": "Modalidade desativada com sucesso",
+    "REACTIVATED": "Modalidade reativada com sucesso",
+    "NAME_EXISTS": "Já existe uma modalidade com o nome {name}",
+    "CANNOT_DEACTIVATE": "Não é possível desativar a modalidade, {cause}",
+    "CAUSE_PLAN": "pois ela está associada a planos ativos",
+    "CAUSE_CLASS": "pois ela está associada a turmas ativas",
+    "CAUSE_TEACHER": "pois ela está associada a professores ativos"
+  },
+  "PAYMENT": {
+    "CARD_NUMBER_ONLY_NUMBERS": "O número do cartão deve conter apenas números"
+  },
+  "PLANS": {
+    "MODULE_NAME": "Plano",
+    "NOT_FOUND": "Plano não encontrado"
+  },
+  "TEACHERS": {
+    "MODULE_NAME": "Professor",
+    "NOT_FOUND": "Professor não encontrado",
+    "EMAIL_EXISTS": "Já existe um professor com este email",
+    "DEACTIVATED": "Professor desativado com sucesso",
+    "REACTIVATED": "Professor reativado com sucesso",
+    "COMPATIBLE_CLASS": "Professor deve ter a modalidade {modality} para corresponder a suas turmas ministradas",
+    "CANNOT_DEACTIVATE": "Não é possível desativar o professor, pois ele está associado a turmas ativas"
+  },
+  "COMMON": {
+    "INVALID_ID": "O campo {property} deve ser um ID válido do Mongo",
+    "IS_EMAIL": "O campo email deve ser um endereço de email válido",
+    "IS_STRING": "O campo {property} deve ser um texto válido",
+    "PASSWORD_UPPERCASE": "A senha deve conter pelo menos uma letra maiúscula",
+    "PASSWORD_LOWERCASE": "A senha deve conter pelo menos uma letra minúscula",
+    "PASSWORD_NUMBER": "A senha deve conter pelo menos um número",
+    "PASSWORD_MIN_LENGTH": "A senha deve ter pelo menos {min} caracteres",
+    "CPF_LENGTH": "O CPF deve conter exatamente 11 caracteres",
+    "IS_NUMBER": "O campo {property} deve ser um número válido",
+    "MIN_NUMBER": "O campo {property} deve ser no mínimo {min}",
+    "MAX_NUMBER": "O campo {property} deve ser no máximo {max}",
+    "IS_BOOLEAN": "O campo {property} deve ser verdadeiro ou falso",
+    "MATCH_HOUR": "O campo {property} deve estar no formato HH:MM",
+    "IS_ARRAY": "O campo {property} deve ser um array",
+    "ARRAY_NOT_EMPTY": "O campo {property} não pode estar vazio",
+    "IS_ENUM": "O campo {property} deve ser um valor válido",
+    "AGE_CONSTRAINT": "A idade mínima ({minAge}) deve ser menor que a idade máxima ({maxAge})",
+    "HOUR_CONSTRAINT": "O horário de início ({startHour}) deve ser menor que o horário de término ({endHour})",
+    "EMAIL_EXISTS": "Email já está em uso",
+    "CPF_EXISTS": "CPF já está em uso",
+    "NOT_FOUND": "{moduleName} não encontrado",
+    "IS_DISABLED": "{moduleName} está desativado"
+  }
+}

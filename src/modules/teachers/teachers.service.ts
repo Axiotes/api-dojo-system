@@ -30,6 +30,10 @@ import { hoursToHHMM } from '@ds-common/helpers/hours-to-hhmm.helper';
 import { hoursText } from '@ds-common/helpers/hours-text.helper';
 import { logoBase64 } from '@ds-common/helpers/logo-base64.helper';
 import { costEvolution } from '@ds-common/helpers/cost-evolution.helper';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { Message } from '@ds-enums/message.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
 
 @Injectable()
 export class TeachersService {
@@ -37,6 +41,7 @@ export class TeachersService {
     @InjectModel(Teachers.name) private teachersModel: Model<Teachers>,
     private readonly validateFieldsService: ValidateFieldsService,
     private readonly reportService: ReportService,
+    private readonly translateService: TranslateService,
 
     @Inject(forwardRef(() => ClassesService))
     private readonly classesService: ClassesService,
@@ -147,7 +152,13 @@ export class TeachersService {
     const teacher = await this.teachersModel.findById(id, projection).exec();
 
     if (!teacher) {
-      throw new NotFoundException(`Teacher with id ${id} not found`);
+      throw new NotFoundException(
+        this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.TEACHERS,
+          message: Message.NOT_FOUND,
+        }),
+      );
     }
 
     return teacher;
@@ -269,7 +280,14 @@ export class TeachersService {
 
           if (!modalityMatch) {
             throw new ConflictException(
-              `Teacher ${teacher.name} must have the ${classDoc.modality} modality to match his class registration`,
+              this.translateService.translate(
+                {
+                  i18nFile: I18nFiles.ERRORS,
+                  module: ModuleName.TEACHERS,
+                  message: Message.COMPATIBLE_CLASS,
+                },
+                { args: { modality: classDoc.modality.toString() } },
+              ),
             );
           }
         });
@@ -305,7 +323,11 @@ export class TeachersService {
 
     if (classes.length > 0) {
       throw new ConflictException(
-        `Cannot deactivate teacher with id ${id} because it has associated classes.`,
+        this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.TEACHERS,
+          message: Message.CANNOT_DEACTIVATE,
+        }),
       );
     }
 

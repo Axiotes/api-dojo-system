@@ -1,6 +1,9 @@
+import * as path from 'node:path';
+
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -13,6 +16,7 @@ import { ClassesModule } from './modules/classes/classes.module';
 import { VisitsModule } from './modules/visits/visits.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { ValidatorsModule } from './common/validators/validators.module';
 
 import { AdminModule } from '@ds-modules/admin/admin.module';
 import { PipesModule } from '@ds-common/pipes/pipes.module';
@@ -29,6 +33,17 @@ import { PipesModule } from '@ds-common/pipes/pipes.module';
       useFactory: (config: ConfigService) => ({
         uri: config.get<string>('MONGODB_URI'),
       }),
+    }),
+    I18nModule.forRoot({
+      fallbackLanguage: 'pt-BR',
+      loaderOptions: {
+        path: path.join(__dirname, '/i18n'),
+        watch: true,
+      },
+      resolvers: [
+        { use: QueryResolver, options: ['lang'] },
+        AcceptLanguageResolver,
+      ],
     }),
 
     ServicesModule,
@@ -52,6 +67,8 @@ import { PipesModule } from '@ds-common/pipes/pipes.module';
     AuthModule,
 
     PipesModule,
+
+    ValidatorsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

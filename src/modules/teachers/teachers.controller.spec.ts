@@ -12,11 +12,16 @@ import { UpdateTeacherDto } from './dtos/update-teacher.dto';
 
 import { ReduceImagePipe } from '@ds-common/pipes/reduce-image/reduce-image.pipe';
 import { TeacherDocument } from '@ds-types/documents/teacher-document.type';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 describe('TeachersController', () => {
   let controller: TeachersController;
   let teachersService: TeachersService;
   let reduceImagePipe: jest.Mocked<ReduceImagePipe>;
+  let translateService: TranslateService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -43,12 +48,19 @@ describe('TeachersController', () => {
             transform: jest.fn(),
           },
         },
+        {
+          provide: TranslateService,
+          useValue: {
+            translate: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     controller = module.get<TeachersController>(TeachersController);
     teachersService = module.get<TeachersService>(TeachersService);
     reduceImagePipe = module.get<jest.Mocked<ReduceImagePipe>>(ReduceImagePipe);
+    translateService = module.get<TranslateService>(TranslateService);
 
     jest.clearAllMocks();
   });
@@ -214,7 +226,15 @@ describe('TeachersController', () => {
 
     await expect(
       controller.findById(invalidId, queryParams, mockReq as Request),
-    ).rejects.toThrow(new BadRequestException('Invalid id format'));
+    ).rejects.toThrow(
+      new BadRequestException(
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.COMMON,
+          message: Message.INVALID_ID,
+        }),
+      ),
+    );
     expect(teachersService.findById).toHaveBeenCalledTimes(0);
   });
 
@@ -361,7 +381,13 @@ describe('TeachersController', () => {
     const invalidId = '1234';
 
     await expect(controller.update(invalidId)).rejects.toThrow(
-      new BadRequestException('Invalid id format'),
+      new BadRequestException(
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.COMMON,
+          message: Message.INVALID_ID,
+        }),
+      ),
     );
     expect(teachersService.findById).toHaveBeenCalledTimes(0);
   });
@@ -374,7 +400,11 @@ describe('TeachersController', () => {
     const result = await controller.deactivate(id);
 
     expect(result).toEqual({
-      data: 'Teacher successfully deactivate',
+      data: translateService.translate({
+        i18nFile: I18nFiles.ERRORS,
+        module: ModuleName.TEACHERS,
+        message: Message.DEACTIVATED,
+      }),
     });
   });
 
@@ -382,7 +412,13 @@ describe('TeachersController', () => {
     const invalidId = '1234';
 
     await expect(controller.deactivate(invalidId)).rejects.toThrow(
-      new BadRequestException('Invalid id format'),
+      new BadRequestException(
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.COMMON,
+          message: Message.INVALID_ID,
+        }),
+      ),
     );
     expect(teachersService.findById).toHaveBeenCalledTimes(0);
   });
@@ -400,7 +436,11 @@ describe('TeachersController', () => {
     const result = await controller.reactivate(id);
 
     expect(result).toEqual({
-      data: 'Teacher successfully reactivate',
+      data: translateService.translate({
+        i18nFile: I18nFiles.ERRORS,
+        module: ModuleName.TEACHERS,
+        message: Message.REACTIVATED,
+      }),
     });
     expect(teachersService.findById).toHaveBeenCalledWith(
       new Types.ObjectId(id),
@@ -412,7 +452,13 @@ describe('TeachersController', () => {
     const invalidId = '1234';
 
     await expect(controller.reactivate(invalidId)).rejects.toThrow(
-      new BadRequestException('Invalid id format'),
+      new BadRequestException(
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.COMMON,
+          message: Message.INVALID_ID,
+        }),
+      ),
     );
     expect(teachersService.findById).toHaveBeenCalledTimes(0);
   });

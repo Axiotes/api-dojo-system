@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
+import { I18nValidationExceptionFilter, I18nValidationPipe } from 'nestjs-i18n';
+import { useContainer } from 'class-validator';
 
 import { AppModule } from './app.module';
 
@@ -12,7 +13,23 @@ import { CombinedLogsInterceptor } from '@ds-common/interceptors/combined-logs/c
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+  app.useGlobalPipes(
+    new I18nValidationPipe({
+      transform: true,
+      whitelist: true,
+    }),
+  );
+  app.useGlobalFilters(
+    new I18nValidationExceptionFilter({
+      errorFormatter: (validationErrors): string[] => {
+        return validationErrors.flatMap((err) =>
+          Object.values(err.constraints),
+        );
+      },
+      errorHttpStatusCode: 400,
+    }),
+  );
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
   app.use(cookieParser());
 
   const logger = app.get(LoggerService);

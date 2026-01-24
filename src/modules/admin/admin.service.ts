@@ -16,6 +16,10 @@ import { UpdateAdminDto } from './dtos/update-admin.dto';
 
 import { AdminDocument } from '@ds-types/documents/admin';
 import { ValidateFieldsService } from '@ds-services/validate-fields/validate-fields.service';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 @Injectable()
 export class AdminService {
@@ -23,6 +27,7 @@ export class AdminService {
     @InjectModel(Admin.name) private adminModel: Model<Admin>,
     private jwtService: JwtService,
     private readonly validateFieldsService: ValidateFieldsService,
+    private readonly translateService: TranslateService,
   ) {}
 
   public async createAdmin(adminDto: AdminDto): Promise<AdminDocument> {
@@ -35,7 +40,13 @@ export class AdminService {
     const admin = await this.adminModel.findById(id).exec();
 
     if (!admin) {
-      throw new NotFoundException('Admin not found');
+      throw new NotFoundException(
+        this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ADMIN,
+          message: Message.NOT_FOUND,
+        }),
+      );
     }
 
     return admin;
@@ -65,7 +76,13 @@ export class AdminService {
     const admin = await this.adminModel.findById(id).exec();
 
     if (!admin) {
-      throw new NotFoundException('Admin not found');
+      throw new NotFoundException(
+        this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ADMIN,
+          message: Message.NOT_FOUND,
+        }),
+      );
     }
 
     admin.status = status;
@@ -84,7 +101,13 @@ export class AdminService {
         .exec();
 
       if (emailExists) {
-        throw new ConflictException('An admin with this email already exists');
+        throw new ConflictException(
+          this.translateService.translate({
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.ADMIN,
+            message: Message.EMAIL_EXISTS,
+          }),
+        );
       }
     }
 
@@ -110,13 +133,25 @@ export class AdminService {
       .exec();
 
     if (!admin) {
-      throw new NotFoundException('Invalid email or password');
+      throw new NotFoundException(
+        this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ADMIN,
+          message: Message.INVALID_EMAIL_PASSWORD,
+        }),
+      );
     }
 
     const passwordMatch = bcrypt.compareSync(loginDto.password, admin.password);
 
     if (!passwordMatch) {
-      throw new NotFoundException('Invalid email or password');
+      throw new NotFoundException(
+        this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ADMIN,
+          message: Message.INVALID_EMAIL_PASSWORD,
+        }),
+      );
     }
 
     return admin;

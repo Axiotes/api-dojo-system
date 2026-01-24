@@ -40,6 +40,10 @@ import { ImageBase64Interceptor } from '@ds-common/interceptors/image-base64/ima
 import { TeacherReport } from '@ds-types/teacher-report.type';
 import { Report } from '@ds-types/report.type';
 import { ReportBase64Interceptor } from '@ds-common/interceptors/report-base64/report-base64.interceptor';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 @UseInterceptors(ImageBase64Interceptor)
 @Controller('teachers')
@@ -47,6 +51,7 @@ export class TeachersController {
   constructor(
     private readonly teachersService: TeachersService,
     private readonly reduceImagePipe: ReduceImagePipe,
+    private readonly translateService: TranslateService,
   ) {}
 
   @ApiCookieAuth()
@@ -159,7 +164,16 @@ export class TeachersController {
     @Req() req: Request,
   ): Promise<ApiResponse<TeacherReport | TeacherDocument>> {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid id format');
+      throw new BadRequestException(
+        this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.COMMON,
+            message: Message.INVALID_ID,
+          },
+          { args: { property: 'id' } },
+        ),
+      );
     }
 
     const role = req['user']?.role;
@@ -324,7 +338,16 @@ export class TeachersController {
     @Body() updateDto?: UpdateTeacherDto,
   ): Promise<ApiResponse<TeacherDocument>> {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid id format');
+      throw new BadRequestException(
+        this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.COMMON,
+            message: Message.INVALID_ID,
+          },
+          { args: { property: 'id' } },
+        ),
+      );
     }
 
     let teacher: Partial<TeacherDocument> = {
@@ -367,13 +390,26 @@ export class TeachersController {
     @Param('id') id: string,
   ): Promise<ApiResponse<string>> {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid id format');
+      throw new BadRequestException(
+        this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.COMMON,
+            message: Message.INVALID_ID,
+          },
+          { args: { property: 'id' } },
+        ),
+      );
     }
 
     await this.teachersService.deactivate(id);
 
     return {
-      data: 'Teacher successfully deactivate',
+      data: this.translateService.translate({
+        i18nFile: I18nFiles.ERRORS,
+        module: ModuleName.TEACHERS,
+        message: Message.REACTIVATED,
+      }),
     };
   }
 
@@ -395,7 +431,16 @@ export class TeachersController {
     @Param('id') id: string,
   ): Promise<ApiResponse<string>> {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid id format');
+      throw new BadRequestException(
+        this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.COMMON,
+            message: Message.INVALID_ID,
+          },
+          { args: { property: 'id' } },
+        ),
+      );
     }
 
     const teacher = await this.teachersService.findById(
@@ -406,7 +451,11 @@ export class TeachersController {
     await this.teachersService.setStatus(teacher, true);
 
     return {
-      data: 'Teacher successfully reactivate',
+      data: this.translateService.translate({
+        i18nFile: I18nFiles.ERRORS,
+        module: ModuleName.TEACHERS,
+        message: Message.REACTIVATED,
+      }),
     };
   }
 }

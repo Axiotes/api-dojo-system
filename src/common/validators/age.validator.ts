@@ -5,9 +5,15 @@ import {
 } from 'class-validator';
 
 import { ClassDto } from '@ds-modules/classes/dtos/class.dto';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 @ValidatorConstraint({ async: false })
 export class AgeConstraint implements ValidatorConstraintInterface {
+  constructor(private readonly translateService: TranslateService) {}
+
   public validate(maxAge: number, args: ValidationArguments): boolean {
     const obj = args.object as ClassDto;
     const min = obj.minAge;
@@ -18,7 +24,18 @@ export class AgeConstraint implements ValidatorConstraintInterface {
     return min < max;
   }
 
-  public defaultMessage(): string {
-    return 'min age must be less than max age';
+  defaultMessage(args: ValidationArguments): string {
+    const obj = args.object as ClassDto;
+
+    return this.translateService.translate(
+      {
+        i18nFile: I18nFiles.ERRORS,
+        module: ModuleName.COMMON,
+        message: Message.AGE_CONSTRAINT,
+      },
+      {
+        args: { minAge: obj.minAge.toString(), maxAge: obj.maxAge.toString() },
+      },
+    );
   }
 }

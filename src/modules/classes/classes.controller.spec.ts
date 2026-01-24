@@ -13,11 +13,16 @@ import { ModalitiesDocument } from '@ds-types/documents/modalitie-document.type'
 import { WeekDays } from '@ds-enums/week-days.enum';
 import { TeacherDocument } from '@ds-types/documents/teacher-document.type';
 import { ClassDocument } from '@ds-types/documents/class-document.type';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 describe('ClassesController', () => {
   let controller: ClassesController;
   let classesService: ClassesService;
   let reduceImagePipe: jest.Mocked<ReduceImagePipe>;
+  let translateService: TranslateService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -38,12 +43,19 @@ describe('ClassesController', () => {
             transform: jest.fn(),
           },
         },
+        {
+          provide: TranslateService,
+          useValue: {
+            translate: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     controller = module.get<ClassesController>(ClassesController);
     classesService = module.get<ClassesService>(ClassesService);
     reduceImagePipe = module.get<jest.Mocked<ReduceImagePipe>>(ReduceImagePipe);
+    translateService = module.get<TranslateService>(TranslateService);
 
     jest.clearAllMocks();
   });
@@ -239,7 +251,15 @@ describe('ClassesController', () => {
 
     await expect(
       controller.findById(invalidId, mockReq as Request),
-    ).rejects.toThrow(new BadRequestException('Invalid id format'));
+    ).rejects.toThrow(
+      new BadRequestException(
+        await translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.COMMON,
+          message: Message.INVALID_ID,
+        }),
+      ),
+    );
     expect(classesService.findById).toHaveBeenCalledTimes(0);
     expect(classesService.formatClassByRole).toHaveBeenCalledTimes(0);
   });
@@ -344,19 +364,6 @@ describe('ClassesController', () => {
     expect(classesService.formatClassByRole).toHaveBeenCalledTimes(
       formatedClasses.length,
     );
-  });
-
-  it('should throw BadRequestException for invalid ID format in findByID', async () => {
-    const invalidId = '1234';
-    const mockReq: Partial<Request> & { user?: { role?: string } } = {
-      user: { role: 'admin' },
-    };
-
-    await expect(
-      controller.findById(invalidId, mockReq as Request),
-    ).rejects.toThrow(new BadRequestException('Invalid id format'));
-    expect(classesService.findById).toHaveBeenCalledTimes(0);
-    expect(classesService.formatClassByRole).toHaveBeenCalledTimes(0);
   });
 
   it('should find all classes succesfully without admin role', async () => {
