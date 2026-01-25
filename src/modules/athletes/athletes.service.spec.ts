@@ -23,6 +23,10 @@ import { CardType } from '@ds-enums/card-type.enum';
 import { maskCardNumber } from '@ds-common/helpers/mask-card-number.helper';
 import { PaymentMethod } from '@ds-modules/payment/schemas/payment-method.schema';
 import { calculateAge } from '@ds-common/helpers/calculate-age.helper';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { Message } from '@ds-enums/message.enum';
 
 describe('AthletesService', () => {
   let service: AthletesService;
@@ -33,6 +37,7 @@ describe('AthletesService', () => {
   let plansService: PlansService;
   let paymentService: PaymentService;
   let emailService: EmailService;
+  let translateService: TranslateService;
 
   const mockModel = {
     findOne: jest.fn().mockReturnThis(),
@@ -109,6 +114,12 @@ describe('AthletesService', () => {
             singleEmail: jest.fn(),
           },
         },
+        {
+          provide: TranslateService,
+          useValue: {
+            translate: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -124,6 +135,7 @@ describe('AthletesService', () => {
     plansService = module.get<PlansService>(PlansService);
     paymentService = module.get<PaymentService>(PaymentService);
     emailService = module.get<EmailService>(EmailService);
+    translateService = module.get<TranslateService>(TranslateService);
 
     jest.clearAllMocks();
   });
@@ -869,12 +881,20 @@ describe('AthletesService', () => {
 
     await expect(service.createAthlete(athleteDtoPix, role)).rejects.toThrow(
       new BadRequestException(
-        `Registration through an admin must be ${PaymentMode.PERSONALLY}`,
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ATHLETES,
+          message: Message.ADMIN_REGISTER,
+        }),
       ),
     );
     await expect(service.createAthlete(athleteDtoCard, role)).rejects.toThrow(
       new BadRequestException(
-        `Registration through an admin must be ${PaymentMode.PERSONALLY}`,
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ATHLETES,
+          message: Message.ADMIN_REGISTER,
+        }),
       ),
     );
   });
@@ -887,7 +907,11 @@ describe('AthletesService', () => {
 
     await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
       new BadRequestException(
-        `Payment method for a common user must be ${PaymentMode.CARD} or ${PaymentMode.PIX}`,
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ATHLETES,
+          message: Message.USER_REGISTER,
+        }),
       ),
     );
   });
@@ -917,7 +941,11 @@ describe('AthletesService', () => {
 
     await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
       new ConflictException(
-        `"Class modality '${classes.modality}' is not compatible with plan modality '${plan.modality}'`,
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ATHLETES,
+          message: Message.INCOMPATIBLE_MODALITY_PLAN,
+        }),
       ),
     );
   });
@@ -947,7 +975,11 @@ describe('AthletesService', () => {
 
     await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
       new ConflictException(
-        `"Class modality '${classes.modality}' is not compatible with plan modality '${plan.modality}'`,
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ATHLETES,
+          message: Message.INCOMPATIBLE_MODALITY_PLAN,
+        }),
       ),
     );
   });
@@ -983,7 +1015,20 @@ describe('AthletesService', () => {
 
     await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
       new ConflictException(
-        `Athlete age (${athleteAge}) does not meet the class age range (${classes.age.min} - ${classes.age.max})`,
+        translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.ATHLETES,
+            message: Message.CLASS_RANGE_AGE,
+          },
+          {
+            args: {
+              athleteAge: athleteAge.toString(),
+              classMinAge: classes.age.min.toString(),
+              classMaxAge: classes.age.max.toString(),
+            },
+          },
+        ),
       ),
     );
   });
@@ -1019,7 +1064,20 @@ describe('AthletesService', () => {
 
     await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
       new ConflictException(
-        `Athlete age (${athleteAge}) does not meet the class age range (${classes.age.min} - ${classes.age.max})`,
+        translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.ATHLETES,
+            message: Message.CLASS_RANGE_AGE,
+          },
+          {
+            args: {
+              athleteAge: athleteAge.toString(),
+              classMinAge: classes.age.min.toString(),
+              classMaxAge: classes.age.max.toString(),
+            },
+          },
+        ),
       ),
     );
   });
@@ -1055,7 +1113,11 @@ describe('AthletesService', () => {
 
     await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
       new BadRequestException(
-        'Email is required for athletes over 18 years old',
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ATHLETES,
+          message: Message.EMAIL_REQUIRED,
+        }),
       ),
     );
   });
@@ -1091,7 +1153,11 @@ describe('AthletesService', () => {
 
     await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
       new BadRequestException(
-        'Email is required for athletes over 18 years old',
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ATHLETES,
+          message: Message.EMAIL_REQUIRED,
+        }),
       ),
     );
   });
@@ -1128,7 +1194,11 @@ describe('AthletesService', () => {
 
     await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
       new BadRequestException(
-        'Responsible is required for athletes under 18 years old',
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ATHLETES,
+          message: Message.RESPONSIBLE_REQUIRED,
+        }),
       ),
     );
   });
@@ -1165,7 +1235,11 @@ describe('AthletesService', () => {
 
     await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
       new BadRequestException(
-        'Responsible is required for athletes under 18 years old',
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ATHLETES,
+          message: Message.RESPONSIBLE_REQUIRED,
+        }),
       ),
     );
   });
@@ -1203,7 +1277,13 @@ describe('AthletesService', () => {
     validateFieldsService.validateCpf = jest.fn().mockImplementation(() => {});
 
     await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
-      new BadRequestException('Responsible must be over 18 years old'),
+      new BadRequestException(
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ATHLETES,
+          message: Message.RESPONSIBLE_ORVER_18,
+        }),
+      ),
     );
   });
 
@@ -1240,7 +1320,13 @@ describe('AthletesService', () => {
     validateFieldsService.validateCpf = jest.fn().mockImplementation(() => {});
 
     await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
-      new BadRequestException('Responsible must be over 18 years old'),
+      new BadRequestException(
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ATHLETES,
+          message: Message.RESPONSIBLE_ORVER_18,
+        }),
+      ),
     );
   });
 
@@ -1280,7 +1366,13 @@ describe('AthletesService', () => {
       .mockImplementation(() => {});
 
     await expect(service.createAthlete(athleteDto, role)).rejects.toThrow(
-      new BadRequestException('Payment method information must be provided'),
+      new BadRequestException(
+        translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ATHLETES,
+          message: Message.PAYMENT_METHOD_REQUIRED,
+        }),
+      ),
     );
   });
 });

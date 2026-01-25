@@ -29,6 +29,10 @@ import { PaymentDocument } from '@ds-types/documents/payment-document.type';
 import { EmailService } from '@ds-services/email/email.service';
 import { EmailDefinePassword } from '@ds-types/email-define-password.type';
 import { IdentifierFields } from '@ds-enums/identifier-fields.enum';
+import { TranslateService } from '@ds-services/translate/translate.service';
+import { Message } from '@ds-enums/message.enum';
+import { ModuleName } from '@ds-enums/module-name.enum';
+import { I18nFiles } from '@ds-enums/i18n-files.enum';
 
 @Injectable()
 export class AthletesService {
@@ -40,6 +44,7 @@ export class AthletesService {
     private readonly plansService: PlansService,
     private readonly paymentService: PaymentService,
     private readonly emailService: EmailService,
+    private readonly translateService: TranslateService,
   ) {}
 
   public async createAthlete(
@@ -63,7 +68,11 @@ export class AthletesService {
   ): Promise<AthleteDocument> {
     if (athleteDto.paymentMode !== PaymentMode.PERSONALLY) {
       throw new BadRequestException(
-        `Registration through an admin must be ${PaymentMode.PERSONALLY}`,
+        this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ATHLETES,
+          message: Message.ADMIN_REGISTER,
+        }),
       );
     }
 
@@ -111,7 +120,11 @@ export class AthletesService {
   }> {
     if (athleteDto.paymentMode === PaymentMode.PERSONALLY) {
       throw new BadRequestException(
-        `Payment method for a common user must be ${PaymentMode.CARD} or ${PaymentMode.PIX}`,
+        this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ATHLETES,
+          message: Message.USER_REGISTER,
+        }),
       );
     }
 
@@ -175,7 +188,11 @@ export class AthletesService {
 
       if (!athleteDto.paymentMethod) {
         throw new BadRequestException(
-          'Payment method information must be provided',
+          this.translateService.translate({
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.ATHLETES,
+            message: Message.PAYMENT_METHOD_REQUIRED,
+          }),
         );
       }
 
@@ -213,7 +230,11 @@ export class AthletesService {
       }
 
       throw new InternalServerErrorException(
-        'Error processing payment, please try again',
+        this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ATHLETES,
+          message: Message.PAYMENT_ERROR,
+        }),
       );
     } finally {
       session.endSession();
@@ -232,7 +253,11 @@ export class AthletesService {
 
     if (classModalityId !== planModalityId) {
       throw new ConflictException(
-        `"Class modality '${classModalityId}' is not compatible with plan modality '${planModalityId}'`,
+        this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ATHLETES,
+          message: Message.INCOMPATIBLE_MODALITY_PLAN,
+        }),
       );
     }
   }
@@ -250,8 +275,33 @@ export class AthletesService {
       (classAge.max && athleteAge > classAge.max)
     ) {
       const errorMessage = classAge.max
-        ? `Athlete age (${athleteAge}) does not meet the class age range (${classAge.min} - ${classAge.max})`
-        : `Athlete age (${athleteAge}) does not meet the class minimum age (${classAge.min})`;
+        ? this.translateService.translate(
+            {
+              i18nFile: I18nFiles.ERRORS,
+              module: ModuleName.ATHLETES,
+              message: Message.CLASS_RANGE_AGE,
+            },
+            {
+              args: {
+                athleteAge: athleteAge.toString(),
+                classMinAge: classAge.min.toString(),
+                classMaxAge: classAge.max.toString(),
+              },
+            },
+          )
+        : this.translateService.translate(
+            {
+              i18nFile: I18nFiles.ERRORS,
+              module: ModuleName.ATHLETES,
+              message: Message.CLASS_MIN_AGE,
+            },
+            {
+              args: {
+                athleteAge: athleteAge.toString(),
+                classMinAge: classAge.min.toString(),
+              },
+            },
+          );
 
       throw new ConflictException(errorMessage);
     }
@@ -262,7 +312,11 @@ export class AthletesService {
 
     if (!athleteDto.email) {
       throw new BadRequestException(
-        'Email is required for athletes over 18 years old',
+        this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ATHLETES,
+          message: Message.EMAIL_REQUIRED,
+        }),
       );
     }
 
@@ -277,14 +331,24 @@ export class AthletesService {
   ): Promise<void> {
     if (!responsibleDto) {
       throw new BadRequestException(
-        'Responsible is required for athletes under 18 years old',
+        this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ATHLETES,
+          message: Message.RESPONSIBLE_REQUIRED,
+        }),
       );
     }
 
     const responsibleAge = calculateAge(responsibleDto.dateBirth);
 
     if (responsibleAge < 18) {
-      throw new BadRequestException('Responsible must be over 18 years old');
+      throw new BadRequestException(
+        this.translateService.translate({
+          i18nFile: I18nFiles.ERRORS,
+          module: ModuleName.ATHLETES,
+          message: Message.RESPONSIBLE_ORVER_18,
+        }),
+      );
     }
 
     await this.checkExistingResponsible(
@@ -310,7 +374,19 @@ export class AthletesService {
 
     if (exists) {
       throw new ConflictException(
-        `Responsible with ${field} ${value} already exists`,
+        this.translateService.translate(
+          {
+            i18nFile: I18nFiles.ERRORS,
+            module: ModuleName.ATHLETES,
+            message: Message.CLASS_MIN_AGE,
+          },
+          {
+            args: {
+              field: field,
+              value: value,
+            },
+          },
+        ),
       );
     }
   }

@@ -5,6 +5,20 @@
     "EMAIL_EXISTS": "Já existe um administrador com este email",
     "INVALID_EMAIL_PASSWORD": "Email ou senha inválidos"
   },
+  "ATHLETES": {
+    "MODULE_NAME": "Atleta",
+    "ADMIN_REGISTER": "Cadastros realizados por um administrador devem ter o pagamento feito presencialmente",
+    "USER_REGISTER": "Cadastros realizados pelo atleta podem ter modo de pagamento por PIX ou cartão",
+    "PAYMENT_METHOD_REQUIRED": "O método de pagamento é obrigatório para cadastro",
+    "PAYMENT_ERROR": "Erro ao processar o pagamento. Tente novamente!",
+    "INCOMPATIBLE_MODALITY_PLAN": "A modalidade da turma não é compatível com a do plano",
+    "CLASS_RANGE_AGE": "A idade do atleta ({athleteAge}) não atende ao intervalo de idade da turma ({classMinAge} - {classMaxAge})",
+    "CLASS_MIN_AGE": "A idade do atleta ({athleteAge}) não atende à idade mínima da turma ({classMinAge})",
+    "EMAIL_REQUIRED": "O email é obrigatório para atletas com mais de 18 anos",
+    "RESPONSIBLE_REQUIRED": "O responsável é obrigatório para atletas com menos de 18 anos",
+    "RESPONSIBLE_ORVER_18": "O responsável não pode ser maior de 18 anos",
+    "RESPONSIBLE_EXISTS": "Responsável com {field} {value} já existe"
+  },
   "CLASSES": {
     "MODULE_NAME": "Turma",
     "NOT_FOUND": "Turma não encontrada",
