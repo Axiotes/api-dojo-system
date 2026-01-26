@@ -54,7 +54,36 @@
       "CARD_NUMBER_DESCRIPTION": "Número do cartão de crédito ou débito",
       "METHOD_ID_DESCRIPTION": "ID do método do cartão (visa, master...)",
       "MONTH_EXPIRATION_DESCRIPTION": "Mês de expiração do cartão (MM)",
-        "YEAR_EXPIRATION_DESCRIPTION": "Ano de expiração do cartão (AAAA)"
+      "YEAR_EXPIRATION_DESCRIPTION": "Ano de expiração do cartão (AAAA)"
+    }
+  },
+  "CLASSES": {
+    "REGISTER_SUMMARY": "Cadastra uma nova turma",
+    "REGISTER_DESCRIPTION": "Este endpoint permite que você cadastre uma nova turma para a academia. Apenas usuários com token jwt e cargos 'admin' podem utilizar este endpoint",
+    "MODALITY_ID_PROPERTY": "ID da modalidade (ObjectId do MongoDB)",
+    "TEACHER_ID_PROPERTY": "ID do professor (ObjectId do MongoDB)",
+    "START_HOUR_PROPERTY": "Hora de início da turma (formato HH:MM)",
+    "END_HOUR_PROPERTY": "Hora de término da turma (formato HH:MM)",
+    "MIN_AGE_PROPERTY": "Idade mínima permitida para a turma",
+    "MAX_AGE_PROPERTY": "Idade máxima permitida para a turma",
+    "MAX_ATHLETES_PROPERTY": "Número máximo de atletas permitidos na turma",
+    "WEEKDAYS_PROPERTY": "Dias da semana em que a turma ocorre",
+    "WEEKDAYS_ENUM": {
+      "MONDAY": "Segunda-feira",
+      "TUESDAY": "Terça-feira",
+      "WEDNESDAY": "Quarta-feira",
+      "THURSDAY": "Quinta-feira",
+      "FRIDAY": "Sexta-feira",
+      "SATURDAY": "Sábado",
+      "SUNDAY": "Domingo"
+    },
+    "IMAGE_PROPERTY": "Imagem da modalidade (jpg, jpeg, png, gif)",
+    "FIND_BY_ID_SUMMARY": "Busca uma turma por ID",
+    "FIND_BY_ID_DESCRIPTION": "Este endpoint permite que você busque uma turma por ID. Apenas usuários com token jwt e cargos 'admin' podem utilizar este endpoint",
+    "FIND_ALL_SUMMARY": "Busca todas as turmas",
+    "FIND_ALL_DESCRIPTION": "Este endpoint permite que você busque todas as turmas da academia. Apenas usuários com token jwt e cargos 'admin' recebem informações privilegiadas sobre as turmas",
+    "DTOS": {
+        "MODALITY_DESCRIPTION": "Modalidade da turma"
     }
   }
 }

@@ -20,7 +20,7 @@ import { HourParamConstraint } from '@ds-common/validators/hour-param.validator'
 import { AgeParamConstraint } from '@ds-common/validators/age-param.validator';
 
 export class FindClassesDto {
-  @ApiProperty({ description: 'Número de documentos que serão pulados' })
+  @ApiProperty({ description: 'docs.COMMON.SKIP_DESCRIPTION' })
   @Transform(({ value }) => parseInt(value))
   @IsNumber({}, { message: i18nValidationMessage('errors.COMMON.IS_NUMBER') })
   @Min(0, {
@@ -28,7 +28,7 @@ export class FindClassesDto {
   })
   skip: number;
 
-  @ApiProperty({ description: 'Número de documentos que serão retornados' })
+  @ApiProperty({ description: 'docs.COMMON.LIMIT_DESCRIPTION' })
   @Transform(({ value }) => parseInt(value))
   @IsNumber({}, { message: i18nValidationMessage('errors.COMMON.IS_NUMBER') })
   @Min(1, {
@@ -36,21 +36,24 @@ export class FindClassesDto {
   })
   limit: number;
 
-  @ApiPropertyOptional({ description: 'Status da turma' })
+  @ApiPropertyOptional({ description: 'docs.COMMON.STATUS_DESCRIPTION' })
   @IsOptional()
   @Transform(({ value }) => value === 'true')
   @IsBoolean({ message: i18nValidationMessage('errors.COMMON.IS_BOOLEAN') })
   status: boolean;
 
   @ApiPropertyOptional({
-    description: 'Modalidade da turma',
+    description: 'docs.COMMON.MODALITY_DESCRIPTION',
     example: '64f1b2a3c4d5e6f7890abc12',
   })
   @IsOptional()
   @IsMongoId({ message: i18nValidationMessage('errors.COMMON.INVALID_ID') })
   modality: Types.ObjectId;
 
-  @ApiPropertyOptional({ description: 'Idade mínima da turma', example: 8 })
+  @ApiPropertyOptional({
+    description: 'docs.CLASSES.MIN_AGE_PROPERTY',
+    example: 8,
+  })
   @IsOptional()
   @Transform(({ value }) => parseInt(value))
   @IsNumber({}, { message: i18nValidationMessage('errors.COMMON.IS_NUMBER') })
@@ -61,7 +64,7 @@ export class FindClassesDto {
   minAge: number;
 
   @ApiPropertyOptional({
-    description: 'Idade máxima da turma',
+    description: 'docs.CLASSES.MAX_AGE_PROPERTY',
     example: 4,
   })
   @IsOptional()
@@ -74,7 +77,7 @@ export class FindClassesDto {
   maxAge: number;
 
   @ApiPropertyOptional({
-    description: 'Horário de início da turma',
+    description: 'docs.CLASSES.START_HOUR_PROPERTY',
     example: '17:00',
   })
   @IsOptional()
@@ -91,7 +94,7 @@ export class FindClassesDto {
   startHour: string;
 
   @ApiPropertyOptional({
-    description: 'Horário de término da turma',
+    description: 'docs.CLASSES.END_HOUR_PROPERTY',
     example: '18:00',
   })
   @IsOptional()
@@ -108,7 +111,7 @@ export class FindClassesDto {
   endHour: string;
 
   @ApiPropertyOptional({
-    description: 'Dias da semana da turma',
+    description: 'docs.CLASSES.WEEKDAYS_PROPERTY',
     type: [String],
     example: ['Segunda-feira', 'Terça-feira'],
   })

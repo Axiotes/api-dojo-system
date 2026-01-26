@@ -50,9 +50,8 @@ export class ClassesController {
 
   @ApiCookieAuth()
   @ApiOperation({
-    summary: 'Cadastra uma nova turma',
-    description:
-      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+    summary: 'docs.CLASSES.REGISTER_SUMMARY',
+    description: 'docs.CLASSES.REGISTER_DESCRIPTION',
   })
   @ApiBody({
     schema: {
@@ -61,59 +60,59 @@ export class ClassesController {
         modality: {
           type: 'string',
           example: '64f1b2a3c4d5e6f7890abc12',
-          description: 'ID da modalidade (ObjectId do MongoDB)',
+          description: 'docs.CLASSES.MODALITY_ID_PROPERTY',
         },
         teacher: {
           type: 'string',
           example: '64f1b2a3c4d5e6f7890abc12',
-          description: 'ID do professor (ObjectId do MongoDB)',
+          description: 'docs.CLASSES.TEACHER_ID_PROPERTY',
         },
         startHour: {
           type: 'string',
           example: '08:30',
-          description: 'Horário de início da aula (HH:MM)',
+          description: 'docs.CLASSES.START_HOUR_PROPERTY',
         },
         endHour: {
           type: 'string',
           example: '08:30',
-          description: 'Horário de término da aula (HH:MM)',
+          description: 'docs.CLASSES.END_HOUR_PROPERTY',
         },
         minAge: {
           type: 'number',
           example: '10',
-          description: 'Idade mínima dos alunos',
+          description: 'docs.CLASSES.MIN_AGE_PROPERTY',
         },
         maxAge: {
           type: 'number',
           example: '13',
-          description: 'Idade máxima dos alunos',
+          description: 'docs.CLASSES.MAX_AGE_PROPERTY',
         },
         maxAthletes: {
           type: 'number',
           example: '15',
-          description: 'Máximo de atletas',
+          description: 'docs.CLASSES.MAX_ATHLETES_PROPERTY',
         },
         weekDays: {
           type: 'array',
-          description: 'Dias da semana',
+          description: 'docs.CLASSES.WEEKDAYS_PROPERTY',
           items: {
             type: 'string',
             enum: [
-              'Segunda-feira',
-              'Terça-feira',
-              'Quarta-feira',
-              'Quinta-feira',
-              'Sexta-feira',
-              'Sábado',
-              'Domingo',
+              'docs.CLASSES.WEEKDAYS_ENUM.MONDAY',
+              'docs.CLASSES.WEEKDAYS_ENUM.TUESDAY',
+              'docs.CLASSES.WEEKDAYS_ENUM.WEDNESDAY',
+              'docs.CLASSES.WEEKDAYS_ENUM.THURSDAY',
+              'docs.CLASSES.WEEKDAYS_ENUM.FRIDAY',
+              'docs.CLASSES.WEEKDAYS_ENUM.SATURDAY',
+              'docs.CLASSES.WEEKDAYS_ENUM.SUNDAY',
             ],
-            example: 'Segunda-feira',
+            example: 'docs.CLASSES.WEEKDAYS_ENUM.MONDAY',
           },
         },
         image: {
           type: 'string',
           format: 'binary',
-          description: 'Imagem da modalidade (jpg, jpeg, png, gif)',
+          description: 'docs.CLASSES.IMAGE_PROPERTY',
         },
       },
       required: [
@@ -171,10 +170,8 @@ export class ClassesController {
   }
 
   @ApiOperation({
-    summary: 'Buscar uma turma por ID',
-    description: `Qualquer usuário pode realizar está ação. No entanto, 
-      apenas usuários com token jwt e cargos "admin" recebem
-      informações privilegiadas sobre a turma`,
+    summary: 'docs.CLASSES.FIND_BY_ID_SUMMARY',
+    description: 'docs.CLASSES.FIND_BY_ID_DESCRIPTION',
   })
   @UseGuards(OptionalJwtGuard)
   @Throttle({
@@ -213,10 +210,8 @@ export class ClassesController {
   }
 
   @ApiOperation({
-    summary: 'Buscar turmas com paginação e filtros',
-    description: `Qualquer usuário pode realizar está ação. No entanto, 
-      apenas usuários com token jwt e cargos "admin" recebem
-      informações privilegiadas sobre as turmas`,
+    summary: 'docs.CLASSES.FIND_ALL_SUMMARY',
+    description: 'docs.CLASSES.FIND_ALL_DESCRIPTION',
   })
   @UseGuards(OptionalJwtGuard)
   @Throttle({
