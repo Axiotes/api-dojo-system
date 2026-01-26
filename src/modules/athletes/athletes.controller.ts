@@ -17,13 +17,8 @@ export class AthletesController {
   constructor(private readonly athletesService: AthletesService) {}
 
   @ApiOperation({
-    summary: 'Cadastra um novo atleta',
-    description: `Qualquer usuário pode realizar essa ação.
-    No entanto, quando é realizada por um administrador, significa que o cadastro 
-    está sendo feito presencialmente na academia e que o pagamento também foi realizado presencialmente.
-    Nesse caso, um e-mail é enviado ao novo atleta para que ele cadastre sua senha de acesso ao portal.
-    Caso a ação seja realizada por um usuário comum, 
-    o pagamento deve ser feito no momento da inscrição, por cartão ou pix`,
+    summary: 'docs.ATHLETES.REGISTER_SUMMARY',
+    description: 'docs.ATHLETES.REGISTER_DESCRIPTION',
   })
   @UseGuards(OptionalJwtGuard)
   @Throttle({

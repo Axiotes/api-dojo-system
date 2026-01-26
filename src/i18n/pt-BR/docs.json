@@ -29,5 +29,32 @@
     "SKIP_DESCRIPTION": "Número de itens a serem pulados para paginação",
     "LIMIT_DESCRIPTION": "Número máximo de itens a serem retornados para paginação",
     "STATUS_DESCRIPTION": "Status do recurso (ativo ou inativo)"
+  },
+  "ATHLETES": {
+    "REGISTER_SUMMARY": "Cadastra um novo atleta",
+    "REGISTER_DESCRIPTION": "Qualquer usuário pode realizar essa ação. No entanto, quando é realizada por um administrador, significa que o cadastro está sendo feito presencialmente na academia e que o pagamento também foi realizado presencialmente. Nesse caso, um e-mail é enviado ao novo atleta para que ele cadastre sua senha de acesso ao portal. Caso a ação seja realizada por um usuário comum, o pagamento deve ser feito no momento da inscrição, por cartão ou pix",
+    "DTOS": {
+      "NAME_DESCRIPTION": "Nome completo do atleta",
+      "CPF_DESCRIPTION": "CPF do atleta (somente números)",
+      "BIRTH_DATE_DESCRIPTION": "Data de nascimento do atleta (formato: AAAA-MM-DD)",
+      "PLAN_ID_DESCRIPTION": "ID do plano escolhido pelo atleta",
+      "CLASS_ID_DESCRIPTION": "ID da turma escolhida pelo atleta",
+      "EMAIL_DESCRIPTION": "Email do atleta (obrigatório para maiores de 18 anos)",
+      "PASSWORD_DESCRIPTION": "Senha do atleta",
+      "RESPONSIBLE_DESCRIPTION": "Responsável do atleta",
+      "PAYMENT_MODE_DESCRIPTION": "Modo de pagamento (Presencial, cartão ou pix)",
+      "PAYMENT_METHOD_DESCRIPTION": "Método de pagamento utilizado no cadastro do atleta",
+      "RESPONSIBLE_NAME_DESCRIPTION": "Nome completo do responsável pelo atleta",
+      "RESPONSIBLE_CPF_DESCRIPTION": "CPF do responsável pelo atleta (somente números)",
+      "RESPONSIBLE_EMAIL_DESCRIPTION": "Email do responsável pelo atleta",
+      "RESPONSIBLE_BIRTH_DATE_DESCRIPTION": "Data de nascimento do responsável pelo atleta (formato: AAAA-MM-DD)",
+      "CARD_TYPE_DESCRIPTION": "Tipo do cartão utilizado no pagamento (CREDIT ou DEBIT)",
+      "CARD_TOKEN_DESCRIPTION": "Token do cartão gerado pelo Mercado Pago",
+      "CARD_HOLDER_NAME_DESCRIPTION": "Nome do titular do cartão",
+      "CARD_NUMBER_DESCRIPTION": "Número do cartão de crédito ou débito",
+      "METHOD_ID_DESCRIPTION": "ID do método do cartão (visa, master...)",
+      "MONTH_EXPIRATION_DESCRIPTION": "Mês de expiração do cartão (MM)",
+        "YEAR_EXPIRATION_DESCRIPTION": "Ano de expiração do cartão (AAAA)"
+    }
   }
 }

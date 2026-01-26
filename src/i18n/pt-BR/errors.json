@@ -20,7 +20,8 @@
     "EMAIL_REQUIRED": "O email é obrigatório para atletas com mais de 18 anos",
     "RESPONSIBLE_REQUIRED": "O responsável é obrigatório para atletas com menos de 18 anos",
     "RESPONSIBLE_ORVER_18": "O responsável não pode ser maior de 18 anos",
-    "RESPONSIBLE_EXISTS": "Responsável com {field} {value} já existe"
+    "RESPONSIBLE_EXISTS": "Responsável com {field} {value} já existe",
+    "DATE_FORMAT": "A data deve estar no formato AAAA-MM-DD"
   },
   "CLASSES": {
     "MODULE_NAME": "Turma",

@@ -7,14 +7,14 @@ import { CardType } from '@ds-enums/card-type.enum';
 
 export class PaymentMethodDto {
   @ApiProperty({
-    description: 'Tipo do cartão (Débito ou Crédito)',
+    description: 'docs.ATHLETES.DTOS.CARD_TYPE_DESCRIPTION',
     example: 'CREDIT',
   })
   @IsEnum(CardType, { message: i18nValidationMessage('errors.COMMON.IS_ENUM') })
   cardType: CardType;
 
   @ApiProperty({
-    description: 'Token do cartão gerado pelo Mercado Pago',
+    description: 'docs.ATHLETES.DTOS.CARD_TOKEN_DESCRIPTION',
     example: '7890d7363a20a4c03e7ab23014f52c80',
   })
   @IsString({
@@ -23,15 +23,18 @@ export class PaymentMethodDto {
   cardToken: string;
 
   @ApiProperty({
-    description: 'Nome do titular do cartão',
-    example: 'Nome Titular',
+    description: 'docs.ATHLETES.DTOS.CARD_HOLDER_NAME_DESCRIPTION',
+    example: 'Name',
   })
   @IsString({
     message: i18nValidationMessage('errors.COMMON.IS_STRING'),
   })
   cardHolderName: string;
 
-  @ApiProperty({ description: 'Número do cartão', example: '4242424242424242' })
+  @ApiProperty({
+    description: 'docs.ATHLETES.DTOS.CARD_NUMBER_DESCRIPTION',
+    example: '4242424242424242',
+  })
   @IsString({
     message: i18nValidationMessage('errors.COMMON.IS_STRING'),
   })
@@ -42,7 +45,7 @@ export class PaymentMethodDto {
   cardNumber: string;
 
   @ApiProperty({
-    description: 'ID do método do cartão (visa, master...)',
+    description: 'docs.ATHLETES.DTOS.METHOD_ID_DESCRIPTION',
     example: 'visa',
   })
   @IsString({
@@ -50,13 +53,19 @@ export class PaymentMethodDto {
   })
   methodId: string;
 
-  @ApiProperty({ description: 'Mês de expiração do cartão', example: '11' })
+  @ApiProperty({
+    description: 'docs.ATHLETES.DTOS.MONTH_EXPIRATION_DESCRIPTION',
+    example: '11',
+  })
   @IsString({
     message: i18nValidationMessage('errors.COMMON.IS_STRING'),
   })
   expirationMonth: string;
 
-  @ApiProperty({ description: 'Ano de expiração do cartão', example: '2029' })
+  @ApiProperty({
+    description: 'docs.ATHLETES.DTOS.YEAR_EXPIRATION_DESCRIPTION',
+    example: '2029',
+  })
   @IsString({
     message: i18nValidationMessage('errors.COMMON.IS_STRING'),
   })
