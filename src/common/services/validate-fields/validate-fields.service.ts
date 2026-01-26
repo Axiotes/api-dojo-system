@@ -7,7 +7,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Types } from 'mongoose';
 
 import { I18nFiles } from '@ds-enums/i18n-files.enum';
-import { Message } from '@ds-enums/message.enum';
+import { UserMessage } from '@ds-enums/user-message.enum';
 import { ModuleName } from '@ds-enums/module-name.enum';
 import { TranslateService } from '@ds-services/translate/translate.service';
 
@@ -28,7 +28,7 @@ export class ValidateFieldsService {
         this.translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.COMMON,
-          message: Message.EMAIL_EXISTS,
+          message: UserMessage.EMAIL_EXISTS,
         }),
       );
     }
@@ -44,7 +44,7 @@ export class ValidateFieldsService {
         this.translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.COMMON,
-          message: Message.CPF_EXISTS,
+          message: UserMessage.CPF_EXISTS,
         }),
       );
     }
@@ -67,14 +67,14 @@ export class ValidateFieldsService {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.COMMON,
-            message: Message.NOT_FOUND,
+            message: UserMessage.NOT_FOUND,
           },
           {
             args: {
               moduleName: this.translateService.translate({
                 i18nFile: I18nFiles.ERRORS,
                 module: modelName.toUpperCase() as ModuleName,
-                message: Message.MODULE_NAME,
+                message: UserMessage.MODULE_NAME,
               }),
             },
           },
@@ -88,14 +88,14 @@ export class ValidateFieldsService {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.COMMON,
-            message: Message.IS_DISABLED,
+            message: UserMessage.IS_DISABLED,
           },
           {
             args: {
               moduleName: this.translateService.translate({
                 i18nFile: I18nFiles.ERRORS,
                 module: modelName.toUpperCase() as ModuleName,
-                message: Message.MODULE_NAME,
+                message: UserMessage.MODULE_NAME,
               }),
             },
           },

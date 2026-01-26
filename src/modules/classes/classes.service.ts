@@ -19,7 +19,7 @@ import { Role } from '@ds-types/role.type';
 import { TranslateService } from '@ds-services/translate/translate.service';
 import { I18nFiles } from '@ds-enums/i18n-files.enum';
 import { ModuleName } from '@ds-enums/module-name.enum';
-import { Message } from '@ds-enums/message.enum';
+import { UserMessage } from '@ds-enums/user-message.enum';
 
 @Injectable()
 export class ClassesService {
@@ -52,7 +52,7 @@ export class ClassesService {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.CLASSES,
-            message: Message.MODALITY_DISABLE,
+            message: UserMessage.MODALITY_DISABLE,
           },
           { args: { modalityId: newClass.modality.toString() } },
         ),
@@ -65,7 +65,7 @@ export class ClassesService {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.CLASSES,
-            message: Message.TEACHER_DISABLE,
+            message: UserMessage.TEACHER_DISABLE,
           },
           { args: { teacherId: newClass.teacher.toString() } },
         ),
@@ -83,7 +83,7 @@ export class ClassesService {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.CLASSES,
-            message: Message.INCOMPATIBLE_MODALITY,
+            message: UserMessage.INCOMPATIBLE_MODALITY,
           },
           { args: { teacherName: teacher.name, modalityName: modality.name } },
         ),
@@ -119,7 +119,7 @@ export class ClassesService {
         this.translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.CLASSES,
-          message: Message.NOT_FOUND,
+          message: UserMessage.NOT_FOUND,
         }),
       );
     }

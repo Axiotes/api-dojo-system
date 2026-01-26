@@ -26,7 +26,7 @@ import { calculateAge } from '@ds-common/helpers/calculate-age.helper';
 import { TranslateService } from '@ds-services/translate/translate.service';
 import { I18nFiles } from '@ds-enums/i18n-files.enum';
 import { ModuleName } from '@ds-enums/module-name.enum';
-import { Message } from '@ds-enums/message.enum';
+import { UserMessage } from '@ds-enums/user-message.enum';
 
 describe('AthletesService', () => {
   let service: AthletesService;
@@ -884,7 +884,7 @@ describe('AthletesService', () => {
         translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ATHLETES,
-          message: Message.ADMIN_REGISTER,
+          message: UserMessage.ADMIN_REGISTER,
         }),
       ),
     );
@@ -893,7 +893,7 @@ describe('AthletesService', () => {
         translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ATHLETES,
-          message: Message.ADMIN_REGISTER,
+          message: UserMessage.ADMIN_REGISTER,
         }),
       ),
     );
@@ -910,7 +910,7 @@ describe('AthletesService', () => {
         translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ATHLETES,
-          message: Message.USER_REGISTER,
+          message: UserMessage.USER_REGISTER,
         }),
       ),
     );
@@ -944,7 +944,7 @@ describe('AthletesService', () => {
         translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ATHLETES,
-          message: Message.INCOMPATIBLE_MODALITY_PLAN,
+          message: UserMessage.INCOMPATIBLE_MODALITY_PLAN,
         }),
       ),
     );
@@ -978,7 +978,7 @@ describe('AthletesService', () => {
         translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ATHLETES,
-          message: Message.INCOMPATIBLE_MODALITY_PLAN,
+          message: UserMessage.INCOMPATIBLE_MODALITY_PLAN,
         }),
       ),
     );
@@ -1019,7 +1019,7 @@ describe('AthletesService', () => {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.ATHLETES,
-            message: Message.CLASS_RANGE_AGE,
+            message: UserMessage.CLASS_RANGE_AGE,
           },
           {
             args: {
@@ -1068,7 +1068,7 @@ describe('AthletesService', () => {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.ATHLETES,
-            message: Message.CLASS_RANGE_AGE,
+            message: UserMessage.CLASS_RANGE_AGE,
           },
           {
             args: {
@@ -1116,7 +1116,7 @@ describe('AthletesService', () => {
         translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ATHLETES,
-          message: Message.EMAIL_REQUIRED,
+          message: UserMessage.EMAIL_REQUIRED,
         }),
       ),
     );
@@ -1156,7 +1156,7 @@ describe('AthletesService', () => {
         translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ATHLETES,
-          message: Message.EMAIL_REQUIRED,
+          message: UserMessage.EMAIL_REQUIRED,
         }),
       ),
     );
@@ -1197,7 +1197,7 @@ describe('AthletesService', () => {
         translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ATHLETES,
-          message: Message.RESPONSIBLE_REQUIRED,
+          message: UserMessage.RESPONSIBLE_REQUIRED,
         }),
       ),
     );
@@ -1238,7 +1238,7 @@ describe('AthletesService', () => {
         translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ATHLETES,
-          message: Message.RESPONSIBLE_REQUIRED,
+          message: UserMessage.RESPONSIBLE_REQUIRED,
         }),
       ),
     );
@@ -1281,7 +1281,7 @@ describe('AthletesService', () => {
         translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ATHLETES,
-          message: Message.RESPONSIBLE_ORVER_18,
+          message: UserMessage.RESPONSIBLE_ORVER_18,
         }),
       ),
     );
@@ -1324,7 +1324,7 @@ describe('AthletesService', () => {
         translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ATHLETES,
-          message: Message.RESPONSIBLE_ORVER_18,
+          message: UserMessage.RESPONSIBLE_ORVER_18,
         }),
       ),
     );
@@ -1370,7 +1370,7 @@ describe('AthletesService', () => {
         translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ATHLETES,
-          message: Message.PAYMENT_METHOD_REQUIRED,
+          message: UserMessage.PAYMENT_METHOD_REQUIRED,
         }),
       ),
     );

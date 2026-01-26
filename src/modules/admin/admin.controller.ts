@@ -29,7 +29,7 @@ import { Roles } from '@ds-common/decorators/roles.decorator';
 import { TranslateService } from '@ds-services/translate/translate.service';
 import { I18nFiles } from '@ds-enums/i18n-files.enum';
 import { ModuleName } from '@ds-enums/module-name.enum';
-import { Message } from '@ds-enums/message.enum';
+import { UserMessage } from '@ds-enums/user-message.enum';
 
 @Controller('admin')
 export class AdminController {
@@ -40,9 +40,8 @@ export class AdminController {
 
   @ApiCookieAuth()
   @ApiOperation({
-    summary: 'Cadastra um novo administrador da academia',
-    description:
-      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+    summary: 'docs.ADMIN.REGISTER_SUMMARY',
+    description: 'docs.ADMIN.REGISTER_DESCRIPTION',
   })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles('admin')
@@ -64,9 +63,8 @@ export class AdminController {
   }
 
   @ApiOperation({
-    summary: 'Login do administrador da academia',
-    description:
-      'Em caso de sucesso, retorna um token JWT nos cookies que deve ser utilizado para acessar outros endpoints protegidos.',
+    summary: 'docs.ADMIN.LOGIN_SUMMARY',
+    description: 'docs.ADMIN.LOGIN_DESCRIPTION',
   })
   @Throttle({
     default: {
@@ -89,15 +87,18 @@ export class AdminController {
     });
 
     return {
-      data: 'Login successful',
+      data: this.translateService.translate({
+        i18nFile: I18nFiles.ERRORS,
+        module: ModuleName.COMMON,
+        message: UserMessage.SUCCESSFUL_LOGIN,
+      }),
     };
   }
 
   @ApiCookieAuth()
   @ApiOperation({
-    summary: 'Busca administrador da academia por ID',
-    description:
-      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+    summary: 'docs.ADMIN.FIND_BY_ID_SUMMARY',
+    description: 'docs.ADMIN.FIND_BY_ID_DESCRIPTION',
   })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles('admin')
@@ -117,7 +118,7 @@ export class AdminController {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.COMMON,
-            message: Message.INVALID_ID,
+            message: UserMessage.INVALID_ID,
           },
           { args: { property: 'id' } },
         ),
@@ -133,9 +134,8 @@ export class AdminController {
 
   @ApiCookieAuth()
   @ApiOperation({
-    summary: 'Busca administradores da academia',
-    description:
-      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+    summary: 'docs.ADMIN.FIND_ALL_SUMMARY',
+    description: 'docs.ADMIN.FIND_ALL_DESCRIPTION',
   })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles('admin')
@@ -163,9 +163,8 @@ export class AdminController {
 
   @ApiCookieAuth()
   @ApiOperation({
-    summary: 'Inativar administrador da academia com base no ID',
-    description:
-      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+    summary: 'docs.ADMIN.DEACTIVATE_SUMMARY',
+    description: 'docs.ADMIN.DEACTIVATE_DESCRIPTION',
   })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles('admin')
@@ -183,7 +182,7 @@ export class AdminController {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.COMMON,
-            message: Message.INVALID_ID,
+            message: UserMessage.INVALID_ID,
           },
           { args: { property: 'id' } },
         ),
@@ -193,15 +192,18 @@ export class AdminController {
     await this.adminService.setStatus(id, false);
 
     return {
-      data: 'Admin successfully deactivated',
+      data: this.translateService.translate({
+        i18nFile: I18nFiles.ERRORS,
+        module: ModuleName.COMMON,
+        message: UserMessage.DEACTIVATED,
+      }),
     };
   }
 
   @ApiCookieAuth()
   @ApiOperation({
-    summary: 'Reativar administrador da academia com base no ID',
-    description:
-      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+    summary: 'docs.ADMIN.REACTIVATE_SUMMARY',
+    description: 'docs.ADMIN.REACTIVATE_DESCRIPTION',
   })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles('admin')
@@ -221,7 +223,7 @@ export class AdminController {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.COMMON,
-            message: Message.INVALID_ID,
+            message: UserMessage.INVALID_ID,
           },
           { args: { property: 'id' } },
         ),
@@ -231,15 +233,18 @@ export class AdminController {
     await this.adminService.setStatus(id, true);
 
     return {
-      data: 'Admin successfully reactivate',
+      data: this.translateService.translate({
+        i18nFile: I18nFiles.ERRORS,
+        module: ModuleName.COMMON,
+        message: UserMessage.REACTIVATED,
+      }),
     };
   }
 
   @ApiCookieAuth()
   @ApiOperation({
-    summary: 'Atualizar administrador da academia',
-    description: `Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint. 
-      É realizado a confirmação do email e senha antes de qualquer alteração.`,
+    summary: 'docs.ADMIN.UPDATE_SUMMARY',
+    description: 'docs.ADMIN.UPDATE_DESCRIPTION',
   })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles('admin')

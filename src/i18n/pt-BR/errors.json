@@ -3,7 +3,10 @@
     "MODULE_NAME": "Administrador",
     "NOT_FOUND": "Administrador não encontrado",
     "EMAIL_EXISTS": "Já existe um administrador com este email",
-    "INVALID_EMAIL_PASSWORD": "Email ou senha inválidos"
+    "INVALID_EMAIL_PASSWORD": "Email ou senha inválidos",
+    "SUCCESSFUL_LOGIN": "Login realizado com sucesso",
+    "DEACTIVATED": "Administrador desativado com sucesso",
+    "REACTIVATED": "Administrador reativado com sucesso"
   },
   "ATHLETES": {
     "MODULE_NAME": "Atleta",

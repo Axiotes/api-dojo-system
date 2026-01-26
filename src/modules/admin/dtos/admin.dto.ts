@@ -10,8 +10,8 @@ import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class AdminDto {
   @ApiProperty({
-    description: 'Nome do administrador',
-    example: 'Nome Completo',
+    description: 'docs.ADMIN.DTOS.NAME_DESCRIPTION',
+    example: 'Name',
   })
   @IsNotEmpty({
     message: i18nValidationMessage('errors.COMMON.IS_STRING'),
@@ -22,15 +22,14 @@ export class AdminDto {
   name: string;
 
   @ApiProperty({
-    description: 'Email do administrador',
+    description: 'docs.ADMIN.DTOS.EMAIL_DESCRIPTION',
     example: 'email@gmail.com',
   })
   @IsEmail({}, { message: i18nValidationMessage('errors.COMMON.IS_EMAIL') })
   email: string;
 
   @ApiProperty({
-    description:
-      'Senha do administrador (Mín. 8 caracteres, 1 maiúscula, 1 minúscula, 1 número)',
+    description: 'docs.ADMIN.DTOS.PASSWORD_DESCRIPTION_HINT',
     minLength: 8,
     example: 'StrongPassword123',
   })

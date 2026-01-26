@@ -43,7 +43,7 @@ import { ReportBase64Interceptor } from '@ds-common/interceptors/report-base64/r
 import { TranslateService } from '@ds-services/translate/translate.service';
 import { I18nFiles } from '@ds-enums/i18n-files.enum';
 import { ModuleName } from '@ds-enums/module-name.enum';
-import { Message } from '@ds-enums/message.enum';
+import { UserMessage } from '@ds-enums/user-message.enum';
 
 @UseInterceptors(ImageBase64Interceptor)
 @Controller('teachers')
@@ -169,7 +169,7 @@ export class TeachersController {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.COMMON,
-            message: Message.INVALID_ID,
+            message: UserMessage.INVALID_ID,
           },
           { args: { property: 'id' } },
         ),
@@ -343,7 +343,7 @@ export class TeachersController {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.COMMON,
-            message: Message.INVALID_ID,
+            message: UserMessage.INVALID_ID,
           },
           { args: { property: 'id' } },
         ),
@@ -395,7 +395,7 @@ export class TeachersController {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.COMMON,
-            message: Message.INVALID_ID,
+            message: UserMessage.INVALID_ID,
           },
           { args: { property: 'id' } },
         ),
@@ -408,7 +408,7 @@ export class TeachersController {
       data: this.translateService.translate({
         i18nFile: I18nFiles.ERRORS,
         module: ModuleName.TEACHERS,
-        message: Message.REACTIVATED,
+        message: UserMessage.REACTIVATED,
       }),
     };
   }
@@ -436,7 +436,7 @@ export class TeachersController {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.COMMON,
-            message: Message.INVALID_ID,
+            message: UserMessage.INVALID_ID,
           },
           { args: { property: 'id' } },
         ),
@@ -454,7 +454,7 @@ export class TeachersController {
       data: this.translateService.translate({
         i18nFile: I18nFiles.ERRORS,
         module: ModuleName.TEACHERS,
-        message: Message.REACTIVATED,
+        message: UserMessage.REACTIVATED,
       }),
     };
   }

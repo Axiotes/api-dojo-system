@@ -1,0 +1,33 @@
+{
+  "SWAGGER": {
+    "DESCRIPTION": "API REST desenvolvida para sistema para gerenciamento de academias de lutas, permitindo às academias se organizarem de forma simples e eficiente. Além disso, oferece uma plataforma para alunos e visitantes interagirem com as academias."
+  },
+  "ADMIN": {
+    "REGISTER_SUMMARY": "Cadastra um novo administrador da academia",
+    "REGISTER_DESCRIPTION": "Este endpoint permite que você cadastre um novo administrador da academia no sistema. Apenas usuários com token jwt e cargos 'admin' podem utilizar este endpoint",
+    "LOGIN_SUMMARY": "Login do administrador da academia",
+    "LOGIN_DESCRIPTION": "Este endpoint permite que o administrador da academia faça login no sistema utilizando suas credenciais. Em caso de sucesso, retorna um token JWT nos cookies que deve ser utilizado para acessar outros endpoints protegidos.",
+    "FIND_BY_ID_SUMMARY": "Busca um administrador por ID",
+    "FIND_BY_ID_DESCRIPTION": "Este endpoint permite que você busque um administrador da academia por ID. Apenas usuários com token jwt e cargos 'admin' podem utilizar este endpoint",
+    "FIND_ALL_SUMMARY": "Busca todos os administradores",
+    "FIND_ALL_DESCRIPTION": "Este endpoint permite que você busque todos os administradores da academia. Apenas usuários com token jwt e cargos 'admin' podem utilizar este endpoint",
+    "DEACTIVATE_SUMMARY": "Desativa um administrador ativo",
+    "DEACTIVATE_DESCRIPTION": "Este endpoint permite que você desative um administrador ativo da academia com base no ID. Apenas usuários com token jwt e cargos 'admin' podem utilizar este endpoint",
+    "REACTIVATE_SUMMARY": "Reativa um administrador inativo",
+    "REACTIVATE_DESCRIPTION": "Este endpoint permite que você reative um administrador inativo da academia com base no ID. Apenas usuários com token jwt e cargos 'admin' podem utilizar este endpoint",
+    "UPDATE_SUMMARY": "Atualiza os dados de um administrador",
+    "UPDATE_DESCRIPTION": "Este endpoint permite que você atualize os dados de um administrador da academia com base no ID. Apenas usuários com token jwt e cargos 'admin' podem utilizar este endpoint",
+    "DTOS": {
+      "EMAIL_DESCRIPTION": "Email do administrador da academia",
+      "PASSWORD_DESCRIPTION": "Senha do administrador da academia",
+      "NAME_DESCRIPTION": "Nome completo do administrador da academia",
+      "PASSWORD_DESCRIPTION_HINT": "Senha do administrador (Mín. 8 caracteres, 1 maiúscula, 1 minúscula, 1 número)",
+      "NEW_PASSWORD_DESCRIPTION": "Nova senha do administrador da academia"
+    }
+  },
+  "COMMON": {
+    "SKIP_DESCRIPTION": "Número de itens a serem pulados para paginação",
+    "LIMIT_DESCRIPTION": "Número máximo de itens a serem retornados para paginação",
+    "STATUS_DESCRIPTION": "Status do recurso (ativo ou inativo)"
+  }
+}

@@ -8,4 +8,5 @@ export enum ModuleName {
   TEACHERS = 'TEACHERS',
   VISITS = 'VISITS',
   COMMON = 'COMMON',
+  SWAGGER = 'SWAGGER',
 }

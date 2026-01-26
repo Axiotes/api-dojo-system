@@ -23,7 +23,7 @@ import { RoleGuard } from '@ds-common/guards/role/role.guard';
 import { Roles } from '@ds-common/decorators/roles.decorator';
 import { I18nFiles } from '@ds-enums/i18n-files.enum';
 import { ModuleName } from '@ds-enums/module-name.enum';
-import { Message } from '@ds-enums/message.enum';
+import { UserMessage } from '@ds-enums/user-message.enum';
 import { TranslateService } from '@ds-services/translate/translate.service';
 
 @Controller('plans')
@@ -77,7 +77,7 @@ export class PlansController {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.COMMON,
-            message: Message.INVALID_ID,
+            message: UserMessage.INVALID_ID,
           },
           { args: { property: 'id' } },
         ),

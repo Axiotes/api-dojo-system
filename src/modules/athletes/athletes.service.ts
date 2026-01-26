@@ -30,7 +30,7 @@ import { EmailService } from '@ds-services/email/email.service';
 import { EmailDefinePassword } from '@ds-types/email-define-password.type';
 import { IdentifierFields } from '@ds-enums/identifier-fields.enum';
 import { TranslateService } from '@ds-services/translate/translate.service';
-import { Message } from '@ds-enums/message.enum';
+import { UserMessage } from '@ds-enums/user-message.enum';
 import { ModuleName } from '@ds-enums/module-name.enum';
 import { I18nFiles } from '@ds-enums/i18n-files.enum';
 
@@ -71,7 +71,7 @@ export class AthletesService {
         this.translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ATHLETES,
-          message: Message.ADMIN_REGISTER,
+          message: UserMessage.ADMIN_REGISTER,
         }),
       );
     }
@@ -123,7 +123,7 @@ export class AthletesService {
         this.translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ATHLETES,
-          message: Message.USER_REGISTER,
+          message: UserMessage.USER_REGISTER,
         }),
       );
     }
@@ -191,7 +191,7 @@ export class AthletesService {
           this.translateService.translate({
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.ATHLETES,
-            message: Message.PAYMENT_METHOD_REQUIRED,
+            message: UserMessage.PAYMENT_METHOD_REQUIRED,
           }),
         );
       }
@@ -233,7 +233,7 @@ export class AthletesService {
         this.translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ATHLETES,
-          message: Message.PAYMENT_ERROR,
+          message: UserMessage.PAYMENT_ERROR,
         }),
       );
     } finally {
@@ -256,7 +256,7 @@ export class AthletesService {
         this.translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ATHLETES,
-          message: Message.INCOMPATIBLE_MODALITY_PLAN,
+          message: UserMessage.INCOMPATIBLE_MODALITY_PLAN,
         }),
       );
     }
@@ -279,7 +279,7 @@ export class AthletesService {
             {
               i18nFile: I18nFiles.ERRORS,
               module: ModuleName.ATHLETES,
-              message: Message.CLASS_RANGE_AGE,
+              message: UserMessage.CLASS_RANGE_AGE,
             },
             {
               args: {
@@ -293,7 +293,7 @@ export class AthletesService {
             {
               i18nFile: I18nFiles.ERRORS,
               module: ModuleName.ATHLETES,
-              message: Message.CLASS_MIN_AGE,
+              message: UserMessage.CLASS_MIN_AGE,
             },
             {
               args: {
@@ -315,7 +315,7 @@ export class AthletesService {
         this.translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ATHLETES,
-          message: Message.EMAIL_REQUIRED,
+          message: UserMessage.EMAIL_REQUIRED,
         }),
       );
     }
@@ -334,7 +334,7 @@ export class AthletesService {
         this.translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ATHLETES,
-          message: Message.RESPONSIBLE_REQUIRED,
+          message: UserMessage.RESPONSIBLE_REQUIRED,
         }),
       );
     }
@@ -346,7 +346,7 @@ export class AthletesService {
         this.translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ATHLETES,
-          message: Message.RESPONSIBLE_ORVER_18,
+          message: UserMessage.RESPONSIBLE_ORVER_18,
         }),
       );
     }
@@ -378,7 +378,7 @@ export class AthletesService {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.ATHLETES,
-            message: Message.CLASS_MIN_AGE,
+            message: UserMessage.CLASS_MIN_AGE,
           },
           {
             args: {

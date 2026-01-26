@@ -21,7 +21,7 @@ import { TeachersPdf } from '@ds-types/teachers-pdf.type';
 import { TranslateService } from '@ds-services/translate/translate.service';
 import { I18nFiles } from '@ds-enums/i18n-files.enum';
 import { ModuleName } from '@ds-enums/module-name.enum';
-import { Message } from '@ds-enums/message.enum';
+import { UserMessage } from '@ds-enums/user-message.enum';
 
 jest.mock('puppeteer', () => ({
   launch: jest.fn().mockResolvedValue({
@@ -330,7 +330,7 @@ describe('TeachersService', () => {
         translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.TEACHERS,
-          message: Message.NOT_FOUND,
+          message: UserMessage.NOT_FOUND,
         }),
       ),
     );
@@ -654,7 +654,7 @@ describe('TeachersService', () => {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.TEACHERS,
-            message: Message.COMPATIBLE_CLASS,
+            message: UserMessage.COMPATIBLE_CLASS,
           },
           { args: { modality: teacherClasses[0].modality.toString() } },
         ),
@@ -747,7 +747,7 @@ describe('TeachersService', () => {
         translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.TEACHERS,
-          message: Message.CANNOT_DEACTIVATE,
+          message: UserMessage.CANNOT_DEACTIVATE,
         }),
       ),
     );

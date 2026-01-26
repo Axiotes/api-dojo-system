@@ -14,7 +14,7 @@ import { ValidateFieldsService } from '@ds-services/validate-fields/validate-fie
 import { TranslateService } from '@ds-services/translate/translate.service';
 import { I18nFiles } from '@ds-enums/i18n-files.enum';
 import { ModuleName } from '@ds-enums/module-name.enum';
-import { Message } from '@ds-enums/message.enum';
+import { UserMessage } from '@ds-enums/user-message.enum';
 
 describe('PlansService', () => {
   let service: PlansService;
@@ -174,7 +174,7 @@ describe('PlansService', () => {
         translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.PLANS,
-          message: Message.NOT_FOUND,
+          message: UserMessage.NOT_FOUND,
         }),
       ),
     );

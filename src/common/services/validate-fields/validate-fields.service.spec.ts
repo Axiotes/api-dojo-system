@@ -8,7 +8,7 @@ import { ValidateFieldsService } from './validate-fields.service';
 import { TranslateService } from '@ds-services/translate/translate.service';
 import { I18nFiles } from '@ds-enums/i18n-files.enum';
 import { ModuleName } from '@ds-enums/module-name.enum';
-import { Message } from '@ds-enums/message.enum';
+import { UserMessage } from '@ds-enums/user-message.enum';
 
 describe('ValidateFieldsService', () => {
   let service: ValidateFieldsService;
@@ -72,7 +72,7 @@ describe('ValidateFieldsService', () => {
         translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.COMMON,
-          message: Message.EMAIL_EXISTS,
+          message: UserMessage.EMAIL_EXISTS,
         }),
       ),
     );
@@ -100,7 +100,7 @@ describe('ValidateFieldsService', () => {
         translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.COMMON,
-          message: Message.CPF_EXISTS,
+          message: UserMessage.CPF_EXISTS,
         }),
       ),
     );
@@ -141,14 +141,14 @@ describe('ValidateFieldsService', () => {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.COMMON,
-            message: Message.NOT_FOUND,
+            message: UserMessage.NOT_FOUND,
           },
           {
             args: {
               moduleName: translateService.translate({
                 i18nFile: I18nFiles.ERRORS,
                 module: modelName.toUpperCase() as ModuleName,
-                message: Message.MODULE_NAME,
+                message: UserMessage.MODULE_NAME,
               }),
             },
           },
@@ -176,14 +176,14 @@ describe('ValidateFieldsService', () => {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.COMMON,
-            message: Message.IS_DISABLED,
+            message: UserMessage.IS_DISABLED,
           },
           {
             args: {
               moduleName: translateService.translate({
                 i18nFile: I18nFiles.ERRORS,
                 module: modelName.toUpperCase() as ModuleName,
-                message: Message.MODULE_NAME,
+                message: UserMessage.MODULE_NAME,
               }),
             },
           },

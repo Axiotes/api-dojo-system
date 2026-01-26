@@ -4,7 +4,7 @@ import { IsBoolean, IsNumber, IsOptional, Min } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class FindAdminDto {
-  @ApiProperty({ description: 'Número de documentos que serão pulados' })
+  @ApiProperty({ description: 'docs.COMMON.SKIP_DESCRIPTION' })
   @Transform(({ value }) => parseInt(value))
   @IsNumber({}, { message: i18nValidationMessage('errors.COMMON.IS_NUMBER') })
   @Min(0, {
@@ -12,7 +12,7 @@ export class FindAdminDto {
   })
   skip: number;
 
-  @ApiProperty({ description: 'Número de documentos que serão retornados' })
+  @ApiProperty({ description: 'docs.COMMON.LIMIT_DESCRIPTION' })
   @Transform(({ value }) => parseInt(value))
   @IsNumber({}, { message: i18nValidationMessage('errors.COMMON.IS_NUMBER') })
   @Min(1, {
@@ -20,7 +20,7 @@ export class FindAdminDto {
   })
   limit: number;
 
-  @ApiPropertyOptional({ description: 'Status do administrador' })
+  @ApiPropertyOptional({ description: 'docs.COMMON.STATUS_DESCRIPTION' })
   @IsOptional()
   @Transform(({ value }) => value === 'true')
   @IsBoolean({ message: i18nValidationMessage('errors.COMMON.IS_BOOLEAN') })

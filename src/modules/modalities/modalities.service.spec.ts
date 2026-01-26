@@ -13,7 +13,7 @@ import { TeachersService } from '@ds-modules/teachers/teachers.service';
 import { TranslateService } from '@ds-services/translate/translate.service';
 import { I18nFiles } from '@ds-enums/i18n-files.enum';
 import { ModuleName } from '@ds-enums/module-name.enum';
-import { Message } from '@ds-enums/message.enum';
+import { UserMessage } from '@ds-enums/user-message.enum';
 
 describe('ModalitiesService', () => {
   let service: ModalitiesService;
@@ -122,7 +122,7 @@ describe('ModalitiesService', () => {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.MODALITIES,
-            message: Message.NAME_EXISTS,
+            message: UserMessage.NAME_EXISTS,
           },
           { args: { name: modality.name } },
         ),
@@ -167,7 +167,7 @@ describe('ModalitiesService', () => {
         translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.MODALITIES,
-          message: Message.NOT_FOUND,
+          message: UserMessage.NOT_FOUND,
         }),
       ),
     );
@@ -276,7 +276,7 @@ describe('ModalitiesService', () => {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.MODALITIES,
-            message: Message.NAME_EXISTS,
+            message: UserMessage.NAME_EXISTS,
           },
           { args: { name: updateModality.name } },
         ),
@@ -365,14 +365,14 @@ describe('ModalitiesService', () => {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.MODALITIES,
-            message: Message.CANNOT_DEACTIVATE,
+            message: UserMessage.CANNOT_DEACTIVATE,
           },
           {
             args: {
               cause: translateService.translate({
                 i18nFile: I18nFiles.ERRORS,
                 module: ModuleName.MODALITIES,
-                message: Message.CAUSE_PLAN,
+                message: UserMessage.CAUSE_PLAN,
               }),
             },
           },
@@ -411,14 +411,14 @@ describe('ModalitiesService', () => {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.MODALITIES,
-            message: Message.CANNOT_DEACTIVATE,
+            message: UserMessage.CANNOT_DEACTIVATE,
           },
           {
             args: {
               cause: translateService.translate({
                 i18nFile: I18nFiles.ERRORS,
                 module: ModuleName.MODALITIES,
-                message: Message.CAUSE_TEACHER,
+                message: UserMessage.CAUSE_TEACHER,
               }),
             },
           },
@@ -460,14 +460,14 @@ describe('ModalitiesService', () => {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.MODALITIES,
-            message: Message.CANNOT_DEACTIVATE,
+            message: UserMessage.CANNOT_DEACTIVATE,
           },
           {
             args: {
               cause: translateService.translate({
                 i18nFile: I18nFiles.ERRORS,
                 module: ModuleName.MODALITIES,
-                message: Message.CAUSE_CLASS,
+                message: UserMessage.CAUSE_CLASS,
               }),
             },
           },

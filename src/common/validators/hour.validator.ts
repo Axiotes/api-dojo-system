@@ -8,7 +8,7 @@ import { ClassDto } from '@ds-modules/classes/dtos/class.dto';
 import { TranslateService } from '@ds-services/translate/translate.service';
 import { I18nFiles } from '@ds-enums/i18n-files.enum';
 import { ModuleName } from '@ds-enums/module-name.enum';
-import { Message } from '@ds-enums/message.enum';
+import { UserMessage } from '@ds-enums/user-message.enum';
 
 @ValidatorConstraint({ async: false })
 export class HourConstraint implements ValidatorConstraintInterface {
@@ -31,7 +31,7 @@ export class HourConstraint implements ValidatorConstraintInterface {
       {
         i18nFile: I18nFiles.ERRORS,
         module: ModuleName.COMMON,
-        message: Message.HOUR_CONSTRAINT,
+        message: UserMessage.HOUR_CONSTRAINT,
       },
       {
         args: { startHour: start, endHour: end },

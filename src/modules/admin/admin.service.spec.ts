@@ -17,7 +17,7 @@ import { ValidateFieldsService } from '@ds-services/validate-fields/validate-fie
 import { TranslateService } from '@ds-services/translate/translate.service';
 import { I18nFiles } from '@ds-enums/i18n-files.enum';
 import { ModuleName } from '@ds-enums/module-name.enum';
-import { Message } from '@ds-enums/message.enum';
+import { UserMessage } from '@ds-enums/user-message.enum';
 
 describe('AdminService', () => {
   let service: AdminService;
@@ -152,7 +152,7 @@ describe('AdminService', () => {
         await translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ADMIN,
-          message: Message.NOT_FOUND,
+          message: UserMessage.NOT_FOUND,
         }),
       ),
     );
@@ -224,7 +224,7 @@ describe('AdminService', () => {
         await translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ADMIN,
-          message: Message.INVALID_EMAIL_PASSWORD,
+          message: UserMessage.INVALID_EMAIL_PASSWORD,
         }),
       ),
     );
@@ -255,7 +255,7 @@ describe('AdminService', () => {
         await translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ADMIN,
-          message: Message.INVALID_EMAIL_PASSWORD,
+          message: UserMessage.INVALID_EMAIL_PASSWORD,
         }),
       ),
     );
@@ -317,7 +317,7 @@ describe('AdminService', () => {
         await translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ADMIN,
-          message: Message.NOT_FOUND,
+          message: UserMessage.NOT_FOUND,
         }),
       ),
     );
@@ -403,7 +403,7 @@ describe('AdminService', () => {
         await translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.ADMIN,
-          message: Message.EMAIL_EXISTS,
+          message: UserMessage.EMAIL_EXISTS,
         }),
       ),
     );

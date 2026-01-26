@@ -36,7 +36,7 @@ import { Roles } from '@ds-common/decorators/roles.decorator';
 import { TranslateService } from '@ds-services/translate/translate.service';
 import { I18nFiles } from '@ds-enums/i18n-files.enum';
 import { ModuleName } from '@ds-enums/module-name.enum';
-import { Message } from '@ds-enums/message.enum';
+import { UserMessage } from '@ds-enums/user-message.enum';
 
 @Controller('modalities')
 @UseInterceptors(ImageBase64Interceptor)
@@ -124,7 +124,7 @@ export class ModalitiesController {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.COMMON,
-            message: Message.INVALID_ID,
+            message: UserMessage.INVALID_ID,
           },
           { args: { property: 'id' } },
         ),
@@ -217,7 +217,7 @@ export class ModalitiesController {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.COMMON,
-            message: Message.INVALID_ID,
+            message: UserMessage.INVALID_ID,
           },
           { args: { property: 'id' } },
         ),
@@ -269,7 +269,7 @@ export class ModalitiesController {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.COMMON,
-            message: Message.INVALID_ID,
+            message: UserMessage.INVALID_ID,
           },
           { args: { property: 'id' } },
         ),
@@ -282,7 +282,7 @@ export class ModalitiesController {
       data: this.translateService.translate({
         i18nFile: I18nFiles.ERRORS,
         module: ModuleName.MODALITIES,
-        message: Message.DEACTIVATED,
+        message: UserMessage.DEACTIVATED,
       }),
     };
   }
@@ -310,7 +310,7 @@ export class ModalitiesController {
           {
             i18nFile: I18nFiles.ERRORS,
             module: ModuleName.COMMON,
-            message: Message.INVALID_ID,
+            message: UserMessage.INVALID_ID,
           },
           { args: { property: 'id' } },
         ),
@@ -328,7 +328,7 @@ export class ModalitiesController {
       data: this.translateService.translate({
         i18nFile: I18nFiles.ERRORS,
         module: ModuleName.MODALITIES,
-        message: Message.REACTIVATED,
+        message: UserMessage.REACTIVATED,
       }),
     };
   }

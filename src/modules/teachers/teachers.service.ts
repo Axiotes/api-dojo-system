@@ -31,7 +31,7 @@ import { hoursText } from '@ds-common/helpers/hours-text.helper';
 import { logoBase64 } from '@ds-common/helpers/logo-base64.helper';
 import { costEvolution } from '@ds-common/helpers/cost-evolution.helper';
 import { TranslateService } from '@ds-services/translate/translate.service';
-import { Message } from '@ds-enums/message.enum';
+import { UserMessage } from '@ds-enums/user-message.enum';
 import { ModuleName } from '@ds-enums/module-name.enum';
 import { I18nFiles } from '@ds-enums/i18n-files.enum';
 
@@ -156,7 +156,7 @@ export class TeachersService {
         this.translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.TEACHERS,
-          message: Message.NOT_FOUND,
+          message: UserMessage.NOT_FOUND,
         }),
       );
     }
@@ -284,7 +284,7 @@ export class TeachersService {
                 {
                   i18nFile: I18nFiles.ERRORS,
                   module: ModuleName.TEACHERS,
-                  message: Message.COMPATIBLE_CLASS,
+                  message: UserMessage.COMPATIBLE_CLASS,
                 },
                 { args: { modality: classDoc.modality.toString() } },
               ),
@@ -326,7 +326,7 @@ export class TeachersService {
         this.translateService.translate({
           i18nFile: I18nFiles.ERRORS,
           module: ModuleName.TEACHERS,
-          message: Message.CANNOT_DEACTIVATE,
+          message: UserMessage.CANNOT_DEACTIVATE,
         }),
       );
     }

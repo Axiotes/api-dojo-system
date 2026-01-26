@@ -11,14 +11,14 @@ import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class UpdateAdminDto {
   @ApiProperty({
-    description: 'Email atual do administrador',
+    description: 'docs.ADMIN.DTOS.EMAIL_DESCRIPTION',
     example: 'email@gmail.com',
   })
   @IsEmail({}, { message: i18nValidationMessage('errors.COMMON.IS_EMAIL') })
   email: string;
 
   @ApiProperty({
-    description: 'Senha atual do administrador',
+    description: 'docs.ADMIN.DTOS.PASSWORD_DESCRIPTION',
     example: 'StrongPassword123',
   })
   @IsNotEmpty({
@@ -30,7 +30,7 @@ export class UpdateAdminDto {
   password: string;
 
   @ApiPropertyOptional({
-    description: 'Novo nome do administrador',
+    description: 'docs.ADMIN.DTOS.NAME_DESCRIPTION',
     example: 'Nome Completo',
   })
   @IsOptional()
@@ -43,7 +43,7 @@ export class UpdateAdminDto {
   newName?: string;
 
   @ApiPropertyOptional({
-    description: 'Novo email do administrador',
+    description: 'docs.ADMIN.DTOS.NEW_PASSWORD_DESCRIPTION',
     example: 'email@gmail.com',
   })
   @IsOptional()
@@ -51,8 +51,7 @@ export class UpdateAdminDto {
   newEmail?: string;
 
   @ApiProperty({
-    description:
-      'Senha do administrador (Mín. 8 caracteres, 1 maiúscula, 1 minúscula, 1 número)',
+    description: 'docs.ADMIN.DTOS.PASSWORD_DESCRIPTION_HINT',
     minLength: 8,
     example: 'StrongPassword123',
   })
