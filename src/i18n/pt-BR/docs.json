@@ -85,5 +85,24 @@
     "DTOS": {
         "MODALITY_DESCRIPTION": "Modalidade da turma"
     }
+  },
+  "MODALITIES": {
+    "REGISTER_SUMMARY": "Cadastra uma nova modalidade",
+    "REGISTER_DESCRIPTION": "Este endpoint permite que você cadastre uma nova modalidade para a academia. Apenas usuários com token jwt e cargos 'admin' podem utilizar este endpoint",
+    "NAME_DESCRIPTION": "Nome da modalidade",
+    "NAME_EXAMPLE": "Judô",
+    "DESCRIPTION_DESCRIPTION": "Descrição da modalidade",
+    "DESCRIPTION_EXAMPLE": "O Judô é uma arte marcial de origem japonesa, criada em 1882 pelo mestre Jigoro Kano.",
+    "IMAGE_DESCRIPTION": "Imagem da modalidade (jpg, jpeg, png, gif)",
+    "FIND_BY_ID_SUMMARY": "Busca uma modalidade por ID",
+    "FIND_BY_ID_DESCRIPTION": "Este endpoint permite que você busque uma modalidade por ID",
+    "FIND_ALL_SUMMARY": "Busca todas as modalidades",
+    "FIND_ALL_DESCRIPTION": "Este endpoint permite que você busque todas as modalidades",
+    "UPDATE_SUMMARY": "Atualiza os dados de uma modalidade",
+    "UPDATE_DESCRIPTION": "Este endpoint permite que você atualize os dados de uma modalidade com base no ID. Apenas usuários com token jwt e cargos 'admin' podem utilizar este endpoint",
+    "DEACTIVATE_SUMMARY": "Desativa uma modalidade ativa",
+    "DEACTIVATE_DESCRIPTION": "Este endpoint permite que você desative uma modalidade ativa com base no ID. Apenas usuários com token JWT e cargos 'admin' podem utilizar este endpoint. Ao ser desativado, não poderá ser vinculado a nenhuma turma, plano ou professor, logo, deverá ser desvinculado de todos eles antes de ser inativado.",
+    "REACTIVATE_SUMMARY": "Reativa uma modalidade inativa",
+    "REACTIVATE_DESCRIPTION": "Este endpoint permite que você reative uma modalidade inativa com base no ID. Apenas usuários com token jwt e cargos 'admin' podem utilizar este endpoint"
   }
 }

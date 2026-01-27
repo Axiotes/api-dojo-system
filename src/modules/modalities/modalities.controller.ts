@@ -49,9 +49,8 @@ export class ModalitiesController {
 
   @ApiCookieAuth()
   @ApiOperation({
-    summary: 'Cadastra uma nova modalidade',
-    description:
-      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+    summary: 'docs.MODALITIES.REGISTER_SUMMARY',
+    description: 'docs.MODALITIES.REGISTER_DESCRIPTION',
   })
   @ApiBody({
     schema: {
@@ -59,18 +58,18 @@ export class ModalitiesController {
       properties: {
         name: {
           type: 'string',
-          description: 'Nome da modalidade',
-          example: 'Judô',
+          description: 'docs.MODALITIES.NAME_DESCRIPTION',
+          example: 'docs.MODALITIES.NAME_EXAMPLE',
         },
         description: {
           type: 'string',
-          description: 'Descrição da modalidade',
-          example: `O Judô é uma arte marcial de origem japonesa, criada em 1882 pelo mestre Jigoro Kano.`,
+          description: 'docs.MODALITIES.DESCRIPTION_DESCRIPTION',
+          example: `docs.MODALITIES.DESCRIPTION_EXAMPLE`,
         },
         image: {
           type: 'string',
           format: 'binary',
-          description: 'Imagem da modalidade (jpg, jpeg, png, gif)',
+          description: 'docs.MODALITIES.IMAGE_DESCRIPTION',
         },
       },
       required: ['name', 'description', 'image'],
@@ -106,7 +105,8 @@ export class ModalitiesController {
   }
 
   @ApiOperation({
-    summary: 'Buscar modalidade por ID',
+    summary: 'docs.MODALITIES.FIND_BY_ID_SUMMARY',
+    description: 'docs.MODALITIES.FIND_BY_ID_DESCRIPTION',
   })
   @Throttle({
     default: {
@@ -142,7 +142,8 @@ export class ModalitiesController {
   }
 
   @ApiOperation({
-    summary: 'Buscar todas as modalidades com paginação e filtro por status',
+    summary: 'docs.MODALITIES.FIND_ALL_SUMMARY',
+    description: 'docs.MODALITIES.FIND_ALL_DESCRIPTION',
   })
   @Throttle({
     default: {
@@ -168,9 +169,8 @@ export class ModalitiesController {
 
   @ApiCookieAuth()
   @ApiOperation({
-    summary: 'Atualiza dados da modalidade',
-    description:
-      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+    summary: 'docs.MODALITIES.UPDATE_SUMMARY',
+    description: 'docs.MODALITIES.UPDATE_DESCRIPTION',
   })
   @ApiBody({
     schema: {
@@ -178,18 +178,18 @@ export class ModalitiesController {
       properties: {
         name: {
           type: 'string',
-          description: 'Novo nome da modalidade',
-          example: 'Judô',
+          description: 'docs.MODALITIES.NAME_DESCRIPTION',
+          example: 'docs.MODALITIES.NAME_EXAMPLE',
         },
         description: {
           type: 'string',
-          description: 'Nova descrição da modalidade',
-          example: `O Judô é uma arte marcial de origem japonesa, criada em 1882 pelo mestre Jigoro Kano.`,
+          description: 'docs.MODALITIES.DESCRIPTION_DESCRIPTION',
+          example: `docs.MODALITIES.DESCRIPTION_EXAMPLE`,
         },
         image: {
           type: 'string',
           format: 'binary',
-          description: 'Nova imagem da modalidade (jpg, jpeg, png, gif)',
+          description: 'docs.MODALITIES.IMAGE_DESCRIPTION',
         },
       },
       required: [],
@@ -246,10 +246,8 @@ export class ModalitiesController {
   }
 
   @ApiOperation({
-    summary: 'Desativar modalidade',
-    description: `Apenas usuários com token JWT e cargos "admin" podem utilizar este endpoint.
-      Ao ser desativado, não poderá ser vinculado a nenhuma turma, plano ou professor,
-      logo, deverá ser desvinculado de todos eles antes de ser inativado.`,
+    summary: 'docs.MODALITIES.DEACTIVATE_SUMMARY',
+    description: `docs.MODALITIES.DEACTIVATE_DESCRIPTION`,
   })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles('admin')
@@ -288,9 +286,8 @@ export class ModalitiesController {
   }
 
   @ApiOperation({
-    summary: 'Reativar professor',
-    description:
-      'Apenas usuários com token jwt e cargos "admin" podem utilizar este endpoint',
+    summary: 'docs.MODALITIES.REACTIVATE_SUMMARY',
+    description: 'docs.MODALITIES.REACTIVATE_DESCRIPTION',
   })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles('admin')
